@@ -6,7 +6,7 @@
         <div class="card">
             <div class="card-header border-bottom d-flex justify-content-between">
                 <h5 class="mb-0">Create Exam</h5>
-                <a href="{% url 'exam_list' %}" class="btn btn-sm btn-label-secondary">← Back</a>
+                <a href="{% url 'exam_list' %}" class="btn btn-sm btn-label-primary">← Back</a>
             </div>
             <div class="card-body mt-3">
                 <form method="POST">
@@ -47,7 +47,7 @@
                             <input type="text" name="academic_year" class="form-control" placeholder="e.g. 2025-2026">
                         </div>
                         <div class="col-12 d-flex justify-content-end gap-2">
-                            <a href="{% url 'exam_list' %}" class="btn btn-label-secondary">Cancel</a>
+                            <a href="{% url 'exam_list' %}" class="btn btn-label-danger">Cancel</a>
                             <button type="submit" class="btn btn-primary">Create &amp; Enter Marks</button>
                         </div>
                     </div>

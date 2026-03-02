@@ -6,7 +6,7 @@
         <div class="card">
             <div class="card-header border-bottom d-flex justify-content-between">
                 <h5 class="mb-0">{{ action }} Calendar Event</h5>
-                <a href="{% url 'year_calendar' %}" class="btn btn-sm btn-label-secondary">← Calendar</a>
+                <a href="{% url 'year_calendar' %}" class="btn btn-sm btn-label-primary">← Calendar</a>
             </div>
             <div class="card-body mt-3">
                 <form method="POST">
@@ -20,9 +20,12 @@
                         <div class="col-md-6">
                             <label class="form-label">Event Type</label>
                             <select name="event_type" class="form-select">
-                                {% for val, label in event_types %}<option value="{{ val }}" {% if event.event_type==val
-                                    %}selected{% endif %}>{{ label }}</option>{% endfor %}
-                            </select>
+    {% for val, label in event_types %}
+        <option value="{{ val }}" {% if event.event_type == val %}selected{% endif %}>
+            {{ label }}
+        {{ label }}</option>
+    {% endfor %}
+</select>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Start Date <span class="text-danger">*</span></label>
@@ -41,21 +44,26 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Applies To</label>
-                            <select name="student_class" class="form-select">
-                                <option value="">-- Class Specific --</option>
-                                {% for c in classes %}<option value="{{ c.id }}" {% if event.student_class_id==c.id
-                                    %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
-                            </select>
+                           <select name="student_class" class="form-select">
+    <option value="">-- Class Specific --</option>
+    {% for c in classes %}
+        <option value="{{ c.id }}" {% if event.student_class_id == c.id %}selected{% endif %}>
+            {{ c.name }}
+        </option>
+    {% endfor %}
+</select>
                         </div>
                         <div class="col-md-6 d-flex align-items-end">
                             <div class="form-check">
-                                <input type="checkbox" name="applies_to_all" class="form-check-input" id="applyAll" {%
-                                    if event.applies_to_all or not event %}checked{% endif %}>
-                                <label class="form-check-label fw-bold" for="applyAll">Applies to All Students</label>
-                            </div>
+    <input type="checkbox" name="applies_to_all" class="form-check-input" id="applyAll" 
+           {% if event.applies_to_all or not event %}checked{% endif %}>
+    <label class="form-check-label fw-bold" for="applyAll">
+        Applies to All Students
+    </label>
+</div>
                         </div>
                         <div class="col-12 d-flex justify-content-end gap-2">
-                            <a href="{% url 'year_calendar' %}" class="btn btn-label-secondary">Cancel</a>
+                            <a href="{% url 'year_calendar' %}" class="btn btn-label-danger">Cancel</a>
                             <button type="submit" class="btn btn-primary">Save Event</button>
                         </div>
                     </div>

@@ -1026,7 +1026,7 @@ def class_academic_report(request, pk):
 def class_teacher_dashboard(request):
     if request.user.role != 'Teacher':
         messages.error(request, 'Access denied.')
-        return redirect('dashboard')
+        return redirect('index')
     
     assignments = ClassTeacher.objects.filter(teacher=request.user)
     return render(request, 'students/class_teacher_dashboard.html', {'assignments': assignments})

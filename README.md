@@ -86,7 +86,7 @@ A comprehensive **School Management System** built with Django, PostgreSQL, and 
 ### 1. Clone the Repository
 ```bash
 git clone <your-repo-url>
-cd school
+cd schoolLanding Page
 ```
 
 ### 2. Create Virtual Environment

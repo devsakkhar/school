@@ -6,7 +6,7 @@
         <div class="card">
             <div class="card-header border-bottom d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">{{ action }} Exam Routine Entry</h5>
-                <a href="{% url 'exam_routine_home' %}" class="btn btn-sm btn-label-secondary">← Back</a>
+                <a href="{% url 'exam_routine_home' %}" class="btn btn-sm btn-label-primary">← Back</a>
             </div>
             <div class="card-body mt-3">
                 <form method="POST">
@@ -80,7 +80,7 @@
                         </div>
 
                         <div class="col-12 d-flex justify-content-end gap-2 mt-2">
-                            <a href="{% url 'exam_routine_home' %}" class="btn btn-label-secondary">Cancel</a>
+                            <a href="{% url 'exam_routine_home' %}" class="btn btn-label-danger">Cancel</a>
                             <button type="submit" class="btn btn-primary">Save Entry</button>
                         </div>
                     </div>
