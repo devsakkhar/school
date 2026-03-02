@@ -17,6 +17,7 @@ urlpatterns = [
     path('online-exam/', include('online_exam.urls')),
     path('routines/', include('routines.urls')),
     path('sms/', include('sms.urls')),
+    path('staff/', include('staff.urls')),
     path('', include('accounts.urls')),
 ]
 

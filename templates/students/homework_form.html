@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Assign Homework{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header border-bottom">
+                <h5 class="mb-0">Assign Homework</h5>
+            </div>
+            <div class="card-body mt-3">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Class <span class="text-danger">*</span></label>
+                            <select name="student_class" id="classSelect" class="form-select" required>
+                                <option value="">-- Class --</option>
+                                {% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Section (Optional)</label>
+                            <select name="section" id="sectionSelect" class="form-select">
+                                <option value="">-- All Sections --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Subject <span class="text-danger">*</span></label>
+                            <select name="subject" class="form-select" required>
+                                <option value="">-- Subject --</option>
+                                {% for s in subjects %}<option value="{{ s.id }}">{{ s.name }} ({{ s.student_class.name
+                                    }})</option>{% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label">Title <span class="text-danger">*</span></label>
+                            <input type="text" name="title" class="form-control" required
+                                placeholder="e.g. Algebra Chapter 3 Equations">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Due Date <span class="text-danger">*</span></label>
+                            <input type="date" name="due_date" class="form-control" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea name="description" class="form-control" rows="4" required></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Attachment (Optional)</label>
+                            <input type="file" name="attachment" class="form-control">
+                        </div>
+
+                        <div class="col-12 text-end mt-4">
+                            <a href="{% url 'homework_list' %}" class="btn btn-label-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Assign Homework</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('classSelect').addEventListener('change', function () {
+        const classId = this.value;
+        const secSelect = document.getElementById('sectionSelect');
+        secSelect.innerHTML = '<option value="">-- All Sections --</option>';
+        if (classId) {
+            fetch(`/students/get-sections/?class_id=${classId}`)
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(sec => {
+                        const opt = document.createElement('option');
+                        opt.value = sec.id;
+                        opt.textContent = sec.name;
+                        secSelect.appendChild(opt);
+                    });
+                });
+        }
+    });
+</script>
+{% endblock %}

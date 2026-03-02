@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block title %}Fee Receipt - #{{ payment.pk }}{% endblock %}
+{% block content %}
+<div class="row mb-4 print-hide">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Payment Receipt</h4>
+            <small class="text-muted">Receipt No: <strong>#{{ payment.pk|stringformat:"05d" }}</strong></small>
+        </div>
+        <button onclick="window.print()" class="btn btn-primary"><i class="ti tabler-printer me-1"></i> Print
+            Receipt</button>
+    </div>
+</div>
+
+<div class="card print-card border-0 print-border">
+    <div class="card-body p-4 p-md-5">
+
+        <!-- Receipt Header -->
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-4 mb-4">
+            <div class="d-flex align-items-center">
+                {% if config.logo %}
+                <img src="{{ config.logo.url }}" alt="School Logo" height="60" class="me-3">
+                {% endif %}
+                <div>
+                    <h3 class="mb-1 fw-bold text-primary">{{ config.name|default:"School Name" }}</h3>
+                    <p class="mb-0 text-muted" style="font-size: 0.9rem;">
+                        {{ config.address|default:"School Address" }}<br>
+                        Phone: {{ config.phone|default:"N/A" }} | Email: {{ config.email|default:"N/A" }}
+                    </p>
+                </div>
+            </div>
+            <div class="text-end">
+                <h2 class="text-uppercase fw-bold text-muted mb-1">Receipt</h2>
+                <p class="mb-0"><strong>Receipt No:</strong> #{{ payment.pk|stringformat:"05d" }}</p>
+                <p class="mb-0"><strong>Date:</strong> {{ payment.payment_date|date:"d M Y" }}</p>
+            </div>
+        </div>
+
+        <!-- Student Details -->
+        <div class="row mb-4">
+            <div class="col-8">
+                <h6 class="text-muted text-uppercase fw-bold mb-2">Received From</h6>
+                <p class="mb-1"><strong>Name:</strong> {{ student.user.get_full_name }}</p>
+                <p class="mb-1"><strong>Admission No:</strong> {{ student.admission_number }}</p>
+                <p class="mb-1"><strong>Class:</strong> {{ student.current_class.name }} {% if student.section %}({{
+                    student.section.name }}){% endif %}</p>
+            </div>
+            <div class="col-4 text-end">
+                <h6 class="text-muted text-uppercase fw-bold mb-2">Payment Details</h6>
+                <p class="mb-1"><strong>Payment Mode:</strong> Cash/Bank</p>
+                <p class="mb-1"><strong>Received By:</strong> {{ payment.received_by.get_full_name|default:"Admin" }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Payment Breakdown -->
+        <table class="table table-bordered mb-4">
+            <thead class="table-light">
+                <tr>
+                    <th>S.N.</th>
+                    <th>Fee Description</th>
+                    <th class="text-end">Amount Paid (৳)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>
+                        <strong>{{ payment.fee_type.name }}</strong><br>
+                        {% if payment.notes %}<small class="text-muted">{{ payment.notes }}</small>{% endif %}
+                    </td>
+                    <td class="text-end fw-bold">{{ payment.amount_paid|floatformat:2 }}</td>
+                </tr>
+            </tbody>
+            <tfoot class="table-light">
+                <tr>
+                    <td colspan="2" class="text-end fw-bold text-uppercase">Total Amount Paid:</td>
+                    <td class="text-end fw-bold text-success fs-5">৳ {{ payment.amount_paid|floatformat:2 }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- Outstanding Balance summary -->
+        <div class="d-flex justify-content-end mb-5">
+            <div class="bg-label-primary rounded p-3 text-end" style="min-width: 250px;">
+                <p class="mb-1 text-muted">Outstanding Balance</p>
+                <h4 class="mb-0 {% if outstanding_balance > 0 %}text-danger{% else %}text-success{% endif %}">
+                    ৳ {{ outstanding_balance|floatformat:2 }}
+                </h4>
+            </div>
+        </div>
+
+        <div class="mt-4 pt-4 border-top">
+            <p class="text-muted text-center" style="font-size: 0.85rem;">
+                * This is a computer-generated receipt and signature is optional if printed directly from the system.
+            </p>
+            <div class="row mt-5 pt-3">
+                <div class="col-6">
+                    <div style="border-top: 1px solid #000; display: inline-block; padding-top: 5px; width: 150px;"
+                        class="text-center">Student / Guardian</div>
+                </div>
+                <div class="col-6 text-end">
+                    <div style="border-top: 1px solid #000; display: inline-block; padding-top: 5px; width: 150px;"
+                        class="text-center">Authorized Signatory</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    @media print {
+
+        .print-hide,
+        .layout-menu,
+        .layout-navbar {
+            display: none !important;
+        }
+
+        .content-wrapper,
+        .layout-page {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .print-card {
+            box-shadow: none !important;
+            margin: 0;
+        }
+
+        .print-border {
+            border: 1px dashed #bbb !important;
+            border-radius: 0;
+        }
+
+        body {
+            background-color: white !important;
+            font-size: 11pt;
+        }
+
+        .table {
+            border-color: #333 !important;
+        }
+
+        .table-light {
+            background-color: #eee !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .bg-label-primary {
+            background-color: #e8f0fe !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+{% endblock %}

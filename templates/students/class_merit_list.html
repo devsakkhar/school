@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Merit List - {{ student_class.name }}{% endblock %}
+{% block content %}
+<div class="row mb-4 print-hide">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Yearly Merit List</h4>
+            <small class="text-muted">Consolidated ranking for <strong>{{ student_class.name }}</strong></small>
+        </div>
+        <button onclick="window.print()" class="btn btn-primary"><i class="ti tabler-printer me-1"></i> Print
+            List</button>
+    </div>
+</div>
+
+<div class="card print-card">
+    <div class="card-body p-4 p-md-5">
+        <div class="text-center mb-5 pb-3 border-bottom">
+            <h3 class="fw-bold mb-1">{{ config.name|default:"School Name" }}</h3>
+            <h5>Academic Merit List — {{ config.current_academic_year|default:"2025-2026" }}</h5>
+            <h6 class="text-muted mt-2">Class: <strong>{{ student_class.name }}</strong></h6>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle text-center overflow-hidden">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 80px;">Rank</th>
+                        <th class="text-start">Student Name</th>
+                        <th>Roll No</th>
+                        <th>Section</th>
+                        <th>Total Marks</th>
+                        <th>Percentage</th>
+                        <th>Overall Grade</th>
+                        <th class="print-hide">Transcript</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in rankings %}
+                    <tr>
+                        <td>
+                            {% if r.rank == 1 %}
+                            <span class="badge bg-success fs-6 px-3 py-2"><i class="ti tabler-medal text-white"></i>
+                                1st</span>
+                            {% elif r.rank == 2 %}
+                            <span class="badge bg-primary fs-6 px-3 py-2">2nd</span>
+                            {% elif r.rank == 3 %}
+                            <span class="badge bg-info fs-6 px-3 py-2">3rd</span>
+                            {% else %}
+                            <span class="fs-6 fw-bold text-muted">{{ r.rank }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-start fw-bold">{{ r.student.user.get_full_name }}</td>
+                        <td>{{ r.student.roll_number|default:"-" }}</td>
+                        <td>{{ r.student.section.name|default:"-" }}</td>
+                        <td class="fw-bold">{{ r.total_marks|floatformat:0 }} / {{ r.max_marks|floatformat:0 }}</td>
+                        <td>{{ r.percentage }}%</td>
+                        <td>
+                            {% if r.percentage >= 80 %}A+
+                            {% elif r.percentage >= 70 %}A
+                            {% elif r.percentage >= 60 %}B
+                            {% elif r.percentage >= 50 %}C
+                            {% elif r.percentage >= 33 %}D
+                            {% elif r.percentage > 0 %}F
+                            {% else %}-{% endif %}
+                        </td>
+                        <td class="print-hide">
+                            <a href="{% url 'academic_transcript' r.student.pk %}"
+                                class="btn btn-sm btn-label-primary">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-muted py-5">No students found for this class.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <p class="text-muted text-center mt-5 print-only" style="display:none;">Generated on {% now "jS F Y H:i" %}</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    @media print {
+
+        .print-hide,
+        .layout-menu,
+        .layout-navbar {
+            display: none !important;
+        }
+
+        .content-wrapper,
+        .layout-page {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .print-card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        body {
+            background-color: white !important;
+            font-size: 12pt;
+        }
+
+        .print-only {
+            display: block !important;
+        }
+
+        .table-dark th {
+            background-color: #333 !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .badge {
+            border: 1px solid #000;
+            color: #000 !important;
+            background: transparent !important;
+        }
+    }
+</style>
+{% endblock %}

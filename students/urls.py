@@ -45,6 +45,7 @@ urlpatterns = [
     path('attendance/', views.attendance_home, name='attendance_home'),
     path('attendance/take/', views.attendance_take, name='attendance_take'),
     path('attendance/report/', views.attendance_report, name='attendance_report'),
+    path('attendance/analytics/', views.attendance_analytics, name='attendance_analytics'),
     
     # Fee Management
     path('fees/', views.fee_list, name='fee_list'),
@@ -53,6 +54,7 @@ urlpatterns = [
     path('fees/<int:pk>/delete/', views.fee_type_delete, name='fee_type_delete'),
     path('fees/payments/', views.fee_payments, name='fee_payments'),
     path('fees/record/', views.record_payment, name='record_payment'),
+    path('fees/receipt/<int:payment_id>/', views.fee_receipt_print, name='fee_receipt_print'),
     
     # Academic Results
     path('exams/', views.exam_list, name='exam_list'),
@@ -73,4 +75,16 @@ urlpatterns = [
     # Bulk Notifications
     path('notifications/', views.notifications_list, name='notifications_list'),
     path('notifications/send/', views.send_notification, name='send_notification'),
+    path('notifications/mark-read/', views.mark_notifications_read, name='mark_notifications_read'),
+
+    # Class Teacher & Homework
+    path('class-teacher/dashboard/', views.class_teacher_dashboard, name='class_teacher_dashboard'),
+    path('homework/', views.homework_list, name='homework_list'),
+    path('homework/create/', views.homework_create, name='homework_create'),
+    path('homework/<int:pk>/', views.homework_detail, name='homework_detail'),
+    path('homework/<int:pk>/evaluate/<int:sub_pk>/', views.homework_evaluate, name='homework_evaluate'),
+
+    # Academic Transcript & Merit List
+    path('<int:student_id>/transcript/', views.academic_transcript, name='academic_transcript'),
+    path('classes/<int:class_id>/merit-list/', views.class_merit_list, name='class_merit_list'),
 ]

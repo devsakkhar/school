@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Class Teacher Dashboard{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Class Teacher Dashboard</h4>
+            <small class="text-muted">Manage your assigned classes.</small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for assignment in assignments %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title fw-bold text-primary">{{ assignment.student_class.name }}</h5>
+                {% if assignment.section %}<h6 class="card-subtitle mb-2 text-muted">Section: {{ assignment.section.name
+                    }}</h6>{% endif %}
+                <p class="mb-1"><strong>Academic Year:</strong> {{ assignment.academic_year }}</p>
+            </div>
+            <div class="card-footer bg-transparent border-top">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'attendance_home' %}" class="btn btn-sm btn-outline-primary w-100">Take
+                        Attendance</a>
+                    <a href="{% url 'homework_list' %}" class="btn btn-sm btn-outline-info w-100">Manage Homework</a>
+                    <a href="{% url 'exam_list' %}" class="btn btn-sm btn-outline-success w-100">View Results</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="card py-5">
+            <h5 class="text-muted">You have no assigned classes as a Class Teacher.</h5>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

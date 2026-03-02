@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 class StudentClass(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -283,6 +284,66 @@ class StudentResult(models.Model):
             else: self.grade = 'F'
         super().save(*args, **kwargs)
 
+
+# ══════════════════════════════════════════════════════════
+# Module 2: Enhanced Academics
+# ══════════════════════════════════════════════════════════
+
+class ClassTeacher(models.Model):
+    student_class = models.ForeignKey(StudentClass, on_delete=models.CASCADE, related_name='class_teachers')
+    section = models.ForeignKey(StudentSection, on_delete=models.SET_NULL, null=True, blank=True)
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'role': 'Teacher'})
+    academic_year = models.CharField(max_length=20, default='2025-2026')
+
+    class Meta:
+        unique_together = ('student_class', 'section', 'academic_year')
+
+    def __str__(self):
+        sec = f" / {self.section.name}" if self.section else ""
+        return f"{self.teacher.get_full_name()} - {self.student_class.name}{sec}"
+
+def homework_upload_path(instance, filename):
+    return f"homework/{instance.student_class.id}/{instance.subject.id}/{filename}"
+
+class Homework(models.Model):
+    student_class = models.ForeignKey(StudentClass, on_delete=models.CASCADE)
+    section = models.ForeignKey(StudentSection, on_delete=models.SET_NULL, null=True, blank=True)
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE)
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    issue_date = models.DateField(default=timezone.now)
+    due_date = models.DateField()
+    attachment = models.FileField(upload_to=homework_upload_path, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.student_class} - {self.subject})"
+
+def submission_upload_path(instance, filename):
+    return f"homework_submissions/{instance.homework.id}/{instance.student.id}/{filename}"
+
+class HomeworkSubmission(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Submitted', 'Submitted'),
+        ('Evaluated', 'Evaluated')
+    ]
+    homework = models.ForeignKey(Homework, on_delete=models.CASCADE, related_name='submissions')
+    student = models.ForeignKey('Student', on_delete=models.CASCADE, related_name='homework_submissions')
+    submission_date = models.DateTimeField(auto_now_add=True)
+    attachment = models.FileField(upload_to=submission_upload_path, null=True, blank=True)
+    student_remarks = models.TextField(blank=True, null=True)
+    teacher_remarks = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Submitted')
+    marks_obtained = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    max_marks = models.DecimalField(max_digits=5, decimal_places=2, default=10.00)
+
+    class Meta:
+        unique_together = ('homework', 'student')
+
+    def __str__(self):
+        return f"{self.student} - {self.homework.title} ({self.status})"
 # ─────────────────────────────────────────
 # Bulk Notification
 # ─────────────────────────────────────────
@@ -375,3 +436,21 @@ class ExamSubjectResult(models.Model):
             elif pct >= 33: self.grade = 'D'
             else:           self.grade = 'F'
         super().save(*args, **kwargs)
+
+# ══════════════════════════════════════════════════════════
+# In-App Notifications
+# ══════════════════════════════════════════════════════════
+
+class InAppNotification(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    link = models.CharField(max_length=255, blank=True, null=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user} - {self.title}"

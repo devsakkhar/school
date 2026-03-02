@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}Attendance Analytics{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Attendance Analytics</h4>
+            <small class="text-muted">Overview of student attendance trends & warnings.</small>
+        </div>
+        <a href="{% url 'attendance_home' %}" class="btn btn-sm btn-label-secondary">← Back to Attendance</a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Key Metrics -->
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100">
+            <div class="card-body pb-0">
+                <div class="card-icon mb-3"><span class="badge bg-label-primary rounded p-2"><i
+                            class="ti tabler-calendar-stats ti-sm"></i></span></div>
+                <h4 class="card-title mb-1">{{ overall_percentage }}%</h4>
+                <p class="mb-2 text-muted">Overall Attendance<br>(Last 30 Days)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100 border-success">
+            <div class="card-body pb-0">
+                <div class="card-icon mb-3"><span class="badge bg-label-success rounded p-2"><i
+                            class="ti tabler-check ti-sm"></i></span></div>
+                <h4 class="card-title mb-1 text-success">{{ present_count }}</h4>
+                <p class="mb-2 text-muted">Total Present<br>(Last 30 Days)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100 border-danger">
+            <div class="card-body pb-0">
+                <div class="card-icon mb-3"><span class="badge bg-label-danger rounded p-2"><i
+                            class="ti tabler-user-x ti-sm"></i></span></div>
+                <h4 class="card-title mb-1 text-danger">{{ absent_count }}</h4>
+                <p class="mb-2 text-muted">Total Absences<br>(Last 30 Days)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100 border-warning">
+            <div class="card-body pb-0">
+                <div class="card-icon mb-3"><span class="badge bg-label-warning rounded p-2"><i
+                            class="ti tabler-clock-exclamation ti-sm"></i></span></div>
+                <h4 class="card-title mb-1 text-warning">{{ late_count }}</h4>
+                <p class="mb-2 text-muted">Total Late arrivals<br>(Last 30 Days)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Chart -->
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header border-bottom">
+                <h5 class="mb-0">7-Day Attendance Trend</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="attendanceChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning List -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header border-bottom bg-danger text-white">
+                <h5 class="mb-0 text-white"><i class="ti tabler-alert-triangle me-1"></i> Attendance Warnings <small>(<
+                            75%)</small>
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush rounded-0 rounded-bottom">
+                    {% for w in warning_students %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                        <div>
+                            <p class="mb-0 fw-bold">{{ w.student.user.get_full_name }}</p>
+                            <small class="text-muted">{{ w.student.current_class }} | Absences: {{ w.absences }}</small>
+                        </div>
+                        <span class="badge bg-label-danger fs-6">{{ w.percentage }}%</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center p-5 text-muted">No students currently below 75% attendance
+                        criterion.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+
+    const labels = {{ chart_labels| safe }};
+    const dataPresent = {{ chart_data_present| safe }};
+    const dataAbsent = {{ chart_data_absent| safe }};
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Present/Late',
+                    data: dataPresent,
+                    backgroundColor: 'rgba(40, 199, 111, 0.8)',
+                    borderRadius: 4,
+                },
+                {
+                    label: 'Absent',
+                    data: dataAbsent,
+                    backgroundColor: 'rgba(234, 84, 85, 0.8)',
+                    borderRadius: 4,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true }
+            }
+        }
+    });
+</script>
+{% endblock %}

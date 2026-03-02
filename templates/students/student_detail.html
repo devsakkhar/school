@@ -133,6 +133,8 @@
                     <div class="d-flex justify-content-center flex-wrap gap-2">
                         <a href="{% url 'generate_id_cards' %}?student_id={{ student.pk }}" target="_blank"
                             class="btn btn-label-info"><i class="ti ti tabler-id-badge-2 me-1"></i>Print ID</a>
+                        <a href="{% url 'academic_transcript' student.pk %}"
+                            class="btn btn-label-secondary">Transcript</a>
                         <a href="{% url 'student_update' student.pk %}" class="btn btn-primary">Edit</a>
                         <a href="{% url 'student_delete' student.pk %}"
                             class="btn btn-label-danger suspend-user">Delete</a>

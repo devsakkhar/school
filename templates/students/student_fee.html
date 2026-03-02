@@ -21,6 +21,7 @@
                             <th>Amount</th>
                             <th>Received By</th>
                             <th>Notes</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -31,6 +32,8 @@
                             <td class="fw-bold text-success">৳{{ p.amount_paid }}</td>
                             <td>{{ p.received_by.get_full_name|default:"—" }}</td>
                             <td>{{ p.notes|default:"—" }}</td>
+                            <td><a href="{% url 'fee_receipt_print' p.pk %}" class="btn btn-sm btn-label-info"><i
+                                        class="ti tabler-printer"></i></a></td>
                         </tr>
                         {% empty %}
                         <tr>

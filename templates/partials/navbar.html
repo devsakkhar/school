@@ -1,71 +1,114 @@
 {% load static %}
 <!-- Navbar -->
-          <nav
-            class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
-            id="layout-navbar">
-            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0   d-xl-none ">
-              <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
-                <i class="icon-base ti tabler-menu-2 ti-sm"></i>
-              </a>
-            </div>
+<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+    id="layout-navbar">
+    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0   d-xl-none ">
+        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+            <i class="icon-base ti tabler-menu-2 ti-sm"></i>
+        </a>
+    </div>
 
-            <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-                <!-- User Profile -->
-                <ul class="navbar-nav flex-row align-items-center ms-auto">
-                    <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                        <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                            <div class="avatar avatar-online">
-                            {% if user.image %}
-                                <img src="{{ user.image.url }}" alt class="rounded-circle" style="object-fit: cover;" />
-                            {% else %}
-                                <span class="avatar-initial rounded-circle bg-primary text-white">{{ user.username|make_list|first|upper }}</span>
-                            {% endif %}
-                            </div>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                            <a class="dropdown-item" href="{% url 'profile' %}">
+    <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+        <ul class="navbar-nav flex-row align-items-center ms-auto">
+            <!-- Notification -->
+            <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-1">
+                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown"
+                    data-bs-auto-close="outside" aria-expanded="false">
+                    <i class="icon-base ti tabler-bell ti-md"></i>
+                    {% if unread_notifications_count > 0 %}
+                    <span class="badge bg-danger rounded-pill badge-notifications">{{ unread_notifications_count
+                        }}</span>
+                    {% endif %}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end py-0" style="width: 300px;">
+                    <li class="dropdown-menu-header border-bottom">
+                        <div class="dropdown-header d-flex align-items-center py-3">
+                            <h5 class="text-body mb-0 me-auto">Notification</h5>
+                            <a href="{% url 'mark_notifications_read' %}"
+                                class="btn btn-sm btn-icon btn-text-secondary rounded-pill" title="Mark all as read"><i
+                                    class="ti tabler-mail-opened fs-4"></i></a>
+                        </div>
+                    </li>
+                    <li class="dropdown-notifications-list scrollable-container">
+                        <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                            {% for notif in unread_notifications %}
+                            <li class="list-group-item list-group-item-action dropdown-notifications-item">
                                 <div class="d-flex">
-                                <div class="flex-shrink-0 me-3">
-                                    <div class="avatar avatar-online">
-                                    {% if user.image %}
-                                        <img src="{{ user.image.url }}" alt class="rounded-circle" style="object-fit: cover;" />
-                                    {% else %}
-                                        <span class="avatar-initial rounded-circle bg-primary text-white">{{ user.username|make_list|first|upper }}</span>
-                                    {% endif %}
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ notif.title }}</h6>
+                                        <p class="mb-0" style="font-size: 0.85rem;">{{ notif.message|truncatewords:8 }}
+                                        </p>
+                                        <small class="text-muted">{{ notif.created_at|timesince }} ago</small>
                                     </div>
                                 </div>
-                                <div class="flex-grow-1">
-                                    <span class="fw-medium d-block">{{ user.get_full_name|default:user.username }}</span>
-                                    <small class="text-muted text-capitalize">{{ user.role }}</small>
-                                </div>
-                                </div>
-                            </a>
                             </li>
-                            <li>
-                            <div class="dropdown-divider"></div>
-                            </li>
-                            <li>
-                            <a class="dropdown-item" href="{% url 'profile' %}">
-                                <i class="icon-base ti tabler-user me-2 ti-sm"></i>
-                                <span class="align-middle">My Profile</span>
-                            </a>
-                            </li>
-                            <li>
-                            <div class="dropdown-divider"></div>
-                            </li>
-                            <li>
-                            <form method="POST" action="{% url 'logout' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="dropdown-item w-100 text-start">
-                                    <i class="icon-base ti tabler-logout me-2 ti-sm"></i>
-                                    <span class="align-middle">Log Out</span>
-                                </button>
-                            </form>
-                            </li>
+                            {% empty %}
+                            <li class="list-group-item text-center py-4">No new notifications</li>
+                            {% endfor %}
                         </ul>
                     </li>
                 </ul>
-            </div>
-          </nav>
-          <!-- / Navbar -->
+            </li>
+
+            <!-- User Profile -->
+            <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                    <div class="avatar avatar-online">
+                        {% if user.image %}
+                        <img src="{{ user.image.url }}" alt class="rounded-circle" style="object-fit: cover;" />
+                        {% else %}
+                        <span class="avatar-initial rounded-circle bg-primary text-white">{{
+                            user.username|make_list|first|upper }}</span>
+                        {% endif %}
+                    </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="{% url 'profile' %}">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="avatar avatar-online">
+                                        {% if user.image %}
+                                        <img src="{{ user.image.url }}" alt class="rounded-circle"
+                                            style="object-fit: cover;" />
+                                        {% else %}
+                                        <span class="avatar-initial rounded-circle bg-primary text-white">{{
+                                            user.username|make_list|first|upper }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <span class="fw-medium d-block">{{ user.get_full_name|default:user.username
+                                        }}</span>
+                                    <small class="text-muted text-capitalize">{{ user.role }}</small>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <div class="dropdown-divider"></div>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="{% url 'profile' %}">
+                            <i class="icon-base ti tabler-user me-2 ti-sm"></i>
+                            <span class="align-middle">My Profile</span>
+                        </a>
+                    </li>
+                    <li>
+                        <div class="dropdown-divider"></div>
+                    </li>
+                    <li>
+                        <form method="POST" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item w-100 text-start">
+                                <i class="icon-base ti tabler-logout me-2 ti-sm"></i>
+                                <span class="align-middle">Log Out</span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+<!-- / Navbar -->

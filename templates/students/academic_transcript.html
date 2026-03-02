@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block title %}Academic Transcript - {{ student.user.get_full_name }}{% endblock %}
+{% block content %}
+<div class="row mb-4 print-hide">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Academic Transcript</h4>
+            <small class="text-muted">{{ student.user.get_full_name }} ({{ student.current_class.name }})</small>
+        </div>
+        <div>
+            <a href="{% url 'student_detail' student.pk %}" class="btn btn-label-secondary me-2">← Profile</a>
+            <button onclick="window.print()" class="btn btn-primary"><i class="ti tabler-printer me-1"></i> Print
+                Transcript</button>
+        </div>
+    </div>
+</div>
+
+<div class="card print-card border-0 print-border">
+    <div class="card-body p-5">
+
+        <div class="text-center border-bottom pb-4 mb-4">
+            <h2 class="mb-1 fw-bold text-uppercase"
+                style="color: var(--bs-primary); font-family: 'Merriweather', serif;">{{ config.name|default:"School
+                Name" }}</h2>
+            <p class="mb-2 text-muted">{{ config.address|default:"Address" }} | {{ config.phone|default:"Phone" }}</p>
+            <div class="d-inline-block bg-primary text-white px-4 py-2 rounded-pill mt-2">
+                <h5 class="mb-0 text-white fw-bold">OFFICIAL ACADEMIC TRANSCRIPT</h5>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-6">
+                <p class="mb-1"><strong>Student Name:</strong> {{ student.user.get_full_name }}</p>
+                <p class="mb-1"><strong>Admission No:</strong> {{ student.admission_number }}</p>
+                <p class="mb-1"><strong>Date of Birth:</strong> {{ student.date_of_birth|date:"d M Y" }}</p>
+            </div>
+            <div class="col-6 text-end">
+                <p class="mb-1"><strong>Class:</strong> {{ student.current_class.name }} {% if student.section %}({{
+                    student.section.name }}){% endif %}</p>
+                <p class="mb-1"><strong>Roll Number:</strong> {{ student.roll_number|default:"-" }}</p>
+                <p class="mb-1"><strong>Academic Year:</strong> {{ config.current_academic_year|default:"2025-2026" }}
+                </p>
+            </div>
+        </div>
+
+        {% for exam, results in data.items %}
+        <div class="mb-4">
+            <h5 class="fw-bold bg-light p-2 border-start border-4 border-primary">{{ exam.name }}</h5>
+            <table class="table table-bordered table-sm align-middle mt-2 text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-start">Subject</th>
+                        <th style="width: 15%;">Full Marks</th>
+                        <th style="width: 15%;">Pass Marks</th>
+                        <th style="width: 15%;">Obtained</th>
+                        <th style="width: 15%;">Grade</th>
+                        <th style="width: 15%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in results %}
+                    <tr>
+                        <td class="text-start">{{ r.subject.name }}</td>
+                        <td>{{ r.full_marks }}</td>
+                        <td>{{ r.pass_marks }}</td>
+                        <td><strong>{{ r.marks_obtained|default:"-" }}</strong></td>
+                        <td>{{ r.grade|default:"-" }}</td>
+                        <td>
+                            {% if r.passed %}
+                            <span class="text-success fw-bold">PASS</span>
+                            {% elif r.marks_obtained != None %}
+                            <span class="text-danger fw-bold">FAIL</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% empty %}
+        <div class="alert alert-warning text-center">No exam results recorded yet.</div>
+        {% endfor %}
+
+        <!-- Yearly Summary -->
+        {% if total_max > 0 %}
+        <div class="border rounded p-4 mb-5 bg-label-primary">
+            <div class="row text-center">
+                <div class="col-3 border-end">
+                    <small class="text-muted text-uppercase fw-bold">Total Marks</small>
+                    <h4 class="mb-0 text-primary mt-1">{{ total_obtained|floatformat:0 }} / {{ total_max|floatformat:0
+                        }}</h4>
+                </div>
+                <div class="col-3 border-end">
+                    <small class="text-muted text-uppercase fw-bold">Overall Percentage</small>
+                    <h4 class="mb-0 text-primary mt-1">{{ final_percentage }}%</h4>
+                </div>
+                <div class="col-3 border-end">
+                    <small class="text-muted text-uppercase fw-bold">Final Grade</small>
+                    <h4 class="mb-0 text-primary mt-1 fw-bold">{{ final_grade }}</h4>
+                </div>
+                <div class="col-3">
+                    <small class="text-muted text-uppercase fw-bold">Result</small>
+                    <h4
+                        class="mb-0 mt-1 fw-bold {% if final_grade == 'F' %}text-danger{% else %}text-success{% endif %}">
+                        {% if final_grade == 'F' %}FAILED{% else %}PASSED{% endif %}
+                    </h4>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Footer Signatures -->
+        <div class="row pt-5 mt-5">
+            <div class="col-4 text-center">
+                <div style="border-top: 1px solid #000; padding-top: 10px;">Class Teacher</div>
+            </div>
+            <div class="col-4 text-center">
+                <!-- space -->
+            </div>
+            <div class="col-4 text-center">
+                {% if config.signature %}
+                <img src="{{ config.signature.url }}" alt="Signature" height="50"
+                    style="margin-top:-40px; margin-bottom: 5px;">
+                {% else %}
+                <div style="height: 50px;"></div>
+                {% endif %}
+                <div style="border-top: 1px solid #000; padding-top: 10px;">Principal Signature</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    @media print {
+
+        .print-hide,
+        .layout-menu,
+        .layout-navbar {
+            display: none !important;
+        }
+
+        .content-wrapper,
+        .layout-page {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .print-card {
+            box-shadow: none !important;
+            margin: 0;
+        }
+
+        .print-border {
+            border: 1px solid #ddd !important;
+            border-radius: 8px;
+        }
+
+        body {
+            background-color: white !important;
+            font-size: 13pt;
+        }
+
+        .table {
+            border-color: #333 !important;
+        }
+
+        .table-light {
+            background-color: #eee !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .bg-label-primary {
+            background-color: #e8f0fe !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .bg-primary {
+            background-color: var(--bs-primary) !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+{% endblock %}

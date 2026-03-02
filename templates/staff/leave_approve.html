@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Review Leave{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-7 mx-auto">
+        <div class="card">
+            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Review Leave Request</h5>
+                <a href="{% url 'leave_list' %}" class="btn btn-sm btn-label-secondary">← Back</a>
+            </div>
+            <div class="card-body mt-3">
+                <div class="mb-4">
+                    <table class="table table-bordered mb-0">
+                        <tr>
+                            <th class="bg-light" style="width:150px;">Applicant</th>
+                            <td>{{ leave.applicant.get_full_name }} ({{ leave.applicant.role }})</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Leave Type</th>
+                            <td>{{ leave.leave_type }}</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Duration</th>
+                            <td>{{ leave.start_date|date:"d M Y" }} to {{ leave.end_date|date:"d M Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Reason</th>
+                            <td>{{ leave.reason|linebreaks }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                {% if leave.status == 'Pending' %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Review Remarks (Optional)</label>
+                        <textarea name="review_remarks" class="form-control" rows="2"
+                            placeholder="e.g. Approved with conditions"></textarea>
+                    </div>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="submit" name="status" value="Rejected" class="btn btn-danger">Reject</button>
+                        <button type="submit" name="status" value="Approved" class="btn btn-success">Approve</button>
+                    </div>
+                </form>
+                {% else %}
+                <div
+                    class="alert alert-{% if leave.status == 'Approved' %}success{% else %}danger{% endif %} text-center">
+                    This leave request is already <strong>{{ leave.status }}</strong>.
+                    {% if leave.review_remarks %}<br>Remarks: {{ leave.review_remarks }}{% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

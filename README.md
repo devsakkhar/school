@@ -19,12 +19,15 @@ A comprehensive **School Management System** built with Django, PostgreSQL, and 
 - Exam creation and subject-wise mark entry (marksheet grid)
 - Class Academic Report (ranked) with Print support
 - Individual Student Report Card
-- Attendance Sessions, Mark Attendance, Attendance Report
+- Attendance Sessions, Mark Attendance, Attendance Analytics (Chart.js)
+- Class Teacher Assignment & Dashboard
+- Homework creation, student submission, and evaluation
 
 ### 💰 Finance
 - Fee Types (CRUD)
 - Payment Records
 - Per-Student Fee summary
+- Printable Fee Invoices & Receipts
 
 ### 📡 Online MCQ Exam
 - Question Bank (with difficulty levels)
@@ -43,7 +46,14 @@ A comprehensive **School Management System** built with Django, PostgreSQL, and 
 
 ### 📊 Analytics & Notifications
 - Student Analytics Dashboard (Chart.js)
+- Attendance Analytics Dashboard
 - Bulk Notifications to class/status groups
+- Real-time In-App Notifications (navbar dropdown)
+
+### 👥 HR & Staff Management
+- Teacher & Staff Profiles
+- Leave Request Workflows (Apply & Approve)
+- Payroll Generation & Printable Payslips
 
 ### ⚙️ School Settings
 - Logo, Signature, Contact, Social Links, Leadership info

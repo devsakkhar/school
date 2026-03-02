@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'online_exam',
     'routines',
     'sms',
+    'staff',
 ]
 
 MIDDLEWARE = [
@@ -85,6 +86,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.notification_processor',
             ],
         },
     },

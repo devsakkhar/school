@@ -26,6 +26,8 @@ from .forms import (
 )
 
 CustomUser = get_user_model()
+from .models import ClassTeacher, Homework, HomeworkSubmission, Subject
+
 
 @login_required
 def student_list(request):
@@ -1014,3 +1016,298 @@ def class_academic_report(request, pk):
         'subjects': subjects,
         'rows': rows,
     })
+
+
+# ══════════════════════════════════════════════════════════
+# Module 2: Enhanced Academics (Class Teacher & Homework)
+# ══════════════════════════════════════════════════════════
+
+@login_required
+def class_teacher_dashboard(request):
+    if request.user.role != 'Teacher':
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+    
+    assignments = ClassTeacher.objects.filter(teacher=request.user)
+    return render(request, 'students/class_teacher_dashboard.html', {'assignments': assignments})
+
+@login_required
+def homework_list(request):
+    if request.user.role in ['Admin', 'Principal', 'Teacher']:
+        homeworks = Homework.objects.all().order_by('-created_at')
+        if request.user.role == 'Teacher':
+            homeworks = homeworks.filter(teacher=request.user)
+    elif request.user.role == 'Student':
+        student = getattr(request.user, 'student_profile', None)
+        if student:
+            homeworks = Homework.objects.filter(student_class=student.current_class).order_by('-created_at')
+            if student.section:
+                homeworks = homeworks.filter(models.Q(section=student.section) | models.Q(section__isnull=True))
+        else:
+            homeworks = Homework.objects.none()
+    else:
+        homeworks = Homework.objects.none()
+
+    return render(request, 'students/homework_list.html', {'homeworks': homeworks})
+
+@login_required
+def homework_create(request):
+    if request.user.role != 'Teacher':
+        messages.error(request, 'Only teachers can create homework.')
+        return redirect('homework_list')
+    
+    if request.method == 'POST':
+        student_class_id = request.POST.get('student_class')
+        section_id = request.POST.get('section') or None
+        subject_id = request.POST.get('subject')
+        
+        Homework.objects.create(
+            student_class_id=student_class_id,
+            section_id=section_id,
+            subject_id=subject_id,
+            teacher=request.user,
+            title=request.POST.get('title'),
+            description=request.POST.get('description'),
+            due_date=request.POST.get('due_date'),
+            attachment=request.FILES.get('attachment')
+        )
+        messages.success(request, 'Homework assigned.')
+        return redirect('homework_list')
+
+    classes = StudentClass.objects.all()
+    subjects = Subject.objects.all()
+    return render(request, 'students/homework_form.html', {'classes': classes, 'subjects': subjects})
+
+@login_required
+def homework_detail(request, pk):
+    homework = get_object_or_404(Homework, pk=pk)
+    submissions = homework.submissions.all().select_related('student')
+    
+    student_submission = None
+    if request.user.role == 'Student':
+        student = getattr(request.user, 'student_profile', None)
+        if student:
+            student_submission = submissions.filter(student=student).first()
+            
+            if request.method == 'POST' and not student_submission:
+                HomeworkSubmission.objects.create(
+                    homework=homework,
+                    student=student,
+                    student_remarks=request.POST.get('remarks'),
+                    attachment=request.FILES.get('attachment'),
+                    status='Submitted'
+                )
+                messages.success(request, 'Homework submitted successfully.')
+                return redirect('homework_detail', pk=pk)
+
+    return render(request, 'students/homework_detail.html', {
+        'homework': homework,
+        'submissions': submissions,
+        'student_submission': student_submission
+    })
+
+@login_required
+def homework_evaluate(request, pk, sub_pk):
+    if request.user.role not in ['Admin', 'Principal', 'Teacher']:
+        return redirect('homework_list')
+        
+    submission = get_object_or_404(HomeworkSubmission, pk=sub_pk, homework_id=pk)
+    
+    if request.method == 'POST':
+        submission.marks_obtained = request.POST.get('marks_obtained')
+        submission.teacher_remarks = request.POST.get('teacher_remarks')
+        submission.status = 'Evaluated'
+        submission.save()
+        messages.success(request, 'Submission evaluated.')
+        return redirect('homework_detail', pk=pk)
+        
+    return render(request, 'students/homework_evaluate.html', {'submission': submission})
+
+
+# ══════════════════════════════════════════════════════════
+# Academic Transcript & Merit List
+# ══════════════════════════════════════════════════════════
+
+@login_required
+def academic_transcript(request, student_id):
+    student = get_object_or_404(Student, pk=student_id)
+    # Ensure privacy
+    if request.user.role == 'Student' and getattr(request.user, 'student_profile', None) != student:
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+        
+    exams = Exam.objects.filter(student_class=student.current_class).order_by('start_date')
+    results = ExamSubjectResult.objects.filter(student=student).select_related('exam', 'subject')
+    
+    # Organize by exam
+    data = {}
+    total_obtained = 0
+    total_max = 0
+    for res in results:
+        if res.exam not in data:
+            data[res.exam] = []
+        data[res.exam].append(res)
+        if res.marks_obtained:
+            total_obtained += res.marks_obtained
+            total_max += res.full_marks
+            
+    final_percentage = round((float(total_obtained) / total_max) * 100, 2) if total_max > 0 else 0
+    
+    if final_percentage >= 80: final_grade = 'A+'
+    elif final_percentage >= 70: final_grade = 'A'
+    elif final_percentage >= 60: final_grade = 'B'
+    elif final_percentage >= 50: final_grade = 'C'
+    elif final_percentage >= 33: final_grade = 'D'
+    elif final_percentage > 0: final_grade = 'F'
+    else: final_grade = 'N/A'
+    
+    context = {
+        'student': student,
+        'data': data,
+        'final_percentage': final_percentage,
+        'final_grade': final_grade,
+        'total_obtained': total_obtained,
+        'total_max': total_max,
+        'config': SchoolSettings.objects.first()
+    }
+    return render(request, 'students/academic_transcript.html', context)
+
+
+@login_required
+def class_merit_list(request, class_id):
+    student_class = get_object_or_404(StudentClass, pk=class_id)
+    
+    # Get all students in this class
+    students = Student.objects.filter(current_class=student_class, status='Active')
+    
+    # Calculate total marks for each student across all exams
+    rankings = []
+    for s in students:
+        total = ExamSubjectResult.objects.filter(student=s).aggregate(Sum('marks_obtained'))['marks_obtained__sum'] or 0
+        max_m = ExamSubjectResult.objects.filter(student=s, marks_obtained__isnull=False).aggregate(Sum('full_marks'))['full_marks__sum'] or 0
+        pct = round((float(total) / max_m) * 100, 2) if max_m > 0 else 0
+        rankings.append({
+            'student': s,
+            'total_marks': total,
+            'max_marks': max_m,
+            'percentage': pct
+        })
+        
+    # Sort by total marks descending
+    rankings.sort(key=lambda x: x['total_marks'], reverse=True)
+    
+    # Assign Ranks
+    for i, r in enumerate(rankings):
+        r['rank'] = i + 1
+
+    return render(request, 'students/class_merit_list.html', {
+        'student_class': student_class,
+        'rankings': rankings,
+        'config': SchoolSettings.objects.first()
+    })
+
+
+# ══════════════════════════════════════════════════════════
+# Fee Receipt Print
+# ══════════════════════════════════════════════════════════
+
+@login_required
+def fee_receipt_print(request, payment_id):
+    payment = get_object_or_404(FeePayment, pk=payment_id)
+    student = payment.student
+    config = SchoolSettings.objects.first()
+    
+    # Calculate Outstanding Balance
+    total_fee = student.fee_payments.aggregate(Sum('fee_type__amount'))['fee_type__amount__sum'] or 0
+    total_paid = student.fee_payments.aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
+    outstanding_balance = total_fee - total_paid
+
+    return render(request, 'students/fee_receipt_print.html', {
+        'payment': payment,
+        'student': student,
+        'config': config,
+        'outstanding_balance': outstanding_balance
+    })
+
+
+# ══════════════════════════════════════════════════════════
+# Attendance Analytics Dashboard
+# ══════════════════════════════════════════════════════════
+
+@login_required
+def attendance_analytics(request):
+    if request.user.role not in ['Admin', 'Principal', 'Teacher']:
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+        
+    thirty_days_ago = timezone.now().date() - timedelta(days=30)
+    
+    # 1. Overall Stats (Last 30 Days)
+    records_last_30 = AttendanceRecord.objects.filter(session__date__gte=thirty_days_ago)
+    total_records = records_last_30.count()
+    present_count = records_last_30.filter(status='Present').count()
+    absent_count = records_last_30.filter(status='Absent').count()
+    late_count = records_last_30.filter(status='Late').count()
+    
+    overall_percentage = round((present_count + late_count) / total_records * 100, 1) if total_records > 0 else 0
+    
+    # 2. Daily Attendance Trend for Chart (Last 7 Days)
+    seven_days_ago = timezone.now().date() - timedelta(days=6)
+    sessions = AttendanceSession.objects.filter(date__gte=seven_days_ago).order_by('date')
+    
+    chart_labels = []
+    chart_data_present = []
+    chart_data_absent = []
+    
+    # Aggregate by date
+    daily_data = {}
+    for session in sessions:
+        date_str = session.date.strftime('%b %d')
+        if date_str not in daily_data:
+            daily_data[date_str] = {'Present': 0, 'Absent': 0, 'Late': 0}
+        
+        counts = session.records.values('status').annotate(count=Count('status'))
+        for c in counts:
+            daily_data[date_str][c['status']] += c['count']
+            
+    for date_str, counts in daily_data.items():
+        chart_labels.append(date_str)
+        chart_data_present.append(counts['Present'] + counts['Late'])
+        chart_data_absent.append(counts['Absent'])
+        
+    # 3. Students Warning List (Attendance < 75%)
+    all_students = Student.objects.filter(status='Active')
+    warning_students = []
+    
+    for student in all_students:
+        s_total = AttendanceRecord.objects.filter(student=student).count()
+        if s_total > 5: # Only consider if they have at least 5 records
+            s_present = AttendanceRecord.objects.filter(student=student, status__in=['Present', 'Late']).count()
+            s_pct = (s_present / s_total) * 100
+            if s_pct < 75:
+                warning_students.append({
+                    'student': student,
+                    'percentage': round(s_pct, 1),
+                    'total_classes': s_total,
+                    'absences': s_total - s_present
+                })
+                
+    warning_students.sort(key=lambda x: x['percentage'])
+    
+    return render(request, 'students/attendance_analytics.html', {
+        'overall_percentage': overall_percentage,
+        'present_count': present_count,
+        'absent_count': absent_count,
+        'late_count': late_count,
+        'chart_labels': chart_labels,
+        'chart_data_present': chart_data_present,
+        'chart_data_absent': chart_data_absent,
+        'warning_students': warning_students[:10], # Top 10 worst attendance
+    })
+
+
+@login_required
+def mark_notifications_read(request):
+    # Quick view to mark user's notifications as read
+    InAppNotification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))

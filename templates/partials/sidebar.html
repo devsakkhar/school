@@ -64,6 +64,18 @@
         <div data-i18n="Sections">Sections</div>
       </a>
     </li>
+    <li class="menu-item {% if 'homework' in request.resolver_match.url_name %}active{% endif %}">
+      <a href="{% url 'homework_list' %}" class="menu-link">
+        <i class="menu-icon tf-icons icon-base ti tabler-book"></i>
+        <div data-i18n="Homework">Homework</div>
+      </a>
+    </li>
+    <li class="menu-item {% if 'class_teacher' in request.resolver_match.url_name %}active{% endif %}">
+      <a href="{% url 'class_teacher_dashboard' %}" class="menu-link">
+        <i class="menu-icon tf-icons icon-base ti tabler-chalkboard"></i>
+        <div data-i18n="Class Teacher">Class Teacher</div>
+      </a>
+    </li>
 
     <!-- School Settings -->
     <li class="menu-item {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
@@ -118,6 +130,11 @@
         <li class="menu-item {% if request.resolver_match.url_name == 'attendance_report' %}active{% endif %}">
           <a href="{% url 'attendance_report' %}" class="menu-link">
             <div>Report</div>
+          </a>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'attendance_analytics' %}active{% endif %}">
+          <a href="{% url 'attendance_analytics' %}" class="menu-link">
+            <div>Analytics</div>
           </a>
         </li>
       </ul>
@@ -190,7 +207,8 @@
     </li>
 
     <!-- Online Exam -->
-    <li class="menu-item {% if 'online_exam' in request.resolver_match.url_name or 'question' in request.resolver_match.url_name or 'exam_take' in request.resolver_match.url_name %}active open{% endif %}">
+    <li
+      class="menu-item {% if 'online_exam' in request.resolver_match.url_name or 'question' in request.resolver_match.url_name or 'exam_take' in request.resolver_match.url_name %}active open{% endif %}">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons icon-base ti tabler-device-laptop"></i>
         <div>Online Exam (MCQ)</div>
@@ -215,7 +233,8 @@
     </li>
 
     <!-- Routines -->
-    <li class="menu-item {% if 'routine' in request.resolver_match.url_name or 'calendar' in request.resolver_match.url_name %}active open{% endif %}">
+    <li
+      class="menu-item {% if 'routine' in request.resolver_match.url_name or 'calendar' in request.resolver_match.url_name %}active open{% endif %}">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons icon-base ti tabler-calendar-time"></i>
         <div>Routines</div>
@@ -254,6 +273,32 @@
         <li class="menu-item {% if request.resolver_match.url_name == 'sms_history' %}active{% endif %}">
           <a href="{% url 'sms_history' %}" class="menu-link">
             <div>SMS History</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- HR & Staff -->
+    <li
+      class="menu-item {% if 'teacher' in request.resolver_match.url_name or 'leave' in request.resolver_match.url_name or 'payroll' in request.resolver_match.url_name %}active open{% endif %}">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons icon-base ti tabler-users-group"></i>
+        <div>HR & Staff</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item {% if 'teacher' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'teacher_list' %}" class="menu-link">
+            <div>Teachers</div>
+          </a>
+        </li>
+        <li class="menu-item {% if 'leave' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'leave_list' %}" class="menu-link">
+            <div>Leave Management</div>
+          </a>
+        </li>
+        <li class="menu-item {% if 'payroll' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'payroll_list' %}" class="menu-link">
+            <div>Payroll</div>
           </a>
         </li>
       </ul>

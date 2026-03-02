@@ -18,9 +18,9 @@
                 <select name="class_id" class="form-select" onchange="this.form.submit()">
                     <option value="">All Classes</option>
                     {% for c in classes %}
-                        <option value="{{ c.id }}" {% if class_id == c.id|stringformat:"s" %}selected{% endif %}>
-                            {{ c.name }}
-                        </option>
+                    <option value="{{ c.id }}" {% if class_id==c.id|stringformat:"s" %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
@@ -30,9 +30,9 @@
                 <select name="fee_type_id" class="form-select" onchange="this.form.submit()">
                     <option value="">All Fee Types</option>
                     {% for ft in fee_types %}
-                        <option value="{{ ft.id }}" {% if fee_type_id == ft.id|stringformat:"s" %}selected{% endif %}>
-                            {{ ft.name }}
-                        </option>
+                    <option value="{{ ft.id }}" {% if fee_type_id==ft.id|stringformat:"s" %}selected{% endif %}>
+                        {{ ft.name }}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
@@ -58,6 +58,7 @@
                     <th>Amount Paid</th>
                     <th>Received By</th>
                     <th>Notes</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -71,6 +72,8 @@
                     <td class="fw-bold text-success">৳{{ p.amount_paid }}</td>
                     <td>{{ p.received_by.get_full_name|default:"—" }}</td>
                     <td>{{ p.notes|default:"—" }}</td>
+                    <td><a href="{% url 'fee_receipt_print' p.pk %}" class="btn btn-sm btn-label-info"><i
+                                class="ti tabler-printer"></i></a></td>
                 </tr>
                 {% empty %}
                 <tr>
