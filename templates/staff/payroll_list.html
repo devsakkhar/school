@@ -7,7 +7,7 @@
             <h4 class="mb-0">Payroll Management</h4><small class="text-muted">Manage staff salaries and
                 payslips.</small>
         </div>
-        {% if request.user.is_staff or request.user.role == 'Admin' or request.user.role == 'Principal' %}
+        {% if request.user.is_staff or request.user.role.name == 'Admin' or request.user.role.name == 'Principal' %}
         <a href="{% url 'payroll_generate' %}" class="btn btn-primary">Generate Payroll</a>
         {% endif %}
     </div>

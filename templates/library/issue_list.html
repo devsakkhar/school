@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Issued Books - Library{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Issued Books</h4>
+            <small class="text-muted">Track books issued to students and staff.</small>
+        </div>
+        <a href="{% url 'issue_create' %}" class="btn btn-primary"><i class="ti tabler-book-upload me-2"></i>Issue
+            Book</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header border-bottom">
+        <h5 class="card-title mb-0">Borrowing History</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Book & Barcode</th>
+                        <th>Borrower</th>
+                        <th>Issue Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Fine</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for issue in issues %}
+                    <tr>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold text-heading">{{ issue.book.title }}</span>
+                                {% if issue.book.barcode %}<small class="font-monospace text-muted"><i
+                                        class="ti tabler-barcode me-1"></i>{{ issue.book.barcode }}</small>{% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-label-info me-2">{{ issue.user.username }}</span>
+                                <span>{{ issue.user.get_full_name }}</span>
+                            </div>
+                        </td>
+                        <td>{{ issue.issue_date|date:"d M Y" }}</td>
+                        <td>
+                            {{ issue.due_date|date:"d M Y" }}
+                            {% if issue.status == 'Issued' and issue.due_date < today %} <br><small
+                                    class="text-danger fw-bold"><i class="ti tabler-alert-circle"></i> Overdue</small>
+                                {% endif %}
+                        </td>
+                        <td>
+                            {% if issue.status == 'Returned' %}
+                            <span class="badge bg-success">Returned</span>
+                            <br><small class="text-muted">{{ issue.return_date|date:"d M y" }}</small>
+                            {% elif issue.status == 'Lost' %}
+                            <span class="badge bg-danger">Lost</span>
+                            {% else %}
+                            <span class="badge bg-warning">Issued</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if issue.fine_amount > 0 %}
+                            <span class="text-danger fw-bold">{{ issue.fine_amount }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if issue.status == 'Issued' %}
+                            <a href="{% url 'issue_return' issue.pk %}"
+                                class="btn btn-sm btn-outline-success">Return</a>
+                            {% else %}
+                            <span class="text-muted small">Completed</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <span class="text-muted">No issue records found.</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

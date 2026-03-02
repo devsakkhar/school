@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Issue Book - Library{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Issue Book</h4>
+            <small class="text-muted">Assign a book from the library to a user.</small>
+        </div>
+        <a href="{% url 'issue_list' %}" class="btn btn-secondary">
+            <i class="ti tabler-arrow-left me-2"></i>Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Barcode Scanner Quick Area -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 bg-primary text-white h-100">
+            <div class="card-body text-center py-5">
+                <i class="ti tabler-barcode d-block mb-3" style="font-size: 4rem;"></i>
+                <h5 class="text-white mb-3">Quick Scan</h5>
+                <p class="opacity-75 mb-4">Scan a book's barcode to quickly pre-fill the issue form.</p>
+                <form method="GET" action="{% url 'issue_create' %}">
+                    <div class="input-group">
+                        <input type="text" name="barcode" class="form-control form-control-lg border-0"
+                            placeholder="Scan Barcode..." autofocus>
+                        <button type="submit" class="btn btn-dark"><i class="ti tabler-search"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Form -->
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header border-bottom">
+                <h5 class="mb-0">Manual Entry Form</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="row mb-3">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold">Select Book <span class="text-danger">*</span></label>
+                            {% render_field form.book class="form-select select2" %}
+                            {% if form.book.errors %}<div class="text-danger small mt-1">{{ form.book.errors|join:", "
+                                }}</div>{% endif %}
+                            <small class="text-muted mt-1 d-block"><i class="ti tabler-info-circle me-1"></i> Ensure the
+                                book has "Available Copies" > 0.</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold">Select Borrower <span class="text-danger">*</span></label>
+                            {% render_field form.user class="form-select select2" %}
+                            {% if form.user.errors %}<div class="text-danger small mt-1">{{ form.user.errors|join:", "
+                                }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Issue Date</label>
+                            {% render_field form.issue_date class="form-control" type="date" %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Return Due Date <span class="text-danger">*</span></label>
+                            {% render_field form.due_date class="form-control" type="date" %}
+                            {% if form.due_date.errors %}<div class="text-danger small mt-1">{{
+                                form.due_date.errors|join:", " }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-2">
+                        <button type="submit" class="btn btn-success py-2 fw-bold">Issue Book Now</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize Select2 dropdowns if available
+    if (typeof jQuery !== 'undefined' && $.fn.select2) {
+        $('.select2').select2({
+            theme: 'bootstrap-5'
+        });
+    }
+</script>
+{% endblock %}

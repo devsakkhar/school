@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Exam Rooms{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Exam Rooms</h4>
+            <small class="text-muted">Manage physical rooms and capacities for exams.</small>
+        </div>
+        <a href="{% url 'exam_room_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Add Room
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Room Name</th>
+                        <th>Capacity</th>
+                        <th>Description</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in rooms %}
+                    <tr>
+                        <td class="fw-bold">{{ room.name }}</td>
+                        <td>{{ room.capacity }} students</td>
+                        <td class="text-muted">{{ room.description|truncatechars:50|default:"-" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'exam_room_update' room.pk %}" class="btn btn-sm btn-outline-primary"
+                                title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'exam_room_delete' room.pk %}" class="btn btn-sm btn-outline-danger"
+                                title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">
+                            <i class="fas fa-door-open fa-3x mb-3 text-secondary"></i>
+                            <p>No exam rooms found. Click "Add Room" to create one.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

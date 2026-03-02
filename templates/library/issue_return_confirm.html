@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Confirm Return - Library{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 mt-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header border-bottom bg-light">
+                <h5 class="mb-0"><i class="ti tabler-arrow-back-up me-2"></i>Process Book Return</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-4">
+                    <div class="col-sm-4 text-muted fw-bold mb-2">Book Title:</div>
+                    <div class="col-sm-8 fw-bold text-primary fs-5">{{ issue.book.title }}</div>
+
+                    <div class="col-sm-4 text-muted fw-bold mb-2 mt-3">Borrower:</div>
+                    <div class="col-sm-8 mt-3">{{ issue.user.get_full_name }} ({{ issue.user.username }})</div>
+
+                    <div class="col-sm-4 text-muted fw-bold mb-2 mt-3">Issue Date:</div>
+                    <div class="col-sm-8 mt-3">{{ issue.issue_date|date:"d M Y" }}</div>
+
+                    <div class="col-sm-4 text-muted fw-bold mb-2 mt-3">Due Date:</div>
+                    <div class="col-sm-8 mt-3">
+                        {{ issue.due_date|date:"d M Y" }}
+                        {% if fine_estimate > 0 %}
+                        <span class="badge bg-danger ms-2">Past Due</span>
+                        {% else %}
+                        <span class="badge bg-success ms-2">On Time</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="alert {% if fine_estimate > 0 %}alert-danger{% else %}alert-info{% endif %} d-flex align-items-center"
+                    role="alert">
+                    <i class="ti tabler-coin me-3 fs-3"></i>
+                    <div>
+                        <h6 class="alert-heading mb-1">Fine Calculation</h6>
+                        {% if fine_estimate > 0 %}
+                        <p class="mb-0">This book is being returned late. The estimated late fine is <strong>{{
+                                fine_estimate }}</strong>.</p>
+                        {% else %}
+                        <p class="mb-0">No late fines calculated. The book is being returned on time.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <form method="POST" class="mt-4 border-top pt-4">
+                    {% csrf_token %}
+                    <p class="text-muted small">By clicking 'Confirm Return', the book will be marked as returned,
+                        available stock will increase by 1, and the fine (if any) will be logged.</p>
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <a href="{% url 'issue_list' %}" class="btn btn-label-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success px-4"><i class="ti tabler-check me-2"></i>Confirm
+                            Return</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

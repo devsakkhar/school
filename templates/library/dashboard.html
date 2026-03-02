@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Library Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Library Dashboard</h4>
+            <small class="text-muted">Overview of library operations and inventory.</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'book_list' %}" class="btn btn-secondary">
+                <i class="ti tabler-books me-1"></i> Catalog
+            </a>
+            <a href="{% url 'issue_create' %}" class="btn btn-primary">
+                <i class="ti tabler-book-upload me-1"></i> Issue Book
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar avatar-md bg-label-primary rounded p-2 me-3">
+                        <i class="ti tabler-books fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-muted">Total Books</h6>
+                        <h3 class="mb-0 fw-bold">{{ total_books }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar avatar-md bg-label-info rounded p-2 me-3">
+                        <i class="ti tabler-book-download fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-muted">Books Issued</h6>
+                        <h3 class="mb-0 fw-bold">{{ total_issued }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar avatar-md bg-label-danger rounded p-2 me-3">
+                        <i class="ti tabler-alert-triangle fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-muted">Overdue Returns</h6>
+                        <h3 class="mb-0 fw-bold text-danger">{{ overdue_issues }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 text-center py-5">
+        <img src="{% static 'assets/img/illustrations/page-pricing-standard.png' %}" alt="Library"
+            class="img-fluid mb-4" width="200">
+        <h5>Manage your Library Efficiently</h5>
+        <p class="text-muted">Scan barcodes to quickly issue books, track overdue returns, and calculate fines
+            automatically.</p>
+        <a href="{% url 'issue_create' %}" class="btn btn-label-primary mt-3">Start Scanning Barcodes</a>
+    </div>
+</div>
+{% endblock %}

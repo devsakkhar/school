@@ -22,7 +22,7 @@ def teacher_create(request):
         user = get_object_or_404(User, pk=user_id)
         
         # Ensure role is Teacher
-        if user.role != 'Teacher':
+        if not user.role or user.role.name != 'Teacher':
             user.role = 'Teacher'
             user.save()
 
@@ -61,7 +61,7 @@ def teacher_edit(request, pk):
 # ══════════════════════════════════════════════════════════
 @login_required
 def leave_list(request):
-    if request.user.is_staff or request.user.role in ['Admin', 'Principal']:
+    if request.user.is_staff or (request.user.role and request.user.role.name in ['Admin', 'Principal']):
         # Admin can see all and approve
         leaves = LeaveRequest.objects.select_related('applicant').all().order_by('-applied_on')
     else:
@@ -87,7 +87,7 @@ def leave_apply(request):
 
 @login_required
 def leave_approve(request, pk):
-    if not (request.user.is_staff or request.user.role in ['Admin', 'Principal']):
+    if not (request.user.is_staff or (request.user.role and request.user.role.name in ['Admin', 'Principal'])):
         messages.error(request, 'You do not have permission to review leaves.')
         return redirect('leave_list')
     
@@ -110,7 +110,7 @@ def leave_approve(request, pk):
 # ══════════════════════════════════════════════════════════
 @login_required
 def payroll_list(request):
-    if request.user.is_staff or request.user.role in ['Admin', 'Principal']:
+    if request.user.is_staff or (request.user.role and request.user.role.name in ['Admin', 'Principal']):
         payrolls = Payroll.objects.select_related('staff').all().order_by('-year', '-month')
     else:
         payrolls = Payroll.objects.filter(staff=request.user).order_by('-year', '-month')
@@ -118,7 +118,7 @@ def payroll_list(request):
 
 @login_required
 def payroll_generate(request):
-    if not (request.user.is_staff or request.user.role in ['Admin', 'Principal']):
+    if not (request.user.is_staff or (request.user.role and request.user.role.name in ['Admin', 'Principal'])):
         messages.error(request, 'You do not have permission.')
         return redirect('payroll_list')
     

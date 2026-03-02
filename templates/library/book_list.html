@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Books Catalog - Library{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Books Catalog</h4>
+            <small class="text-muted">Manage library inventory and book details.</small>
+        </div>
+        <a href="{% url 'book_create' %}" class="btn btn-primary">+ Add New Book</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header border-bottom">
+        <form method="GET" class="d-flex gap-2" style="max-width: 400px;">
+            <input type="text" name="q" class="form-control form-control-sm"
+                placeholder="Search by title, ISBN, barcode..." value="{{ query }}">
+            <button type="submit" class="btn btn-sm btn-secondary">Search</button>
+            {% if query %}
+            <a href="{% url 'book_list' %}" class="btn btn-sm btn-label-secondary">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title & Author</th>
+                        <th>Barcode / ISBN</th>
+                        <th>Category</th>
+                        <th>Copies (Avail/Total)</th>
+                        <th>Location</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in books %}
+                    <tr>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold text-heading">{{ book.title }}</span>
+                                <small class="text-muted">{{ book.author.name|default:"Unknown Author" }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                {% if book.barcode %}
+                                <span class="badge bg-label-dark font-monospace"><i
+                                        class="ti tabler-barcode me-1"></i>{{ book.barcode }}</span>
+                                {% endif %}
+                                <br>
+                                <small class="text-muted">ISBN: {{ book.isbn|default:"N/A" }}</small>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-label-primary">{{ book.category.name|default:"Uncategorized" }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                {% if book.available_copies > 0 %}
+                                <span class="badge bg-success">{{ book.available_copies }} Available</span>
+                                {% else %}
+                                <span class="badge bg-danger">Out of Stock</span>
+                                {% endif %}
+                                <small class="text-muted mt-1">Total: {{ book.total_copies }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <small class="text-nowrap"><i class="ti tabler-map-pin me-1"></i>{{
+                                book.location|default:"-" }}</small>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'book_update' book.pk %}" class="btn btn-sm btn-icon btn-label-primary"
+                                    title="Edit">
+                                    <i class="ti tabler-pencil"></i>
+                                </a>
+                                <a href="{% url 'book_delete' book.pk %}" class="btn btn-sm btn-icon btn-label-danger"
+                                    title="Delete">
+                                    <i class="ti tabler-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="ti tabler-book d-block mb-2 text-muted" style="font-size: 2.5rem;"></i>
+                            <span class="text-muted">No books found in the catalog.</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

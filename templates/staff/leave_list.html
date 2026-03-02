@@ -19,7 +19,8 @@
                     <th>Duration</th>
                     <th>Reason</th>
                     <th>Status</th>
-                    {% if request.user.is_staff or request.user.role == 'Admin' or request.user.role == 'Principal' %}
+                    {% if request.user.is_staff or request.user.role.name == 'Admin' or request.user.role.name ==
+                    'Principal' %}
                     <th>Action</th>
                     {% endif %}
                 </tr>
@@ -43,7 +44,8 @@
                             {{ leave.status }}
                         </span>
                     </td>
-                    {% if request.user.is_staff or request.user.role == 'Admin' or request.user.role == 'Principal' %}
+                    {% if request.user.is_staff or request.user.role.name == 'Admin' or request.user.role.name ==
+                    'Principal' %}
                     <td>
                         <a href="{% url 'leave_approve' leave.pk %}" class="btn btn-sm btn-label-primary">Review</a>
                     </td>

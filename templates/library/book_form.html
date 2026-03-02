@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}{{ action }} Book - Library{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">{{ action }} Book</h4>
+            <small class="text-muted">Manage book details and inventory.</small>
+        </div>
+        <a href="{% url 'book_list' %}" class="btn btn-secondary">
+            <i class="ti tabler-arrow-left me-2"></i>Back to Catalog
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8 col-lg-10 mx-auto">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <h6 class="fw-bold mb-3"><i class="ti tabler-book me-2"></i>Book Information</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold">Title <span class="text-danger">*</span></label>
+                            {% render_field form.title class="form-control" placeholder="Book Title" %}
+                            {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors|join:", "
+                                }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">ISBN</label>
+                            {% render_field form.isbn class="form-control" placeholder="ISBN Number" %}
+                            {% if form.isbn.errors %}<div class="text-danger small mt-1">{{ form.isbn.errors|join:", "
+                                }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Barcode <small class="text-muted">(Leave blank to
+                                    auto-generate)</small></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ti tabler-barcode"></i></span>
+                                {% render_field form.barcode class="form-control" placeholder="Scan or enter barcode" %}
+                            </div>
+                            {% if form.barcode.errors %}<div class="text-danger small mt-1">{{
+                                form.barcode.errors|join:", " }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label d-flex justify-content-between align-items-center">
+                                <span>Author</span>
+                                <a href="javascript:void(0);" class="text-primary small" data-bs-toggle="modal"
+                                    data-bs-target="#addAuthorModal">+ Add New</a>
+                            </label>
+                            {% render_field form.author class="form-select" id="id_author" %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label d-flex justify-content-between align-items-center">
+                                <span>Category</span>
+                                <a href="javascript:void(0);" class="text-primary small" data-bs-toggle="modal"
+                                    data-bs-target="#addCategoryModal">+ Add New</a>
+                            </label>
+                            {% render_field form.category class="form-select" id="id_category" %}
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold mb-3 mt-4"><i class="ti tabler-building-store me-2"></i>Publication & Inventory
+                    </h6>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Publisher</label>
+                            {% render_field form.publisher class="form-control" placeholder="Publisher Name" %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Publication Year</label>
+                            {% render_field form.publication_year class="form-control" placeholder="YYYY" %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Total Copies</label>
+                            {% render_field form.total_copies class="form-control" %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Available Copies</label>
+                            {% render_field form.available_copies class="form-control" %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Location (Rack/Shelf)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ti tabler-map-pin"></i></span>
+                                {% render_field form.location class="form-control" placeholder="Rack A, Shelf 2" %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="{% url 'book_list' %}" class="btn btn-label-secondary mx-3">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-5">Save Book</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Author Modal -->
+<div class="modal fade" id="addAuthorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Author</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="authorForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Biography</label>
+                        <textarea name="biography" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Add Author</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="categoryForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Add Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('authorForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch("{% url 'api_add_author' %}", {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const select = document.getElementById('id_author');
+                    const option = new Option(data.name, data.id, true, true);
+                    select.add(option);
+                    // Trigger select2 update if used
+                    if (typeof jQuery !== 'undefined' && $(select).data('select2')) {
+                        $(select).trigger('change');
+                    }
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addAuthorModal'));
+                    modal.hide();
+                    this.reset();
+                } else {
+                    alert('Error adding author. Please check the fields.');
+                }
+            });
+    });
+
+    document.getElementById('categoryForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch("{% url 'api_add_category' %}", {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const select = document.getElementById('id_category');
+                    const option = new Option(data.name, data.id, true, true);
+                    select.add(option);
+                    // Trigger select2 update if used
+                    if (typeof jQuery !== 'undefined' && $(select).data('select2')) {
+                        $(select).trigger('change');
+                    }
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addCategoryModal'));
+                    modal.hide();
+                    this.reset();
+                } else {
+                    alert('Error adding category. Please check the fields.');
+                }
+            });
+    });
+</script>
+{% endblock %}

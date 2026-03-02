@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'widget_tweaks',
 
     # Local
     'accounts',
@@ -61,6 +62,8 @@ INSTALLED_APPS = [
     'routines',
     'sms',
     'staff',
+    'exam_seat_plan',
+    'library',
 ]
 
 MIDDLEWARE = [

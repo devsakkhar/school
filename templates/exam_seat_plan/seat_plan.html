@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Seat Plan for {{ exam.name }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Exam Seat Plan</h4>
+            <small class="text-muted">{{ exam.name }} - Class: {{ exam.student_class }}</small>
+        </div>
+        <div>
+            <a href="{% url 'seat_plan_generate' exam.pk %}" class="btn btn-warning me-2">
+                <i class="fas fa-redo me-2"></i>Regenerate Plan
+            </a>
+            <button onclick="window.print()" class="btn btn-primary me-2">
+                <i class="fas fa-print me-2"></i>Print Plan
+            </button>
+            <a href="{% url 'exam_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Exams
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .printable-area,
+        .printable-area * {
+            visibility: visible;
+        }
+
+        .printable-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+
+        .page-break {
+            display: block;
+            page-break-before: always;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
+
+<div class="printable-area">
+    <div class="text-center mb-4 d-none d-print-block">
+        <h3 class="mb-0">Exam Seat Plan</h3>
+        <h5>{{ exam.name }}</h5>
+        <p class="mb-0">Class: {{ exam.student_class }} {% if exam.section %}(Section: {{ exam.section }}){% endif %}
+        </p>
+        <p>Date: {{ exam.exam_date|date:"d F Y" }}</p>
+    </div>
+
+    {% for room, allocations in rooms_data.items %}
+    <div class="card shadow-sm border-0 mb-4 page-break">
+        <div class="card-header bg-dark text-white py-3">
+            <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-door-closed me-2"></i> Room: {{ room.name }}</span>
+                <span class="badge bg-light text-dark">{{ allocations|length }} Students</span>
+            </h5>
+            {% if room.description %}
+            <small class="text-light opacity-75">{{ room.description }}</small>
+            {% endif %}
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="15%" class="text-center">Seat No.</th>
+                            <th width="20%">Roll No.</th>
+                            <th>Student Name</th>
+                            <th width="25%">Signature</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alloc in allocations %}
+                        <tr>
+                            <td class="text-center fw-bold">{{ alloc.seat_number }}</td>
+                            <td>{{ alloc.student.roll_number|default:"-" }}</td>
+                            <td>{{ alloc.student.user.get_full_name }}</td>
+                            <td></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

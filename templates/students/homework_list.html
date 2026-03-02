@@ -7,7 +7,7 @@
             <h4 class="mb-0">Homework Assignments</h4><small class="text-muted">Track and manage student
                 homework.</small>
         </div>
-        {% if request.user.role == 'Teacher' %}
+        {% if request.user.role.name == 'Teacher' %}
         <a href="{% url 'homework_create' %}" class="btn btn-primary">+ Assign Homework</a>
         {% endif %}
     </div>
@@ -38,12 +38,12 @@
                         <td>{{ hw.teacher.get_full_name }}</td>
                         <td>{{ hw.issue_date|date:"d M Y" }}</td>
                         <td>
-    {{ hw.due_date|date:"d M Y" }}<br>
-    
-    {% if hw.due_date < today and request.user.role == 'Student' %}
-        <small class="text-danger fw-bold">Overdue</small>
-    {% endif %}
-</td>
+                            {{ hw.due_date|date:"d M Y" }}<br>
+
+                            {% if hw.due_date < today and request.user.role.name=='Student' %} <small
+                                class="text-danger fw-bold">Overdue</small>
+                                {% endif %}
+                        </td>
                         <td>
                             <a href="{% url 'homework_detail' hw.pk %}" class="btn btn-sm btn-label-primary">View</a>
                         </td>

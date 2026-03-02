@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}My Borrowed Books - Library{% endblock %}
+
+{% block content %}
+<div class="row border-bottom pb-3 mb-4">
+    <div class="col-12">
+        <h4 class="mb-0"><i class="ti tabler-books me-2"></i>My Borrowed Books</h4>
+        <small class="text-muted">A complete history of books you have borrowed from the library.</small>
+    </div>
+</div>
+
+<div class="row">
+    {% for issue in issues %}
+    <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+        <div
+            class="card h-100 shadow-sm border-0 {% if issue.status == 'Issued' and issue.due_date < today %}border-danger border-start border-4{% endif %}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="badge bg-label-primary">{{ issue.book.category.name|default:"General" }}</span>
+                    {% if issue.status == 'Returned' %}
+                    <span class="badge bg-success"><i class="ti tabler-check me-1"></i>Returned</span>
+                    {% elif issue.status == 'Lost' %}
+                    <span class="badge bg-danger">Lost</span>
+                    {% else %}
+                    {% if issue.due_date < today %} <span class="badge bg-danger animate__animated animate__flash"><i
+                            class="ti tabler-alert-circle me-1"></i>Overdue</span>
+                        {% else %}
+                        <span class="badge bg-warning"><i class="ti tabler-clock me-1"></i>Currently Issued</span>
+                        {% endif %}
+                        {% endif %}
+                </div>
+
+                <h5 class="fw-bold text-primary mb-1">{{ issue.book.title }}</h5>
+                <p class="text-muted small mb-3">By {{ issue.book.author.name|default:"Unknown Author" }}</p>
+
+                <div class="d-flex flex-column gap-2 mt-4 pt-3 border-top">
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span><i class="ti tabler-calendar-event me-1"></i>Issued On:</span>
+                        <span class="fw-bold text-dark">{{ issue.issue_date|date:"d M, Y" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span><i class="ti tabler-calendar-due me-1"></i>Due Date:</span>
+                        <span
+                            class="fw-bold {% if issue.status == 'Issued' and issue.due_date < today %}text-danger{% else %}text-dark{% endif %}">
+                            {{ issue.due_date|date:"d M, Y" }}
+                        </span>
+                    </div>
+                    {% if issue.status == 'Returned' %}
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span><i class="ti tabler-calendar-check me-1"></i>Returned On:</span>
+                        <span class="fw-bold text-success">{{ issue.return_date|date:"d M, Y" }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if issue.fine_amount > 0 %}
+                    <div class="d-flex justify-content-between text-danger small mt-2 bg-label-danger p-2 rounded">
+                        <span><i class="ti tabler-coin me-1"></i>Late Fine:</span>
+                        <span class="fw-bold">{{ issue.fine_amount }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if issue.status == 'Issued' %}
+            <div class="card-footer bg-transparent border-top-0 pt-0 text-center">
+                <small class="text-muted">Please return the book to the library desk.</small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <i class="ti tabler-book-off text-muted mb-3" style="font-size: 3rem;"></i>
+        <h5 class="text-muted">You haven't borrowed any books from the library yet.</h5>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

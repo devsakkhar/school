@@ -18,6 +18,8 @@ urlpatterns = [
     path('routines/', include('routines.urls')),
     path('sms/', include('sms.urls')),
     path('staff/', include('staff.urls')),
+    path('seat-plan/', include('exam_seat_plan.urls')),
+    path('library/', include('library.urls')),
     path('', include('accounts.urls')),
 ]
 

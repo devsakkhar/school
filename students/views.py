@@ -787,8 +787,16 @@ def exam_create(request):
     classes = StudentClass.objects.all()
     if request.method == 'POST':
         class_obj = get_object_or_404(StudentClass, pk=request.POST.get('student_class'))
-        section = StudentSection.objects.filter(pk=request.POST.get('section')).first()
-        exam = Exam.objects.create(name=request.POST.get('name'), student_class=class_obj, section=section, exam_date=request.POST.get('exam_date'), total_marks=request.POST.get('total_marks', 100), pass_marks=request.POST.get('pass_marks', 33), academic_year=request.POST.get('academic_year', ''), created_by=request.user)
+        section_id = request.POST.get('section')
+        section = StudentSection.objects.filter(pk=section_id).first() if section_id else None
+        
+        # safely handle total_marks/pass_marks input
+        total = request.POST.get('total_marks')
+        total = int(total) if total else 100
+        pass_m = request.POST.get('pass_marks')
+        pass_m = int(pass_m) if pass_m else 33
+
+        exam = Exam.objects.create(name=request.POST.get('name'), student_class=class_obj, section=section, exam_date=request.POST.get('exam_date'), total_marks=total, pass_marks=pass_m, academic_year=request.POST.get('academic_year', ''), created_by=request.user)
         students = Student.objects.filter(current_class=class_obj, status='active')
         if section:
             students = students.filter(section=section)
@@ -1024,7 +1032,7 @@ def class_academic_report(request, pk):
 
 @login_required
 def class_teacher_dashboard(request):
-    if request.user.role != 'Teacher':
+    if not request.user.role or request.user.role.name != 'Teacher':
         messages.error(request, 'Access denied.')
         return redirect('index')
     
@@ -1035,9 +1043,9 @@ def class_teacher_dashboard(request):
 def homework_list(request):
     if request.user.role in ['Admin', 'Principal', 'Teacher']:
         homeworks = Homework.objects.all().order_by('-created_at')
-        if request.user.role == 'Teacher':
+        if request.user.role and request.user.role.name == 'Teacher':
             homeworks = homeworks.filter(teacher=request.user)
-    elif request.user.role == 'Student':
+    elif request.user.role and request.user.role.name == 'Student':
         student = getattr(request.user, 'student_profile', None)
         if student:
             homeworks = Homework.objects.filter(student_class=student.current_class).order_by('-created_at')
@@ -1052,7 +1060,7 @@ def homework_list(request):
 
 @login_required
 def homework_create(request):
-    if request.user.role != 'Teacher':
+    if not request.user.role or request.user.role.name != 'Teacher':
         messages.error(request, 'Only teachers can create homework.')
         return redirect('homework_list')
     
@@ -1084,7 +1092,7 @@ def homework_detail(request, pk):
     submissions = homework.submissions.all().select_related('student')
     
     student_submission = None
-    if request.user.role == 'Student':
+    if request.user.role and request.user.role.name == 'Student':
         student = getattr(request.user, 'student_profile', None)
         if student:
             student_submission = submissions.filter(student=student).first()
@@ -1132,7 +1140,7 @@ def homework_evaluate(request, pk, sub_pk):
 def academic_transcript(request, student_id):
     student = get_object_or_404(Student, pk=student_id)
     # Ensure privacy
-    if request.user.role == 'Student' and getattr(request.user, 'student_profile', None) != student:
+    if request.user.role and request.user.role.name == 'Student' and getattr(request.user, 'student_profile', None) != student:
         messages.error(request, 'Access denied.')
         return redirect('dashboard')
         

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Confirm Delete - Library{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 mt-5">
+        <div class="card shadow-sm border-0 border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0 text-white"><i class="ti tabler-alert-triangle me-2"></i>Confirm Deletion</h5>
+            </div>
+            <div class="card-body py-5 text-center">
+                <h5>Are you sure you want to delete the book:</h5>
+                <h4 class="text-danger fw-bold my-3">"{{ book.title }}"</h4>
+                <p class="text-muted">This action is permanent and cannot be undone. All issue records associated with
+                    this book might be affected.</p>
+
+                <form method="POST" class="mt-4">
+                    {% csrf_token %}
+                    <a href="{% url 'book_list' %}" class="btn btn-secondary me-2">Cancel</a>
+                    <button type="submit" class="btn btn-danger">Yes, Delete Book</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
