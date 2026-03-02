@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Question{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ action }} MCQ Question</h5>
+                <a href="{% url 'question_bank' %}" class="btn btn-sm btn-label-success">← Question Bank</a>
+            </div>
+            <div class="card-body mt-3">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Subject <span class="text-danger">*</span></label>
+                            <input type="text" name="subject" class="form-control"
+                                value="{{ question.subject|default:'' }}" placeholder="e.g. Mathematics" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Class</label>
+                            <select name="student_class" class="form-select">
+                                <option value="">All Classes</option>
+                                {% for c in classes %}
+                                    <option value="{{ c.id }}" {% if question.student_class_id == c.id %}selected{% endif %}>
+                                        {{ c.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label">Marks</label>
+                            <input type="number" name="marks" class="form-control"
+                                value="{{ question.marks|default:1 }}" min="1">
+                        </div>
+
+                        <div class="col-md-1">
+                            <label class="form-label">Level</label>
+                            <select name="difficulty" class="form-select">
+                                {% for val, label in difficulty_choices %}
+                                    <option value="{{ val }}" {% if question.difficulty == val %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Question Text <span class="text-danger">*</span></label>
+                            <textarea name="question_text" class="form-control" rows="3"
+                                required>{{ question.question_text|default:'' }}</textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Option A</label>
+                            <input type="text" name="option_a" class="form-control"
+                                value="{{ question.option_a|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Option B</label>
+                            <input type="text" name="option_b" class="form-control"
+                                value="{{ question.option_b|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Option C</label>
+                            <input type="text" name="option_c" class="form-control"
+                                value="{{ question.option_c|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Option D</label>
+                            <input type="text" name="option_d" class="form-control"
+                                value="{{ question.option_d|default:'' }}" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Correct Option <span class="text-danger">*</span></label>
+                            <select name="correct_option" class="form-select" required>
+                                {% for val, label in option_choices %}
+                                    <option value="{{ val }}" {% if question.correct_option == val %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+                            <a href="{% url 'question_bank' %}" class="btn btn-label-danger">Cancel</a>
+                            {% if action == 'Add' %}
+                                <button type="submit" name="next" value="add_another" class="btn btn-label-primary">
+                                    Save & Add Another
+                                </button>
+                            {% endif %}
+                            <button type="submit" name="next" value="bank" class="btn btn-primary">
+                                Save Question
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

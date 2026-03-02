@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}User Form | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-8 col-md-10 mx-auto">
+        <div class="card mb-6">
+            <h5 class="card-header border-bottom mb-4">{{ action }} User</h5>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-4">
+                        {% for field in form %}
+                        <div class="col-md-6 col-12">
+                            {% if field.name == 'is_active' %}
+                            <div class="form-check form-switch mt-4">
+                                {{ field }}
+                                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            </div>
+                            {% elif 'password' in field.name|lower %}
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            <div class="input-group input-group-merge form-password-toggle">
+                                {{ field }}
+                                <span class="input-group-text cursor-pointer"><i class="ti tabler-eye-off"></i></span>
+                            </div>
+                            {% if field.help_text %}
+                            <div class="form-text small text-muted">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% else %}
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <div class="form-text small text-muted">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% endif %}
+
+                            {% if field.errors %}
+                            <div class="text-danger mt-1 small">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        {% if form.non_field_errors %}
+                        <div class="col-12 text-danger small">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="col-12 mt-4 d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if action == 'Create' %}
+                                <span class="badge bg-label-warning">
+                                    <i class="ti tabler-info-circle me-1"></i> Default password for new users is
+                                    <strong>123456</strong>
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <a href="{% url 'user_list' %}" class="btn btn-label-secondary me-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Save User</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

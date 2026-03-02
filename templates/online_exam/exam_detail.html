@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}{{ exam.name }} | Exam Detail{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">{{ exam.name }}</h4>
+            <small class="text-muted">{{ exam.student_class }}{% if exam.section %} / {{ exam.section }}{% endif %} | {{
+                exam.subject }} | {{ exam.duration_minutes }} min</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'online_exam_add_questions' exam.pk %}" class="btn btn-label-info">Manage Questions</a>
+            <a href="{% url 'exam_attempts' exam.pk %}" class="btn btn-label-secondary">View Attempts</a>
+            <a href="{% url 'online_exam_edit' exam.pk %}" class="btn btn-primary">Edit</a>
+            <a href="{% url 'online_exam_list' %}" class="btn btn-label-secondary">← Back</a>
+        </div>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header border-bottom">
+                <h5 class="mb-0">Exam Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Status</dt>
+                    <dd class="col-sm-7"><span
+                            class="badge bg-label-{% if exam.status == 'active' %}success{% elif exam.status == 'draft' %}secondary{% else %}danger{% endif %}">{{
+                            exam.get_status_display }}</span></dd>
+                    <dt class="col-sm-5">Start</dt>
+                    <dd class="col-sm-7">{{ exam.start_time|date:"d M Y, H:i" }}</dd>
+                    <dt class="col-sm-5">End</dt>
+                    <dd class="col-sm-7">{{ exam.end_time|date:"d M Y, H:i" }}</dd>
+                    <dt class="col-sm-5">Duration</dt>
+                    <dd class="col-sm-7">{{ exam.duration_minutes }} minutes</dd>
+                    <dt class="col-sm-5">Total Marks</dt>
+                    <dd class="col-sm-7 fw-bold">{{ exam.total_marks }}</dd>
+                    <dt class="col-sm-5">Pass Marks</dt>
+                    <dd class="col-sm-7">{{ exam.pass_marks }}</dd>
+                    <dt class="col-sm-5">Questions</dt>
+                    <dd class="col-sm-7"><span class="badge bg-label-primary">{{ exam_questions.count }}</span></dd>
+                </dl>
+                {% if exam.instructions %}
+                <hr>
+                <p class="mb-0 text-muted small"><strong>Instructions:</strong> {{ exam.instructions }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Questions ({{ exam_questions.count }})</h5>
+                <a href="{% url 'online_exam_add_questions' exam.pk %}" class="btn btn-sm btn-primary">+ Add /
+                    Remove</a>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Question</th>
+                            <th>Subject</th>
+                            <th class="text-center">Marks</th>
+                            <th>Correct</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eq in exam_questions %}
+                        <tr>
+                            <td class="text-muted">{{ forloop.counter }}</td>
+                            <td>{{ eq.question.question_text|truncatechars:70 }}</td>
+                            <td><span class="badge bg-label-info">{{ eq.question.subject }}</span></td>
+                            <td class="text-center fw-bold">{{ eq.question.marks }}</td>
+                            <td><span class="badge bg-success">{{ eq.question.correct_option }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No questions added. <a
+                                    href="{% url 'online_exam_add_questions' exam.pk %}">Add questions →</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card mt-4">
+            <div class="card-header border-bottom">
+                <h5 class="mb-0">Recent Attempts (Top 20)</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student</th>
+                            <th>Score</th>
+                            <th>%</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for att in attempts %}
+                        <tr>
+                            <td>{{ att.student.user.get_full_name }}</td>
+                            <td class="fw-bold">{{ att.score|default:"—" }}/{{ exam.total_marks }}</td>
+                            <td>{% if att.score is not None %}{{ att.percentage }}%{% else %}—{% endif %}</td>
+                            <td><span class="badge bg-label-{% if att.passed %}success{% else %}danger{% endif %}">{% if
+                                    att.status == 'submitted' %}{% if att.passed %}Passed{% else %}Failed{% endif %}{%
+                                    else %}{{ att.get_status_display }}{% endif %}</span></td>
+                            <td>{{ att.submitted_at|date:"d M H:i"|default:"—" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-3 text-muted">No attempts yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Add Questions | {{ exam.name }}{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between">
+        <div>
+            <h4 class="mb-0">Manage Questions — {{ exam.name }}</h4>
+            <small class="text-muted">Total marks: <strong>{{ exam.total_marks }}</strong> | Questions added: <strong>{{
+                    added.count }}</strong></small>
+        </div>
+        <a href="{% url 'online_exam_detail' exam.pk %}" class="btn btn-sm btn-label-secondary">← Back to Exam</a>
+    </div>
+</div>
+<div class="row g-4">
+    <!-- Added Questions -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-header border-bottom bg-label-success">
+                <h5 class="mb-0 text-success">In This Exam ({{ added.count }})</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-hover mb-0">
+                    <tbody>
+                        {% for eq in added %}
+                        <tr>
+                            <td><small>{{ eq.question.question_text|truncatechars:50 }}</small></td>
+                            <td class="text-center"><span class="badge bg-success">{{ eq.question.marks }}pts</span>
+                            </td>
+                            <td>
+                                <form method="POST">{% csrf_token %}
+                                    <input type="hidden" name="question_id" value="{{ eq.question.pk }}">
+                                    <input type="hidden" name="action" value="remove">
+                                    <button type="submit" class="btn btn-xs btn-icon btn-label-danger p-1"><i
+                                            class="ti tabler-x" style="font-size:12px;"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-muted">No questions added yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Available Questions -->
+    <div class="col-md-7">
+        <div class="card h-100">
+            <div class="card-header border-bottom">
+                <h5 class="mb-0">Available Questions ({{ available.count }})</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Question</th>
+                            <th>Subject</th>
+                            <th class="text-center">Marks</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for q in available %}
+                        <tr>
+                            <td><small>{{ q.question_text|truncatechars:55 }}</small></td>
+                            <td><span class="badge bg-label-info" style="font-size:10px;">{{ q.subject }}</span></td>
+                            <td class="text-center fw-bold">{{ q.marks }}</td>
+                            <td>
+                                <form method="POST">{% csrf_token %}
+                                    <input type="hidden" name="question_id" value="{{ q.pk }}">
+                                    <input type="hidden" name="action" value="add">
+                                    <button type="submit" class="btn btn-xs btn-icon btn-label-success p-1"><i
+                                            class="ti tabler-plus" style="font-size:12px;"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No more questions available. <a
+                                    href="{% url 'question_create' %}">Add questions to bank →</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Payment Records{% endblock %}
+{% block content %}
+<div class="row mb-3">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Payment Records</h4><small class="text-muted">All fee payments recorded in the
+                system.</small>
+        </div>
+        <a href="{% url 'record_payment' %}" class="btn btn-success">+ Record Payment</a>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-2 align-items-end">
+            <!-- Class Filter -->
+            <div class="col-md-4">
+                <select name="class_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Classes</option>
+                    {% for c in classes %}
+                        <option value="{{ c.id }}" {% if class_id == c.id|stringformat:"s" %}selected{% endif %}>
+                            {{ c.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Fee Type Filter -->
+            <div class="col-md-4">
+                <select name="fee_type_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Fee Types</option>
+                    {% for ft in fee_types %}
+                        <option value="{{ ft.id }}" {% if fee_type_id == ft.id|stringformat:"s" %}selected{% endif %}>
+                            {{ ft.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Total Collected Display -->
+            <div class="col-md-4">
+                <div class="alert alert-success mb-0 py-2 text-center">
+                    Total Collected: <strong>৳{{ total_collected }}</strong>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Date</th>
+                    <th>Student</th>
+                    <th>Class</th>
+                    <th>Fee Type</th>
+                    <th>Amount Paid</th>
+                    <th>Received By</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in page_obj %}
+                <tr>
+                    <td>{{ p.payment_date|date:"d M Y" }}</td>
+                    <td>{{ p.student.user.get_full_name }}<br><small class="text-muted">{{ p.student.admission_number
+                            }}</small></td>
+                    <td>{{ p.student.current_class }}</td>
+                    <td>{{ p.fee_type.name }}</td>
+                    <td class="fw-bold text-success">৳{{ p.amount_paid }}</td>
+                    <td>{{ p.received_by.get_full_name|default:"—" }}</td>
+                    <td>{{ p.notes|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">No payments recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if page_obj.has_other_pages %}
+        <div class="d-flex justify-content-center p-3">
+            <nav>
+                <ul class="pagination mb-0">
+                    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link"
+                            href="?page={{ page_obj.previous_page_number }}">Previous</a></li>{% endif %}
+                    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{
+                            page_obj.paginator.num_pages }}</span></li>
+                    {% if page_obj.has_next %}<li class="page-item"><a class="page-link"
+                            href="?page={{ page_obj.next_page_number }}">Next</a></li>{% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

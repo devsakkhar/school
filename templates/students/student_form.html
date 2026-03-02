@@ -1,0 +1,412 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Student Form | School Management System{% endblock %}
+
+{% block head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/bs-stepper/bs-stepper.css' %}" />
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/bs-stepper/bs-stepper.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const stepperElement = document.querySelector('.bs-stepper');
+        if (stepperElement) {
+            const wizardNumbered = new Stepper(stepperElement, {
+                linear: false
+            });
+
+            const btnNextList = [].slice.call(stepperElement.querySelectorAll('.btn-next'));
+            const btnPrevList = [].slice.call(stepperElement.querySelectorAll('.btn-prev'));
+
+            btnNextList.forEach(btn => {
+                btn.addEventListener('click', event => {
+                    wizardNumbered.next();
+                });
+            });
+
+            btnPrevList.forEach(btn => {
+                btn.addEventListener('click', event => {
+                    wizardNumbered.previous();
+                });
+            });
+        }
+    });
+
+    $(document).ready(function () {
+        var classSelect = $('#{{ form.current_class.id_for_label }}');
+        var sectionSelect = $('#{{ form.section.id_for_label }}');
+
+        classSelect.change(function () {
+            var classId = $(this).val();
+
+            // Clear current options
+            sectionSelect.empty();
+            sectionSelect.append('<option value="">---------</option>');
+
+            if (classId) {
+                // Fetch sections via AJAX
+                $.ajax({
+                    url: "{% url 'get_sections' %}",
+                    data: {
+                        'class_id': classId
+                    },
+                    success: function (data) {
+                        $.each(data, function (index, section) {
+                            sectionSelect.append('<option value="' + section.id + '">' + section.name + '</option>');
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching sections: " + error);
+                    }
+                });
+            }
+        });
+
+        // Trigger change on load if class is already selected (e.g., during edit or validation error)
+        if (classSelect.val() && !sectionSelect.val()) {
+            classSelect.trigger('change');
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h5 class="mb-4">{{ action }} Student Registration</h5>
+        <div class="card mb-6">
+            <div class="card-body">
+                <div class="bs-stepper wizard-numbered mt-2">
+                    <div class="bs-stepper-header">
+                        <div class="step" data-target="#account-details">
+                            <button type="button" class="step-trigger">
+                                <span class="bs-stepper-circle">1</span>
+                                <span class="bs-stepper-label">
+                                    <span class="bs-stepper-title">Account Details</span>
+                                    <span class="bs-stepper-subtitle">Basic User Info</span>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="line"><i class="ti ti tabler-chevron-right"></i></div>
+                        <div class="step" data-target="#academic-info">
+                            <button type="button" class="step-trigger">
+                                <span class="bs-stepper-circle">2</span>
+                                <span class="bs-stepper-label">
+                                    <span class="bs-stepper-title">Academic Info</span>
+                                    <span class="bs-stepper-subtitle">Class & Admission</span>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="line"><i class="ti ti tabler-chevron-right"></i></div>
+                        <div class="step" data-target="#personal-info">
+                            <button type="button" class="step-trigger">
+                                <span class="bs-stepper-circle">3</span>
+                                <span class="bs-stepper-label">
+                                    <span class="bs-stepper-title">Personal Info</span>
+                                    <span class="bs-stepper-subtitle">DOB, Blood Group</span>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="line"><i class="ti ti tabler-chevron-right"></i></div>
+                        <div class="step" data-target="#contact-info">
+                            <button type="button" class="step-trigger">
+                                <span class="bs-stepper-circle">4</span>
+                                <span class="bs-stepper-label">
+                                    <span class="bs-stepper-title">Contact Info</span>
+                                    <span class="bs-stepper-subtitle">Family & Address</span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bs-stepper-content">
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <!-- Step 1: Account Details -->
+                            <div id="account-details" class="content">
+                                <div class="content-header mb-4">
+                                    <h6 class="mb-0">Account Details</h6>
+                                    <small>Enter basic user credentials.</small>
+                                </div>
+                                <div class="row g-4 mb-5">
+                                    <div class="col-md-4 col-12">
+                                        <label class="form-label" for="{{ form.first_name.id_for_label }}">First Name
+                                            <span class="text-danger">*</span></label>
+                                        {{ form.first_name }}
+                                        {% if form.first_name.errors %}<div class="text-danger mt-1 small">{{
+                                            form.first_name.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-4 col-12">
+                                        <label class="form-label" for="{{ form.last_name.id_for_label }}">Last Name
+                                            <span class="text-danger">*</span></label>
+                                        {{ form.last_name }}
+                                        {% if form.last_name.errors %}<div class="text-danger mt-1 small">{{
+                                            form.last_name.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-4 col-12">
+                                        <label class="form-label" for="{{ form.email.id_for_label }}">Email <span
+                                                class="text-danger">*</span></label>
+                                        {{ form.email }}
+                                        {% if form.email.errors %}<div class="text-danger mt-1 small">{{
+                                            form.email.errors }}
+                                        </div>{% endif %}
+                                    </div>
+                                    <div class="col-md-6 col-12">
+                                        <label class="form-label" for="{{ form.image.id_for_label }}">Profile
+                                            Image</label>
+                                        {{ form.image }}
+                                        {% if form.image.errors %}<div class="text-danger mt-1 small">{{
+                                            form.image.errors }}
+                                        </div>{% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-12 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-label-primary btn-prev" disabled>
+                                        <i class="ti ti tabler-arrow-left icon-xs me-sm-2 me-0"></i>
+                                        <span class="align-middle d-sm-inline-block d-none">Previous</span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-next">
+                                        <span class="align-middle d-sm-inline-block d-none me-sm-2">Next</span>
+                                        <i class="ti ti tabler-arrow-right icon-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Academic Info -->
+                            <div id="academic-info" class="content">
+                                <div class="content-header mb-4">
+                                    <h6 class="mb-0">Academic Information</h6>
+                                    <small>Enter school admission details.</small>
+                                </div>
+                                <div class="row g-4 mb-5">
+                                    <div class="col-md-3 col-12">
+                                        <label class="form-label"
+                                            for="{{ form.admission_number.id_for_label }}">Admission
+                                            Number <span class="text-danger">*</span></label>
+                                        {{ form.admission_number }}
+                                        <div class="form-text small text-muted">Will be used as username.</div>
+                                        {% if form.admission_number.errors %}<div class="text-danger mt-1 small">{{
+                                            form.admission_number.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-3 col-12">
+                                        <label class="form-label" for="{{ form.admission_date.id_for_label }}">Admission
+                                            Date
+                                            <span class="text-danger">*</span></label>
+                                        {{ form.admission_date }}
+                                        {% if form.admission_date.errors %}<div class="text-danger mt-1 small">{{
+                                            form.admission_date.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-3 col-12">
+                                        <label class="form-label" for="{{ form.current_class.id_for_label }}">Current
+                                            Class
+                                            <span class="text-danger">*</span></label>
+                                        {{ form.current_class }}
+                                        {% if form.current_class.errors %}<div class="text-danger mt-1 small">{{
+                                            form.current_class.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-3 col-12">
+                                        <label class="form-label" for="{{ form.section.id_for_label }}">Section</label>
+                                        {{ form.section }}
+                                        {% if form.section.errors %}<div class="text-danger mt-1 small">{{
+                                            form.section.errors
+                                            }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-4 col-12">
+                                        <label class="form-label" for="{{ form.roll_number.id_for_label }}">Roll
+                                            Number</label>
+                                        {{ form.roll_number }}
+                                        {% if form.roll_number.errors %}<div class="text-danger mt-1 small">{{
+                                            form.roll_number.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-4 col-12">
+                                        <label class="form-label" for="{{ form.status.id_for_label }}">Status <span
+                                                class="text-danger">*</span></label>
+                                        {{ form.status }}
+                                        {% if form.status.errors %}<div class="text-danger mt-1 small">{{
+                                            form.status.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-4 col-12">
+                                        <label class="form-label" for="{{ form.previous_school.id_for_label }}">Previous
+                                            School</label>
+                                        {{ form.previous_school }}
+                                        {% if form.previous_school.errors %}<div class="text-danger mt-1 small">{{
+                                            form.previous_school.errors }}</div>{% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-12 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-label-primary btn-prev">
+                                        <i class="ti ti tabler-arrow-left icon-xs me-sm-2 me-0"></i>
+                                        <span class="align-middle d-sm-inline-block d-none">Previous</span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-next">
+                                        <span class="align-middle d-sm-inline-block d-none me-sm-2">Next</span>
+                                        <i class="ti ti tabler-arrow-right icon-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Personal Info -->
+                            <div id="personal-info" class="content">
+                                <div class="content-header mb-4">
+                                    <h6 class="mb-0">Personal Information</h6>
+                                    <small>Enter biological and personal details.</small>
+                                </div>
+                                <div class="row g-4 mb-5">
+                                    <div class="col-md-3 col-12">
+                                        <label class="form-label" for="{{ form.date_of_birth.id_for_label }}">Date of
+                                            Birth</label>
+                                        {{ form.date_of_birth }}
+                                        {% if form.date_of_birth.errors %}<div class="text-danger mt-1 small">{{
+                                            form.date_of_birth.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-3 col-12">
+                                        <label class="form-label" for="{{ form.gender.id_for_label }}">Gender</label>
+                                        {{ form.gender }}
+                                        {% if form.gender.errors %}<div class="text-danger mt-1 small">{{
+                                            form.gender.errors }}
+                                        </div>{% endif %}
+                                    </div>
+                                    <div class="col-md-3 col-12">
+                                        <label class="form-label" for="{{ form.blood_group.id_for_label }}">Blood
+                                            Group</label>
+                                        {{ form.blood_group }}
+                                        {% if form.blood_group.errors %}<div class="text-danger mt-1 small">{{
+                                            form.blood_group.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-3 col-12">
+                                        <label class="form-label"
+                                            for="{{ form.religion.id_for_label }}">Religion</label>
+                                        {{ form.religion }}
+                                        {% if form.religion.errors %}<div class="text-danger mt-1 small">{{
+                                            form.religion.errors
+                                            }}</div>{% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-12 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-label-primary btn-prev">
+                                        <i class="ti tabler-arrow-left icon-xs me-sm-2 me-0"></i>
+                                        <span class="align-middle d-sm-inline-block d-none">Previous</span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-next">
+                                        <span class="align-middle d-sm-inline-block d-none me-sm-2">Next</span>
+                                        <i class="ti tabler-arrow-right icon-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Contact Info -->
+                            <div id="contact-info" class="content">
+                                <div class="content-header mb-4">
+                                    <h6 class="mb-0">Family & Contact Information</h6>
+                                    <small>Enter parents and guardian details.</small>
+                                </div>
+                                <div class="row g-4 mb-5">
+                                    <div class="col-md-4 col-12">
+                                        <label class="form-label" for="{{ form.father_name.id_for_label }}">Father's
+                                            Name</label>
+                                        {{ form.father_name }}
+                                        {% if form.father_name.errors %}<div class="text-danger mt-1 small">{{
+                                            form.father_name.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-4 col-12">
+                                        <label class="form-label" for="{{ form.mother_name.id_for_label }}">Mother's
+                                            Name</label>
+                                        {{ form.mother_name }}
+                                        {% if form.mother_name.errors %}<div class="text-danger mt-1 small">{{
+                                            form.mother_name.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-4 col-12">
+                                        <label class="form-label" for="{{ form.phone_number.id_for_label }}">Personal
+                                            Phone
+                                            Number</label>
+                                        {{ form.phone_number }}
+                                        {% if form.phone_number.errors %}<div class="text-danger mt-1 small">{{
+                                            form.phone_number.errors }}</div>{% endif %}
+                                    </div>
+
+                                    <div class="col-md-4 col-12">
+                                        <label class="form-label" for="{{ form.guardian_name.id_for_label }}">Guardian's
+                                            Name</label>
+                                        {{ form.guardian_name }}
+                                        {% if form.guardian_name.errors %}<div class="text-danger mt-1 small">{{
+                                            form.guardian_name.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-4 col-12">
+                                        <label class="form-label"
+                                            for="{{ form.guardian_phone.id_for_label }}">Guardian's
+                                            Phone</label>
+                                        {{ form.guardian_phone }}
+                                        {% if form.guardian_phone.errors %}<div class="text-danger mt-1 small">{{
+                                            form.guardian_phone.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-4 col-12">
+                                        <label class="form-label"
+                                            for="{{ form.guardian_relation.id_for_label }}">Guardian
+                                            Relation</label>
+                                        {{ form.guardian_relation }}
+                                        {% if form.guardian_relation.errors %}<div class="text-danger mt-1 small">{{
+                                            form.guardian_relation.errors }}</div>{% endif %}
+                                    </div>
+
+                                    <div class="col-md-6 col-12">
+                                        <label class="form-label" for="{{ form.present_address.id_for_label }}">Present
+                                            Address</label>
+                                        {{ form.present_address }}
+                                        {% if form.present_address.errors %}<div class="text-danger mt-1 small">{{
+                                            form.present_address.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-6 col-12">
+                                        <label class="form-label"
+                                            for="{{ form.permanent_address.id_for_label }}">Permanent
+                                            Address</label>
+                                        {{ form.permanent_address }}
+                                        {% if form.permanent_address.errors %}<div class="text-danger mt-1 small">{{
+                                            form.permanent_address.errors }}</div>{% endif %}
+                                    </div>
+                                </div>
+
+                                {% if form.non_field_errors %}
+                                <div class="row mb-4">
+                                    <div class="col-12 text-danger small">
+                                        {{ form.non_field_errors }}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <div class="col-12 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-label-primary btn-prev">
+                                        <i class="ti tabler-arrow-left icon-xs me-sm-2 me-0"></i>
+                                        <span class="align-middle d-sm-inline-block d-none">Previous</span>
+                                    </button>
+                                    <div>
+                                        <a href="{% url 'student_list' %}" class="btn btn-label-primary me-2">Cancel</a>
+                                        <button type="submit" class="btn btn-success btn-submit">Save Student</button>
+                                    </div>
+                                </div>
+
+                                {% if action == 'Create' %}
+                                <div class="mt-4">
+                                    <span class="badge bg-label-warning">
+                                        <i class="ti tabler-info-circle me-1"></i> Default password for this student
+                                        account
+                                        will be <strong>123456</strong>
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Class Routine{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Class Routine</h4><small class="text-muted">Weekly timetable for each class.</small>
+        </div>
+        <a href="{% url 'class_routine_create' %}" class="btn btn-primary">+ Add Entry</a>
+    </div>
+</div>
+<!-- Filter -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <select name="class_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Select Class --</option>
+                    {% for c in classes %}
+                        <option value="{{ c.id }}" {% if class_id == c.id|slugify %}selected{% endif %}>
+                            {{ c.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <select name="section_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Sections</option>
+                    {% for s in sections %}
+                        <option value="{{ s.id }}" {% if section_id == s.id|slugify %}selected{% endif %}>
+                            {{ s.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if class_id %}
+            <div class="col-md-4">
+                <button type="button" onclick="window.print()" class="btn btn-label-secondary w-100">
+                    <i class="ti tabler-printer me-1"></i>Print
+                </button>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% if class_id %}
+<div class="table-responsive">
+    <table class="table table-bordered table-hover text-center align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th style="min-width:120px;">Period</th>
+                {% for day in days %}
+                    <th>{{ day|capfirst }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for period in "12345678" %}
+            <tr>
+                <td class="fw-bold bg-light">Period {{ period }}</td>
+                {% for day in days %}
+                <td>
+                    {% for entry in day_entries %}
+                        {# পিরিয়ড নাম্বার এবং দিন ম্যাচ করা হচ্ছে #}
+                        {% if entry.day|lower == day|lower and entry.period_number|slugify == period %}
+                            <div class="small">
+                                <strong>{{ entry.subject_name }}</strong><br>
+                                <span class="text-muted">
+                                    {{ entry.teacher_name }}<br>
+                                    {{ entry.start_time|time:"H:i" }} – {{ entry.end_time|time:"H:i" }}
+                                </span>
+                                {% if entry.room %}
+                                    <br><span class="badge bg-label-secondary" style="font-size:10px;">{{ entry.room }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-flex justify-content-center gap-1 mt-1">
+                                <a href="{% url 'class_routine_edit' entry.pk %}" 
+                                   class="btn btn-xs btn-icon btn-label-warning">
+                                   <i class="ti tabler-edit" style="font-size:12px;"></i>
+                                </a>
+                                <a href="{% url 'class_routine_delete' entry.pk %}" 
+                                   class="btn btn-xs btn-icon btn-label-danger" 
+                                   onclick="return confirm('Are you sure?')">
+                                   <i class="ti tabler-trash" style="font-size:12px;"></i>
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center text-muted py-5">
+    <i class="ti tabler-info-circle mb-2" style="font-size: 3rem;"></i>
+    <p>Please select a class to view its routine.</p>
+</div>
+{% endif %}
+{% endblock %}

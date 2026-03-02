@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card mb-6">
+      <div class="user-profile-header-banner">
+        <img src="{% static 'assets/img/pages/profile-banner.png' %}" alt="Banner image" class="rounded-top" />
+      </div>
+      <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-5">
+        <div class="flex-shrink-0 mt-n2 mx-sm-0 mx-auto">
+          {% if user.image %}
+          <img src="{{ user.image.url }}" alt="user image" class="d-block h-auto ms-0 ms-sm-6 rounded user-profile-img"
+            style="width: 120px; height: 120px; object-fit: cover; border: 5px solid #fff;" />
+          {% else %}
+          <div
+            class="d-flex align-items-center justify-content-center bg-primary text-white rounded ms-0 ms-sm-6 user-profile-img"
+            style="width: 120px; height: 120px; font-size: 3rem; border: 5px solid #fff;">
+            <span>{{ user.username|make_list|first|upper }}</span>
+          </div>
+          {% endif %}
+        </div>
+        <div class="flex-grow-1 mt-3 mt-lg-5">
+          <div
+            class="d-flex align-items-md-end align-items-sm-start align-items-center justify-content-md-between justify-content-start mx-5 flex-md-row flex-column gap-4">
+            <div class="user-profile-info">
+              <h4 class="mb-2 mt-lg-6">
+                <span>{{ user.get_full_name|default:user.username }}</span>
+              </h4>
+              <ul
+                class="list-inline mb-0 d-flex align-items-center flex-wrap justify-content-sm-start justify-content-center gap-4 my-2">
+                <li class="list-inline-item d-flex gap-2 align-items-center">
+                  <i class="icon-base ti tabler-crown"></i>
+                  <span class="fw-medium text-capitalize">
+                    <span>{{ user.role.name|default:"Unassigned" }}</span>
+                  </span>
+                </li>
+                <li class="list-inline-item d-flex gap-2 align-items-center">
+                  <i class="icon-base ti tabler-calendar"></i>
+                  <span class="fw-medium">
+                    Joined <span>{{ user.date_joined|date:"F Y" }}</span>
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <div class="d-flex gap-2">
+              <a href="{% url 'profile_edit' %}" class="btn btn-primary mb-1">
+                <i class="icon-base ti tabler-edit me-2"></i>Edit Profile
+              </a>
+              <a href="{% url 'password_change' %}" class="btn btn-label-secondary mb-1">
+                <i class="icon-base ti tabler-key me-2"></i>Change Password
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Profile Content -->
+<div class="row">
+  <div class="col-xl-4 col-lg-5 col-md-5 mx-auto">
+    <!-- About User -->
+    <div class="card mb-6 shadow-none border">
+      <div class="card-body">
+        <h5 class="card-title text-primary mb-4 pb-2 border-bottom">
+          <i class="icon-base ti tabler-user-check me-2"></i>Profile Details
+        </h5>
+
+        <p class="card-text text-uppercase text-muted fw-bold small mb-2 mt-4">About</p>
+        <ul class="list-unstyled mb-4">
+          <li class="d-flex align-items-center mb-3">
+            <i class="icon-base ti tabler-user me-3 text-secondary ti-md"></i>
+            <div>
+              <span class="fw-medium text-heading">Full Name</span>
+              <div class="text-muted">{{ user.get_full_name|default:user.username }}</div>
+            </div>
+          </li>
+          <li class="d-flex align-items-center mb-3">
+            <i class="icon-base ti tabler-check me-3 text-success ti-md"></i>
+            <div>
+              <span class="fw-medium text-heading">Status</span>
+              <div class="text-muted">Active</div>
+            </div>
+          </li>
+          <li class="d-flex align-items-center mb-3">
+            <i class="icon-base ti tabler-crown me-3 text-warning ti-md"></i>
+            <div>
+              <span class="fw-medium text-heading">Role</span>
+              <div class="text-muted text-capitalize">{{ user.role.name|default:"Unassigned" }}</div>
+            </div>
+          </li>
+        </ul>
+
+        <p class="card-text text-uppercase text-muted fw-bold small mb-2 mt-4">Contacts</p>
+        <ul class="list-unstyled mb-0">
+          <li class="d-flex align-items-center">
+            <i class="icon-base ti tabler-mail me-3 text-secondary ti-md"></i>
+            <div>
+              <span class="fw-medium text-heading">Email</span>
+              <div class="text-muted">{{ user.email|default:"Not Provided" }}</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!--/ About User -->
+  </div>
+</div>
+{% endblock %}

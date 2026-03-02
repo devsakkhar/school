@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}User Management | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-6">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Users List</h5>
+                <div class="d-flex align-items-center gap-3">
+                    <form method="GET" action="{% url 'user_list' %}" class="d-flex align-items-center">
+                        <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="ti tabler-search"></i></span>
+                            <input type="text" name="q" class="form-control" placeholder="Search users..."
+                                value="{{ search_query }}">
+                        </div>
+                    </form>
+                    {% if perms.accounts.manage_users %}
+                    <a href="{% url 'user_create' %}" class="btn btn-primary text-nowrap">
+                        <i class="ti tabler-plus me-1"></i> Add New User
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for u in users %}
+                        <tr>
+                            <td>
+                                <div class="d-flex justify-content-start align-items-center">
+                                    <div class="avatar-wrapper">
+                                        <div class="avatar me-2">
+                                            {% if u.image %}
+                                            <img src="{{ u.image.url }}" alt="Avatar" class="rounded-circle">
+                                            {% else %}
+                                            <span class="avatar-initial rounded-circle bg-label-primary">
+                                                {{ u.first_name|default:u.username|first|upper }}
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-medium">{{ u.get_full_name|default:u.username }}</span>
+                                        <small class="text-muted">{{ u.email|default:"No email" }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% with role_name=u.role.name|default_if_none:''|lower %}
+                                {% if u.is_superuser or role_name == 'admin' or role_name == 'administrator' %}
+                                <span class="badge bg-label-primary">
+                                    <i class="ti tabler-crown ti-xs me-1"></i>
+                                    {{ u.role.name|default:"Super Admin" }}
+                                </span>
+
+                                {% elif role_name == 'teacher' %}
+                                <span class="badge bg-label-success">
+                                    <i class="ti tabler-edit ti-xs me-1"></i>
+                                    {{ u.role.name }}
+                                </span>
+
+                                {% elif role_name == 'student' %}
+                                <span class="badge bg-label-warning">
+                                    <i class="ti tabler-user ti-xs me-1"></i>
+                                    {{ u.role.name }}
+                                </span>
+
+                                {% elif u.role %}
+                                <span class="badge bg-label-info">
+                                    <i class="ti tabler-briefcase ti-xs me-1"></i>
+                                    {{ u.role.name }}
+                                </span>
+
+                                {% else %}
+                                <span class="badge bg-label-secondary">
+                                    No Role
+                                </span>
+                                {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                {% if u.is_active %}
+                                <span class="badge bg-label-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-label-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ u.date_joined|date:"M d, Y" }}</td>
+                            <td>
+                                {% if perms.accounts.manage_users %}
+                                <div class="dropdown">
+                                    <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
+                                        data-bs-toggle="dropdown">
+                                        <i class="ti tabler-dots-vertical"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="{% url 'user_update' u.pk %}"><i
+                                                class="ti tabler-edit me-1"></i> Edit</a>
+                                        {% if u != user %}
+                                        <a class="dropdown-item text-danger" href="{% url 'user_delete' u.pk %}"><i
+                                                class="ti tabler-trash me-1"></i> Delete</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% else %}
+                                <span class="text-muted"><i class="ti tabler-lock"></i></span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">No users found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if users.has_other_pages %}
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <small class="text-muted">Showing {{ users.start_index }} to {{ users.end_index }} of {{
+                    users.paginator.count }} entries</small>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm mb-0">
+                        {% if users.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}"><i
+                                    class="ti tabler-chevrons-left"></i></a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?page={{ users.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}"><i
+                                    class="ti tabler-chevron-left"></i></a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="ti tabler-chevrons-left"></i></span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="ti tabler-chevron-left"></i></span>
+                        </li>
+                        {% endif %}
+
+                        {% for num in users.paginator.page_range %}
+                        {% if users.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > users.number|add:'-3' and num < users.number|add:'3' %} <li class="page-item"><a
+                                class="page-link"
+                                href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}">{{ num
+                                }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if users.has_next %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page={{ users.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}"><i
+                                        class="ti tabler-chevron-right"></i></a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page={{ users.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}"><i
+                                        class="ti tabler-chevrons-right"></i></a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="ti tabler-chevron-right"></i></span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="ti tabler-chevrons-right"></i></span>
+                            </li>
+                            {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

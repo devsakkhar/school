@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Calendar Event{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-header border-bottom d-flex justify-content-between">
+                <h5 class="mb-0">{{ action }} Calendar Event</h5>
+                <a href="{% url 'year_calendar' %}" class="btn btn-sm btn-label-secondary">← Calendar</a>
+            </div>
+            <div class="card-body mt-3">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Event Title <span class="text-danger">*</span></label>
+                            <input type="text" name="title" class="form-control" value="{{ event.title|default:'' }}"
+                                placeholder="e.g. Eid Holiday" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Event Type</label>
+                            <select name="event_type" class="form-select">
+                                {% for val, label in event_types %}<option value="{{ val }}" {% if event.event_type==val
+                                    %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                            <input type="date" name="start_date" class="form-control"
+                                value="{{ event.start_date|date:'Y-m-d'|default:'' }}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">End Date</label>
+                            <input type="date" name="end_date" class="form-control"
+                                value="{{ event.end_date|date:'Y-m-d'|default:'' }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control"
+                                rows="2">{{ event.description|default:'' }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Applies To</label>
+                            <select name="student_class" class="form-select">
+                                <option value="">-- Class Specific --</option>
+                                {% for c in classes %}<option value="{{ c.id }}" {% if event.student_class_id==c.id
+                                    %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="form-check">
+                                <input type="checkbox" name="applies_to_all" class="form-check-input" id="applyAll" {%
+                                    if event.applies_to_all or not event %}checked{% endif %}>
+                                <label class="form-check-label fw-bold" for="applyAll">Applies to All Students</label>
+                            </div>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end gap-2">
+                            <a href="{% url 'year_calendar' %}" class="btn btn-label-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Event</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

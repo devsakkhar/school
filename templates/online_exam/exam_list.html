@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Online Exams{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Online Exams (MCQ)</h4>
+            <small class="text-muted">Manage and monitor all online MCQ examinations.</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'question_bank' %}" class="btn btn-label-success">Question Bank</a>
+            <a href="{% url 'online_exam_create' %}" class="btn btn-primary">+ Create Exam</a>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header border-bottom">
+    <form method="GET" class="d-flex gap-2">
+        <select name="class_id" class="form-select form-select-sm" style="max-width:200px;" onchange="this.form.submit()">
+            <option value="">All Classes</option>
+            
+            {% for c in classes %}
+                <option value="{{ c.id }}" {% if class_id == c.id|slugify %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+            {% endfor %}
+            
+        </select>
+        
+        {% for key, value in request.GET.items %}
+            {% if key != 'class_id' %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+        {% endfor %}
+    </form>
+</div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Exam Name</th>
+                    <th>Class</th>
+                    <th>Subject</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Questions</th>
+                    <th>Attempts</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+                <tr>
+                    <td><strong>{{ exam.name }}</strong></td>
+                    <td>{{ exam.student_class }}{% if exam.section %} / {{ exam.section }}{% endif %}</td>
+                    <td>{{ exam.subject }}</td>
+                    <td>{{ exam.duration_minutes }} min</td>
+                    <td>
+                        <span
+                            class="badge bg-label-{% if exam.status == 'active' %}success{% elif exam.status == 'draft' %}secondary{% else %}danger{% endif %}">
+                            {{ exam.get_status_display }}
+                        </span>
+                    </td>
+                    <td><span class="badge bg-label-info">{{ exam.q_count }}</span></td>
+                    <td><span class="badge bg-label-primary">{{ exam.attempt_count }}</span></td>
+                    <td>
+                        <a href="{% url 'online_exam_detail' exam.pk %}" class="btn btn-sm btn-label-primary">View</a>
+                        <a href="{% url 'online_exam_edit' exam.pk %}" class="btn btn-sm btn-icon btn-label-warning"><i
+                                class="ti tabler-edit"></i></a>
+                        <a href="{% url 'online_exam_delete' exam.pk %}" class="btn btn-sm btn-icon btn-label-danger"><i
+                                class="ti tabler-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5 text-muted">No exams created. <a
+                            href="{% url 'online_exam_create' %}">Create one →</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

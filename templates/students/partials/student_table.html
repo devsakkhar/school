@@ -1,0 +1,133 @@
+<div class="table-responsive" id="student-table-container">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Admission No</th>
+                <th>Class (Sec)</th>
+                <th>Roll</th>
+                <th>Phone (Guardian)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+            {% for student in students %}
+            <tr>
+                <td>
+                    <div class="d-flex justify-content-start align-items-center user-name">
+                        <div class="avatar-wrapper">
+                            <div class="avatar avatar-sm me-4">
+                                {% if student.user.image %}
+                                <img src="{{ student.user.image.url }}" alt="Avatar" class="rounded-circle">
+                                {% else %}
+                                <span class="avatar-initial rounded-circle bg-label-primary">
+                                    {{ student.user.first_name|default:student.user.email|first|upper }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <a href="{% url 'student_detail' student.pk %}" class="text-heading text-truncate">
+                                <span class="fw-medium">
+                                    {% if student.user.get_full_name %}
+                                    {{ student.user.get_full_name }}
+                                    {% else %}
+                                    {{ student.user.username }}
+                                    {% endif %}
+                                </span>
+                            </a>
+                            <small>{{ student.user.email }}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ student.admission_number }}</td>
+                <td>{{ student.current_class }} {% if student.section %}({{ student.section }}){% endif %}
+                </td>
+                <td>{{ student.roll_number|default:"-" }}</td>
+                <td>{{ student.guardian_phone|default:student.phone_number }}</td>
+                <td>
+                    <div class="dropdown">
+                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                            <i class="ti ti tabler-dots-vertical"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'student_detail' student.pk %}"><i
+                                    class="ti ti tabler-eye me-1"></i> View</a>
+                            <a class="dropdown-item" href="{% url 'generate_id_cards' %}?student_id={{ student.pk }}"
+                                target="_blank"><i class="ti ti tabler-id-badge-2 me-1"></i> Print ID</a>
+                            <a class="dropdown-item" href="{% url 'student_update' student.pk %}"><i
+                                    class="ti ti tabler-pencil me-1"></i> Edit</a>
+                            <a class="dropdown-item" href="{% url 'student_delete' student.pk %}"><i
+                                    class="ti ti tabler-trash me-1"></i> Delete</a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No students found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if students.has_other_pages %}
+<div class="card-footer d-flex justify-content-between align-items-center" id="student-pagination">
+    <small class="text-muted">Showing {{ students.start_index }} to {{ students.end_index }} of {{
+        students.paginator.count }} entries</small>
+    <nav aria-label="Page navigation">
+        <ul class="pagination pagination-sm mb-0">
+            {% if students.has_previous %}
+            <li class="page-item">
+                <a class="page-link ajax-page" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}"><i
+                        class="ti ti-chevrons-left"></i></a>
+            </li>
+            <li class="page-item">
+                <a class="page-link ajax-page"
+                    href="?page={{ students.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}"><i
+                        class="ti ti-chevron-left"></i></a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link"><i class="ti ti-chevrons-left"></i></span>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link"><i class="ti ti-chevron-left"></i></span>
+            </li>
+            {% endif %}
+
+            {% for num in students.paginator.page_range %}
+            {% if students.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > students.number|add:'-3' and num < students.number|add:'3' %} <li class="page-item"><a
+                    class="page-link ajax-page"
+                    href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}">{{ num
+                    }}</a></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if students.has_next %}
+                <li class="page-item">
+                    <a class="page-link ajax-page"
+                        href="?page={{ students.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}"><i
+                            class="ti ti-chevron-right"></i></a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link ajax-page"
+                        href="?page={{ students.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}"><i
+                            class="ti ti-chevrons-right"></i></a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="ti ti-chevron-right"></i></span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="ti ti-chevrons-right"></i></span>
+                </li>
+                {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}

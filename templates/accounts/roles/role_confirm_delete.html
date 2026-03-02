@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Role | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card mb-4 text-center">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0 text-white">Confirm Deletion</h5>
+            </div>
+            <div class="card-body mt-4">
+                <i class="ti tabler-alert-triangle text-danger mb-3" style="font-size: 4rem;"></i>
+                <h4>Are you sure you want to delete the role "{{ role.name }}"?</h4>
+                <p class="text-muted">This action cannot be undone. Users currently holding this role will lose their
+                    associated permissions.</p>
+
+                <form method="POST" class="mt-4">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger me-2">Yes, Delete</button>
+                    <a href="{% url 'role_list' %}" class="btn btn-label-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

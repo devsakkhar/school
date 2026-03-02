@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Routine Entry{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-7 mx-auto">
+        <div class="card">
+            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ action }} Class Routine Entry</h5>
+                <a href="{% url 'class_routine_home' %}" class="btn btn-sm btn-label-success">← Back</a>
+            </div>
+            <div class="card-body mt-3">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Class <span class="text-danger">*</span></label>
+                            <select name="student_class" class="form-select" required id="routineClassSel">
+                                <option value="">-- Select --</option>
+                                {% for c in classes %}
+                                    <option value="{{ c.id }}" {% if entry.student_class_id == c.id %}selected{% endif %}>
+                                        {{ c.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Section</label>
+                            <select name="section" class="form-select" id="routineSectionSel">
+                                <option value="">All Sections</option>
+                                {% for s in sections %}
+                                    <option value="{{ s.id }}" {% if entry.section_id == s.id %}selected{% endif %}>
+                                        {{ s.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Day <span class="text-danger">*</span></label>
+                            <select name="day" class="form-select" required>
+                                <option value="">-- Select Day --</option>
+                                {% for val, label in day_choices %}
+                                    <option value="{{ val }}" {% if entry.day == val %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label">Period #</label>
+                            <input type="number" name="period_number" class="form-control"
+                                value="{{ entry.period_number|default:1 }}" min="1" max="10">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Subject <span class="text-danger">*</span></label>
+                            <input type="text" name="subject_name" class="form-control"
+                                value="{{ entry.subject_name|default:'' }}" placeholder="e.g. Mathematics" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Teacher Name</label>
+                            <input type="text" name="teacher_name" class="form-control"
+                                value="{{ entry.teacher_name|default:'' }}" placeholder="e.g. Mr. Rahman">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Start Time</label>
+                            <input type="time" name="start_time" class="form-control"
+                                value="{{ entry.start_time|time:'H:i' }}">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">End Time</label>
+                            <input type="time" name="end_time" class="form-control"
+                                value="{{ entry.end_time|time:'H:i' }}">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Room</label>
+                            <input type="text" name="room" class="form-control" 
+                                value="{{ entry.room|default:'' }}" placeholder="e.g. Room 101">
+                        </div>
+
+                        <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+                            <a href="{% url 'class_routine_home' %}" class="btn btn-label-danger">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Routine</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

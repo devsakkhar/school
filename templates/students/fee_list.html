@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Fee Types{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Fee Types</h4><small class="text-muted">Define fees applicable to students.</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'fee_payments' %}" class="btn btn-label-secondary">Payment Records</a>
+            <a href="{% url 'record_payment' %}" class="btn btn-label-success">+ Record Payment</a>
+            <a href="{% url 'fee_type_create' %}" class="btn btn-primary">+ Add Fee Type</a>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Amount (৳)</th>
+                        <th>Academic Year</th>
+                        <th>Applies To</th>
+                        <th>Due Date</th>
+                        <th>Total Collected</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ft in fee_types %}
+                    <tr>
+                        <td><strong>{{ ft.name }}</strong>{% if ft.description %}<br><small class="text-muted">{{
+                                ft.description }}</small>{% endif %}</td>
+                        <td class="fw-bold">৳{{ ft.amount }}</td>
+                        <td>{{ ft.academic_year|default:"—" }}</td>
+                        <td>{% if ft.applies_to_class %}<span class="badge bg-label-info">{{ ft.applies_to_class.name
+                                }}</span>{% else %}<span class="badge bg-label-secondary">All Classes</span>{% endif %}
+                        </td>
+                        <td>{{ ft.due_date|date:"d M Y"|default:"—" }}</td>
+                        <td class="fw-bold text-success">৳{{ ft.payments.all|length|default:0 }}</td>
+                        <td>
+                            <a href="{% url 'fee_type_update' ft.pk %}" class="btn btn-sm btn-icon btn-label-warning"><i
+                                    class="ti tabler-edit"></i></a>
+                            <a href="{% url 'fee_type_delete' ft.pk %}" class="btn btn-sm btn-icon btn-label-danger"><i
+                                    class="ti tabler-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">No fee types created. <a
+                                href="{% url 'fee_type_create' %}">Create one →</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

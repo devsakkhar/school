@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Delete Subject{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-5 mx-auto">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="ti tabler-alert-triangle text-danger" style="font-size:3rem;"></i>
+                <h5 class="mt-3">Delete Subject?</h5>
+                <p class="text-muted">Delete <strong>{{ subject.name }}</strong> ({{ subject.student_class }})? This
+                    cannot be undone and will also remove all associated exam results for this subject.</p>
+                <form method="POST" class="d-flex justify-content-center gap-3 mt-4">
+                    {% csrf_token %}
+                    <a href="{% url 'subject_list' %}" class="btn btn-label-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

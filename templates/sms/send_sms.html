@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Send SMS{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-7 mx-auto">
+        <div class="card mb-4">
+            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0">Send SMS</h5>
+                    <small class="text-muted">Bulk SMS to students / guardians (logged — no gateway configured).</small>
+                </div>
+                <a href="{% url 'sms_history' %}" class="btn btn-sm btn-label-secondary">History</a>
+            </div>
+            <div class="card-body mt-2">
+                <div class="alert alert-warning py-2 mb-4">
+                    <i class="ti tabler-info-circle me-1"></i>
+                    <strong>Note:</strong> No SMS gateway is configured. Messages will be saved to history for your
+                    records.
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Target Class</label>
+                            <select name="recipient_class" class="form-select">
+                                {% for val, label in classes|default:'' %}{% endfor %}
+                                <option value="">All Classes</option>
+                                {% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Student Status</label>
+                            <select name="recipient_status" class="form-select">
+                                {% for val, label in status_choices %}<option value="{{ val }}">{{ label }}</option>{%
+                                endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Message <span class="text-danger">*</span></label>
+                            <textarea name="message" class="form-control" rows="4"
+                                placeholder="Type your SMS message..." required maxlength="640"></textarea>
+                            <small class="text-muted">Max 640 characters (4 SMS units)</small>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end gap-2">
+                            <a href="{% url 'sms_history' %}" class="btn btn-label-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-5">Log SMS</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

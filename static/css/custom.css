@@ -1,0 +1,31 @@
+/* Merriweather Font */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap');
+
+:root {
+  --bs-primary: #138496 !important;
+  --bs-primary-rgb: 19, 132, 150 !important;
+  --bs-font-sans-serif: 'Merriweather', serif !important;
+  --bs-body-font-family: 'Merriweather', serif !important;
+}
+
+body {
+  font-family: 'Merriweather', serif !important;
+}
+
+.bg-primary {
+  background-color: #138496 !important;
+}
+
+.text-primary {
+  color: #138496 !important;
+}
+
+.btn-primary {
+  background-color: #138496 !important;
+  border-color: #138496 !important;
+}
+
+.btn-primary:hover {
+  background-color: #0f6c7a !important;
+  border-color: #0d5c68 !important;
+}

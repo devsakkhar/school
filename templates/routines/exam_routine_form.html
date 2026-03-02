@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Exam Routine{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-7 mx-auto">
+        <div class="card">
+            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ action }} Exam Routine Entry</h5>
+                <a href="{% url 'exam_routine_home' %}" class="btn btn-sm btn-label-secondary">← Back</a>
+            </div>
+            <div class="card-body mt-3">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+    <label class="form-label">
+        Exam Name <span class="text-danger">*</span>
+    </label>
+    <input type="text"
+           name="exam_name"
+           class="form-control"
+           value="{{ entry.exam_name|default:'' }}"
+           placeholder="e.g. Half-Yearly Examination 2026"
+           required>
+</div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Class <span class="text-danger">*</span></label>
+                            <select name="student_class" class="form-select" required id="examRoutineClass">
+                                <option value="">-- Select --</option>
+                                {% for c in classes %}
+                                    <option value="{{ c.id }}" {% if entry.student_class_id == c.id %}selected{% endif %}>
+                                        {{ c.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Section</label>
+                            <select name="section" class="form-select">
+                                <option value="">All</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Subject <span class="text-danger">*</span></label>
+                            <input type="text" name="subject" class="form-control"
+                                value="{{ entry.subject|default:'' }}" placeholder="e.g. Mathematics" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Exam Date</label>
+                            <input type="date" name="exam_date" class="form-control"
+                                value="{{ entry.exam_date|date:'Y-m-d' }}">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Academic Year</label>
+                            <input type="text" name="academic_year" class="form-control"
+                                value="{{ entry.academic_year|default:'' }}" placeholder="2026">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Start Time</label>
+                            <input type="time" name="start_time" class="form-control"
+                                value="{{ entry.start_time|time:'H:i' }}">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">End Time</label>
+                            <input type="time" name="end_time" class="form-control"
+                                value="{{ entry.end_time|time:'H:i' }}">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Room</label>
+                            <input type="text" name="room" class="form-control" 
+                                value="{{ entry.room|default:'' }}" placeholder="e.g. Hall A">
+                        </div>
+
+                        <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+                            <a href="{% url 'exam_routine_home' %}" class="btn btn-label-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Entry</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

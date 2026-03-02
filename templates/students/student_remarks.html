@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Remarks | {{ student.user.get_full_name }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header border-bottom d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="mb-0">Remarks — {{ student.user.get_full_name }}</h5>
+                    <small class="text-muted">Staff notes and observations for this student.</small>
+                </div>
+                <a href="{% url 'student_detail' student.pk %}" class="btn btn-sm btn-label-secondary">← Back to
+                    Student</a>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="mb-4">
+                    {% csrf_token %}
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-10">
+                            <textarea name="note" class="form-control" rows="2"
+                                placeholder="Write a remark or observation..." required></textarea>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Add Remark</button>
+                        </div>
+                    </div>
+                </form>
+                <hr>
+                {% for remark in remarks %}
+                <div class="d-flex gap-3 mb-3 p-3 border rounded bg-light">
+                    <div class="avatar avatar-sm bg-label-primary rounded-circle flex-shrink-0">
+                        {{ remark.author.first_name|default:remark.author.username|first|upper }}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between">
+                            <strong class="small">{{ remark.author.get_full_name|default:remark.author.username
+                                }}</strong>
+                            <small class="text-muted">{{ remark.created_at|date:"d M Y, h:i A" }}</small>
+                        </div>
+                        <p class="mb-0 mt-1">{{ remark.note }}</p>
+                    </div>
+                    <form method="POST" action="{% url 'student_remark_delete' student.pk remark.pk %}" class="ms-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-icon btn-label-danger"
+                            onclick="return confirm('Delete this remark?')">
+                            <i class="ti ti tabler-trash"></i>
+                        </button>
+                    </form>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-4">No remarks added yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Details | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Student Sidebar -->
+    <div class="col-xl-4 col-lg-5 col-md-5 order-1 order-md-0">
+        <!-- Student Card -->
+        <div class="card mb-6">
+            <div class="card-body">
+                <div class="user-avatar-section">
+                    <div class=" d-flex align-items-center flex-column">
+                        {% if student.user.image %}
+                        <img class="img-fluid rounded mb-4 pt-1 mt-4" src="{{ student.user.image.url }}" height="100"
+                            width="100" alt="User avatar" />
+                        {% else %}
+                        <div class="avatar avatar-xl mb-4 pt-1 mt-4">
+                            <span class="avatar-initial rounded bg-label-primary fs-3">
+                                {% if student.user.first_name %}
+                                {{ student.user.first_name|first|upper }}
+                                {% else %}
+                                {{ student.user.email|first|upper }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+                        <div class="user-info text-center">
+                            <h4 class="mb-2">{{ student.user.get_full_name }}</h4>
+                            <span class="badge bg-label-primary">{{ student.user.role.name|default:"Student" }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-around flex-wrap my-5 gap-0 border-bottom pb-4">
+                    <div class="d-flex align-items-start me-4 mt-3 gap-2">
+                        <span class="badge bg-label-primary p-2 rounded"><i
+                                class="ti ti tabler-id-badge ti-26px"></i></span>
+                        <div>
+                            <p class="mb-0 fw-medium">{{ student.admission_number }}</p>
+                            <small>Admission No</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start mt-3 gap-2">
+                        <span class="badge bg-label-primary p-2 rounded"><i
+                                class="ti ti tabler-school ti-26px"></i></span>
+                        <div>
+                            <p class="mb-0 fw-medium">
+                                {% if student.current_class %}
+                                {{ student.current_class }}{% if student.section %} ({{ student.section }}){% endif %}
+                                {% else %}
+                                Not Assigned
+                                {% endif %}
+                            </p>
+                            <small>Class</small>
+                        </div>
+                    </div>
+                </div>
+                <h5 class="pb-4 border-bottom mb-4">Details</h5>
+                <div class="info-container">
+                    <ul class="list-unstyled mb-6">
+                        <li class="mb-2">
+                            <span class="fw-medium text-heading me-2">Username:</span>
+                            <span>{{ student.user.username }}</span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="fw-medium text-heading me-2">Email:</span>
+                            <span>{{ student.user.email }}</span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="fw-medium text-heading me-2">Status:</span>
+                            {% if student.status == 'Active' %}
+                            <span class="badge bg-label-success">Active</span>
+                            {% elif student.status == 'Alumni' %}
+                            <span class="badge bg-label-info">Alumni</span>
+                            {% elif student.status == 'Transferred' %}
+                            <span class="badge bg-label-warning">Transferred</span>
+                            {% else %}
+                            <span class="badge bg-label-secondary">{{ student.status }}</span>
+                            {% endif %}
+                        </li>
+                        <li class="mb-2">
+                            <span class="fw-medium text-heading me-2">Roll No:</span>
+                            <span>{{ student.roll_number|default:"-" }}</span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="fw-medium text-heading me-2">Contact:</span>
+                            <span>{{ student.phone_number|default:"-" }}</span>
+                        </li>
+                    </ul>
+
+                    <!-- ── Quick Access Buttons ──────────────────── -->
+                    <h6 class="text-uppercase text-muted fw-bold mb-2" style="font-size:11px; letter-spacing:1px;">Quick
+                        Access</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <a href="{% url 'student_remarks' student.pk %}"
+                            class="btn btn-sm btn-label-secondary flex-fill text-center">
+                            <i class="ti tabler-note me-1"></i>Remarks
+                            {% with student.remarks.count as cnt %}
+                            {% if cnt %}<span class="badge bg-secondary rounded-pill ms-1">{{ cnt }}</span>{% endif %}
+                            {% endwith %}
+                        </a>
+                        <a href="{% url 'student_documents' student.pk %}"
+                            class="btn btn-sm btn-label-info flex-fill text-center">
+                            <i class="ti tabler-file me-1"></i>Documents
+                            {% with student.documents.count as cnt %}
+                            {% if cnt %}<span class="badge bg-info rounded-pill ms-1">{{ cnt }}</span>{% endif %}
+                            {% endwith %}
+                        </a>
+                        <a href="{% url 'student_contacts' student.pk %}"
+                            class="btn btn-sm btn-label-warning flex-fill text-center">
+                            <i class="ti tabler-phone me-1"></i>Contacts
+                            {% with student.contact_logs.count as cnt %}
+                            {% if cnt %}<span class="badge bg-warning rounded-pill ms-1">{{ cnt }}</span>{% endif %}
+                            {% endwith %}
+                        </a>
+                        <a href="{% url 'student_fee' student.pk %}"
+                            class="btn btn-sm btn-label-success flex-fill text-center">
+                            <i class="ti tabler-moneybag me-1"></i>Fee
+                            {% with student.fee_payments.count as cnt %}
+                            {% if cnt %}<span class="badge bg-success rounded-pill ms-1">{{ cnt }}</span>{% endif %}
+                            {% endwith %}
+                        </a>
+                        <a href="{% url 'student_report_card' student.pk %}"
+                            class="btn btn-sm btn-label-primary flex-fill text-center">
+                            <i class="ti tabler-report me-1"></i>Results
+                            {% with student.results.count as cnt %}
+                            {% if cnt %}<span class="badge bg-primary rounded-pill ms-1">{{ cnt }}</span>{% endif %}
+                            {% endwith %}
+                        </a>
+                    </div>
+
+                    <!-- ── Primary Actions ─────────────────────────── -->
+                    <div class="d-flex justify-content-center flex-wrap gap-2">
+                        <a href="{% url 'generate_id_cards' %}?student_id={{ student.pk }}" target="_blank"
+                            class="btn btn-label-info"><i class="ti ti tabler-id-badge-2 me-1"></i>Print ID</a>
+                        <a href="{% url 'student_update' student.pk %}" class="btn btn-primary">Edit</a>
+                        <a href="{% url 'student_delete' student.pk %}"
+                            class="btn btn-label-danger suspend-user">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Student Card -->
+    </div>
+    <!--/ Student Sidebar -->
+
+    <!-- Student Content -->
+    <div class="col-xl-8 col-lg-7 col-md-7 order-0 order-md-1">
+        <div class="card mb-6">
+            <h5 class="card-header border-bottom">Personal Information</h5>
+            <div class="card-body pt-4">
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Date of Birth:</span></div>
+                    <div class="col-sm-8">{{ student.date_of_birth|date:"d M Y"|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Gender:</span></div>
+                    <div class="col-sm-8">{{ student.gender|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Blood Group:</span></div>
+                    <div class="col-sm-8">{{ student.blood_group|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Religion:</span></div>
+                    <div class="col-sm-8">{{ student.religion|default:"-" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-6">
+            <h5 class="card-header border-bottom">Parent/Guardian Information</h5>
+            <div class="card-body pt-4">
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Father's Name:</span></div>
+                    <div class="col-sm-8">{{ student.father_name|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Father's Phone:</span></div>
+                    <div class="col-sm-8">{{ student.father_phone|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Mother's Name:</span></div>
+                    <div class="col-sm-8">{{ student.mother_name|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Mother's Phone:</span></div>
+                    <div class="col-sm-8">{{ student.mother_phone|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Guardian Name:</span></div>
+                    <div class="col-sm-8">{{ student.guardian_name|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Guardian Phone:</span></div>
+                    <div class="col-sm-8">{{ student.guardian_phone|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Guardian Relation:</span></div>
+                    <div class="col-sm-8">{{ student.guardian_relation|default:"-" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-6">
+            <h5 class="card-header border-bottom">Address & Other Details</h5>
+            <div class="card-body pt-4">
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Present Address:</span></div>
+                    <div class="col-sm-8">{{ student.present_address|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Permanent Address:</span></div>
+                    <div class="col-sm-8">{{ student.permanent_address|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Previous School:</span></div>
+                    <div class="col-sm-8">{{ student.previous_school|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><span class="fw-medium">Admission Date:</span></div>
+                    <div class="col-sm-8">{{ student.admission_date|date:"d M Y"|default:"-" }}</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!--/ Student Content -->
+</div>
+{% endblock %}

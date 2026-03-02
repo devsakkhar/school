@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Students List | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-6">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Students List</h5>
+                <div class="d-flex align-items-center gap-3">
+                    <form method="GET" action="{% url 'student_list' %}" class="d-flex align-items-center">
+                        <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="ti ti tabler-search"></i></span>
+                            <input type="text" name="q" class="form-control" placeholder="Search students..."
+                                value="{{ search_query }}">
+                        </div>
+                    </form>
+                    <a href="#" id="print-id-btn" class="btn btn-label-info text-nowrap">
+                        <i class="ti ti tabler-id-badge-2 me-1"></i>Print IDs
+                    </a>
+                    <a href="#" id="export-csv-btn" class="btn btn-label-success text-nowrap">
+                        <i class="ti ti tabler-file-export me-1"></i>Export CSV
+                    </a>
+                    <a href="{% url 'student_bulk_upload' %}" class="btn btn-label-primary text-nowrap">
+                        <i class="ti ti tabler-upload me-1"></i>Bulk Import
+                    </a>
+                    <a href="{% url 'student_create' %}" class="btn btn-primary text-nowrap">
+                        <i class="ti ti tabler-plus me-1"></i> Add
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body border-bottom">
+                <form id="filter-form" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label" for="filter-class">Class</label>
+                        <select id="filter-class" name="class_id" class="form-select filter-select">
+    <option value="">All Classes</option>
+    {% for c in classes %}
+                            <option value="{{ c.id }}"
+                                {% if class_id == c.id|stringformat:"s" %}selected{% endif %}>
+                                   {{ c.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="filter-section">Section</label>
+                        <select id="filter-section" name="section_id" class="form-select filter-select">
+                            <option value="">All Sections</option>
+                            <!-- Sections will be populated dynamically or handled via backend on submit. For now, we can just reload if class changes, or load section via AJAX. Since this is a live form, the backend will just filter whatever is passed. To keep UI clean, we can just leave it as 'All Sections' until class is picked. -->
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="filter-status">Status</label>
+                        <select id="filter-status" name="status" class="form-select filter-select">
+                            <option value="">All Statuses</option>
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if status_val == value %}selected{% endif %}>{{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <div id="student-table-container">
+                {% include 'students/partials/student_table.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        const searchInput = $('input[name="q"]');
+        const searchForm = searchInput.closest('form');
+        const filterSelects = $('.filter-select');
+        let typingTimer;
+        const typingInterval = 500;
+
+        function buildUrlAndFetch() {
+            const query = searchInput.val().trim();
+            const classId = $('#filter-class').val();
+            const sectionId = $('#filter-section').val();
+            const status = $('#filter-status').val();
+
+            let url = new URL("{% url 'student_list' %}", window.location.origin);
+
+            if (query) url.searchParams.append('q', query);
+            if (classId) url.searchParams.append('class_id', classId);
+            if (sectionId) url.searchParams.append('section_id', sectionId);
+            if (status) url.searchParams.append('status', status);
+
+            fetchStudents(url.toString());
+        }
+
+        function fetchStudents(url) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (data) {
+                    $('#student-table-container').html(data);
+                    window.history.pushState({ "html": data, "pageTitle": document.title }, "", url);
+                },
+                error: function (error) {
+                    console.log("Error fetching data:", error);
+                }
+            });
+        }
+
+        // Real-time search typing
+        searchInput.on('keyup', function () {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(buildUrlAndFetch, typingInterval);
+        });
+
+        // Search form submit
+        searchForm.on('submit', function (e) {
+            e.preventDefault();
+            clearTimeout(typingTimer);
+            buildUrlAndFetch();
+        });
+
+        // Dropdown filter change
+        filterSelects.on('change', function () {
+            buildUrlAndFetch();
+        });
+
+        // Delegate pagination clicks
+        $(document).on('click', '.ajax-page', function (e) {
+            e.preventDefault();
+            const url = $(this).attr('href');
+            fetchStudents(url);
+        });
+
+        // Handle dependent section dropdown for filter
+        $('#filter-class').on('change', function () {
+            var classId = $(this).val();
+            var sectionSelect = $('#filter-section');
+
+            sectionSelect.html('<option value="">All Sections</option>');
+            if (classId) {
+                $.ajax({
+                    url: '{% url "get_sections" %}',
+                    data: { 'class_id': classId },
+                    success: function (data) {
+                        data.forEach(function (section) {
+                            sectionSelect.append('<option value="' + section.id + '">' + section.name + '</option>');
+                        });
+                    }
+                });
+            }
+        });
+
+        // CSV Export binding
+        $('#export-csv-btn').on('click', function (e) {
+            e.preventDefault();
+            const query = searchInput.val().trim();
+            const classId = $('#filter-class').val();
+            const sectionId = $('#filter-section').val();
+            const status = $('#filter-status').val();
+
+            let url = new URL("{% url 'student_export_csv' %}", window.location.origin);
+
+            if (query) url.searchParams.append('q', query);
+            if (classId) url.searchParams.append('class_id', classId);
+            if (sectionId) url.searchParams.append('section_id', sectionId);
+            if (status) url.searchParams.append('status', status);
+
+            window.location.href = url.toString();
+        });
+
+        // Print IDs binding
+        $('#print-id-btn').on('click', function (e) {
+            e.preventDefault();
+            const query = searchInput.val().trim();
+            const classId = $('#filter-class').val();
+            const sectionId = $('#filter-section').val();
+            const status = $('#filter-status').val();
+
+            let url = new URL("{% url 'generate_id_cards' %}", window.location.origin);
+
+            if (query) url.searchParams.append('q', query);
+            if (classId) url.searchParams.append('class_id', classId);
+            if (sectionId) url.searchParams.append('section_id', sectionId);
+            if (status) url.searchParams.append('status', status);
+
+            window.open(url.toString(), '_blank'); // Open in new tab for printing
+        });
+    });
+</script>
+{% endblock %}

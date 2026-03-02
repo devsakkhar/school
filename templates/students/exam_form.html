@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Create Exam{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-7 mx-auto">
+        <div class="card">
+            <div class="card-header border-bottom d-flex justify-content-between">
+                <h5 class="mb-0">Create Exam</h5>
+                <a href="{% url 'exam_list' %}" class="btn btn-sm btn-label-secondary">← Back</a>
+            </div>
+            <div class="card-body mt-3">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Exam Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control"
+                                placeholder="e.g. Half-Yearly Examination 2025" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Class <span class="text-danger">*</span></label>
+                            <select name="student_class" class="form-select" required id="examClassSelect">
+                                <option value="">-- Select Class --</option>
+                                {% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Section</label>
+                            <select name="section" class="form-select" id="examSectionSelect">
+                                <option value="">All Sections</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Exam Date <span class="text-danger">*</span></label>
+                            <input type="date" name="exam_date" class="form-control" value="{{ today }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Total Marks</label>
+                            <input type="number" name="total_marks" class="form-control" value="100">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Pass Marks</label>
+                            <input type="number" name="pass_marks" class="form-control" value="33">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Academic Year</label>
+                            <input type="text" name="academic_year" class="form-control" placeholder="e.g. 2025-2026">
+                        </div>
+                        <div class="col-12 d-flex justify-content-end gap-2">
+                            <a href="{% url 'exam_list' %}" class="btn btn-label-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create &amp; Enter Marks</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.getElementById('examClassSelect').addEventListener('change', function () {
+        const classId = this.value;
+        const sectionSelect = document.getElementById('examSectionSelect');
+        sectionSelect.innerHTML = '<option value="">All Sections</option>';
+        if (classId) {
+            fetch(`/students/get-sections/?class_id=${classId}`)
+                .then(r => r.json())
+                .then(data => {
+                    data.sections.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.id; opt.textContent = s.name;
+                        sectionSelect.appendChild(opt);
+                    });
+                });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %}Year Calendar{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Year Calendar</h4><small class="text-muted">Academic events, holidays, exams and
+                activities.</small>
+        </div>
+        <a href="{% url 'calendar_event_create' %}" class="btn btn-primary">+ Add Event</a>
+    </div>
+</div>
+
+<!-- FullCalendar view -->
+<div class="card mb-4">
+    <div class="card-body p-0">
+        <div id="calendar" style="padding:16px;"></div>
+    </div>
+</div>
+
+<!-- Event Legend + Table -->
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header border-bottom">
+                <h6 class="mb-0">Event Types</h6>
+            </div>
+            <div class="card-body">
+                {% for val, label in event_types %}
+                <a href="?event_type={{ val }}"
+                    class="d-flex align-items-center gap-2 p-2 rounded mb-1 {% if event_type == val %}bg-label-primary active{% else %}text-body{% endif %}"
+                    style="text-decoration:none; transition: 0.3s;">
+                    <span class="rounded-circle d-inline-block"
+                        style="width:12px;height:12px;background:{% if val == 'holiday' %}#dc3545{% elif val == 'exam' %}#007bff{% elif val == 'activity' %}#28a745{% elif val == 'meeting' %}#fd7e14{% elif val == 'result' %}#6f42c1{% else %}#6c757d{% endif %};">
+                    </span>
+                    <span class="small">{{ label }}</span>
+                </a>
+                {% endfor %}
+                <hr class="my-2">
+                <a href="{% url 'year_calendar' %}" class="btn btn-label-secondary btn-sm w-100">Show All Events</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th>Applicable For</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                            <tr>
+                                <td>
+                                    <span class="fw-bold d-block">{{ event.title }}</span>
+                                    {% if event.description %}
+                                        <small class="text-muted text-truncate d-inline-block" style="max-width: 250px;">
+                                            {{ event.description }}
+                                        </small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% with etype=event.event_type %}
+                                    <span class="badge bg-label-{% if etype == 'holiday' %}danger{% elif etype == 'exam' %}primary{% elif etype == 'activity' %}success{% elif etype == 'meeting' %}warning{% elif etype == 'result' %}info{% else %}secondary{% endif %}">
+                                        {{ event.get_event_type_display }}
+                                    </span>
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    <small class="text-nowrap">
+                                        {{ event.start_date|date:"d M Y" }}
+                                        {% if event.end_date and event.end_date != event.start_date %}
+                                            <i class="ti tabler-arrow-right mx-1 small"></i> {{ event.end_date|date:"d M Y" }}
+                                        {% endif %}
+                                    </small>
+                                </td>
+                                <td>
+                                    {% if event.applies_to_all %}
+                                        <span class="badge rounded-pill bg-label-secondary">All Students</span>
+                                    {% elif event.student_class %}
+                                        <span class="badge rounded-pill bg-label-info">Class: {{ event.student_class }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a href="{% url 'calendar_event_edit' event.pk %}" class="btn btn-sm btn-icon btn-label-warning">
+                                            <i class="ti tabler-edit"></i>
+                                        </a>
+                                        <a href="{% url 'calendar_event_delete' event.pk %}" class="btn btn-sm btn-icon btn-label-danger" onclick="return confirm('Delete this event?')">
+                                            <i class="ti tabler-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="ti tabler-calendar-off d-block mb-2" style="font-size: 2rem;"></i>
+                                        No events found. <a href="{% url 'calendar_event_create' %}" class="fw-bold">Add New Event</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script>
+    const events = {{ events_json| safe }};
+    document.addEventListener('DOMContentLoaded', function () {
+        const cal = new FullCalendar.Calendar(document.getElementById('calendar'), {
+            initialView: 'dayGridMonth',
+            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listWeek' },
+            events: events.map(e => ({
+                id: e.id,
+                title: e.title,
+                start: e.start,
+                end: e.end,
+                backgroundColor: e.color,
+                borderColor: e.color,
+            })),
+            eventClick: function (info) {
+                alert(info.event.title + '\n' + info.event.startStr);
+            }
+        });
+        cal.render();
+    });
+</script>
+{% endblock %}

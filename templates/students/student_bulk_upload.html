@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bulk Upload Students | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-6">
+            <h5 class="card-header">Bulk Upload Students</h5>
+            <div class="card-body">
+                <p>Upload a CSV file containing student data to create multiple records at once.</p>
+
+                <div class="alert alert-info d-flex flex-column align-items-start" role="alert">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="alert-icon text-info me-2">
+                            <i class="ti ti tabler-info-circle ti-xs"></i>
+                        </span>
+                        <span>
+                            Required CSV Headers (Exact Match):<br>
+                            <strong>first_name, last_name, email, admission_number, current_class</strong><br><br>
+                            Optional Headers:<br>
+                            <strong>gender, blood_group, religion, phone_number, present_address, guardian_name,
+                                guardian_phone</strong>
+                        </span>
+                    </div>
+                    <a href="{% url 'student_bulk_upload_template' %}" class="btn btn-sm btn-info mt-2">
+                        <i class="ti ti tabler-download me-1"></i> Download Demo Format
+                    </a>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data" class="mt-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="csv_file" class="form-label">Select CSV File</label>
+                        <input class="form-control" type="file" id="csv_file" name="csv_file" accept=".csv" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-3">
+                        <i class="ti ti tabler-upload me-2"></i> Upload and Import
+                    </button>
+                    <a href="{% url 'student_list' %}" class="btn btn-label-secondary mt-3 ms-2">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

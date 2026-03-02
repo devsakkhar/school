@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Documents | {{ student.user.get_full_name|default:student.user.username }}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+
+            <!-- Header -->
+            <div class="card-header border-bottom d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="mb-0">
+                        Documents — {{ student.user.get_full_name|default:student.user.username }}
+                    </h5>
+                    <small class="text-muted">
+                        Uploaded files: birth certificates, academic results, ID cards, etc.
+                    </small>
+                </div>
+                <a href="{% url 'student_detail' student.pk %}" 
+                   class="btn btn-sm btn-label-secondary">
+                    ← Back to Student
+                </a>
+            </div>
+
+            <div class="card-body">
+
+                <!-- Upload Form -->
+                <form method="POST" 
+                      enctype="multipart/form-data" 
+                      class="border rounded p-3 bg-light mb-4">
+                    {% csrf_token %}
+                    <div class="row g-3 align-items-end">
+
+                        <div class="col-md-4">
+                            <label class="form-label">Document Title</label>
+                            <input type="text" 
+                                   name="title" 
+                                   class="form-control" 
+                                   placeholder="e.g. Birth Certificate"
+                                   required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Category</label>
+                            <select name="category" class="form-select">
+                                {% for val, label in categories %}
+                                    <option value="{{ val }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">File</label>
+                            <input type="file" 
+                                   name="file" 
+                                   class="form-control"
+                                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                   required>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button type="submit" 
+                                    class="btn btn-primary w-100">
+                                Upload
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+
+                <!-- Documents Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Uploaded By</th>
+                                <th>Date</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% for doc in docs %}
+                            <tr>
+                                <td>
+                                    <a href="{{ doc.file.url }}" target="_blank">
+                                        <i class="ti tabler-file me-1"></i>
+                                        {{ doc.title }}
+                                    </a>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-label-info">
+                                        {{ doc.get_category_display }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.username }}
+                                </td>
+
+                                <td>
+                                    {{ doc.uploaded_at|date:"d M Y" }}
+                                </td>
+
+                                <td class="text-center">
+                                    <form method="POST"
+                                          action="{% url 'student_document_delete' student.pk doc.pk %}"
+                                          style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="btn btn-sm btn-icon btn-label-danger"
+                                                onclick="return confirm('Are you sure you want to permanently delete this document?')">
+                                            <i class="ti tabler-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    No documents uploaded yet.
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

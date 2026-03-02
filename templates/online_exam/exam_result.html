@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Result | {{ exam.name }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-7 mx-auto">
+        {% if attempt %}
+        <div class="card mb-4 text-center">
+            <div class="card-body py-5">
+                <div
+                    class="avatar avatar-xl rounded-circle mb-3 mx-auto {% if attempt.passed %}bg-label-success{% else %}bg-label-danger{% endif %}">
+                    <i class="ti {% if attempt.passed %}tabler-trophy{% else %}tabler-x{% endif %}"
+                        style="font-size:2rem;"></i>
+                </div>
+                <h3 class="{% if attempt.passed %}text-success{% else %}text-danger{% endif %}">
+                    {% if attempt.passed %}Congratulations! Passed{% else %}Better luck next time{% endif %}
+                </h3>
+                <div class="d-flex justify-content-center gap-4 mt-4">
+                    <div class="text-center">
+                        <h2 class="fw-bold mb-0">{{ attempt.score }}/{{ exam.total_marks }}</h2><small
+                            class="text-muted">Score</small>
+                    </div>
+                    <div class="text-center">
+                        <h2 class="fw-bold mb-0">{{ attempt.percentage }}%</h2><small
+                            class="text-muted">Percentage</small>
+                    </div>
+                    <div class="text-center">
+                        <h2 class="fw-bold mb-0">{{ exam.pass_marks }}</h2><small class="text-muted">Pass Marks</small>
+                    </div>
+                </div>
+                <div class="mt-4 d-flex justify-content-center gap-2">
+                    <a href="{% url 'online_exam_list' %}" class="btn btn-label-secondary">All Exams</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Answer Review -->
+        <h5 class="mb-3">Answer Review</h5>
+        {% for ans in answers %}
+        {% with q=ans.question %}
+        <div class="card mb-2 border-{% if ans.is_correct %}success{% else %}danger{% endif %}">
+            <div class="card-body py-3">
+                <p class="fw-bold mb-2">Q{{ forloop.counter }}. {{ q.question_text }}</p>
+                <div class="row g-1">
+                    {% for opt in 'ABCD' %}
+                    <div class="col-md-6">
+                        <div
+                            class="p-2 rounded border {% if opt == q.correct_option %}bg-label-success border-success{% elif opt == ans.selected_option and not ans.is_correct %}bg-label-danger border-danger{% endif %}">
+                            <strong>{{ opt }}.</strong>
+                            {% if opt == 'A' %}{{ q.option_a }}{% elif opt == 'B' %}{{ q.option_b }}{% elif opt == 'C'
+                            %}{{ q.option_c }}{% else %}{{ q.option_d }}{% endif %}
+                            {% if opt == q.correct_option %}<i class="ti tabler-check text-success ms-1"></i>{% endif %}
+                            {% if opt == ans.selected_option and not ans.is_correct %}<i
+                                class="ti tabler-x text-danger ms-1"></i>{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <small class="text-muted mt-2 d-block">Your answer: <strong>{{ ans.selected_option|default:"Not
+                        answered" }}</strong> | Correct: <strong class="text-success">{{ q.correct_option
+                        }}</strong></small>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+        {% else %}
+        <div class="alert alert-warning">You have not taken this exam yet.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

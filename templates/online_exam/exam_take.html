@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}{{ exam.name }} | Take Exam{% endblock %}
+{% block content %}
+<!-- Timer Banner -->
+<div class="alert alert-warning d-flex align-items-center gap-3 mb-4 py-3 sticky-top" style="top:70px;z-index:100;">
+    <i class="ti tabler-clock-hour-3" style="font-size:2rem;"></i>
+    <div class="flex-grow-1">
+        <strong>{{ exam.name }}</strong> | {{ exam.subject }} | {{ exam.student_class }}
+        <br><small>Answer all questions and click <strong>Submit Exam</strong> before time runs out.</small>
+    </div>
+    <div class="text-center">
+        <div id="timer" style="font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;" class="text-danger">
+            --:--</div>
+        <small class="text-muted">Time Remaining</small>
+    </div>
+</div>
+
+{% if exam.instructions %}
+<div class="alert alert-info mb-4"><strong>Instructions:</strong> {{ exam.instructions }}</div>
+{% endif %}
+
+<form method="POST" action="{% url 'exam_submit' exam.pk %}" id="examForm">
+    {% csrf_token %}
+    {% for eq in questions %}
+    {% with q=eq.question %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <p class="fw-bold mb-3">Q{{ forloop.counter }}. {{ q.question_text }} <span
+                    class="badge bg-label-secondary ms-2">{{ q.marks }} mark{{ q.marks|pluralize }}</span></p>
+            <div class="row g-2">
+                {% for opt, _ in q.OPTION_CHOICES %}
+                {% if opt == 'A' %}{% with opt_text=q.option_a %}{% endif %}
+                {% if opt == 'B' %}{% with opt_text=q.option_b %}{% endif %}
+                {% if opt == 'C' %}{% with opt_text=q.option_c %}{% endif %}
+                {% if opt == 'D' %}{% with opt_text=q.option_d %}{% endif %}
+                <div class="col-md-6">
+                    <label
+                        class="d-flex align-items-center gap-2 p-2 border rounded cursor-pointer {% if opt == 'A' %}opt-a{% elif opt == 'B' %}opt-b{% elif opt == 'C' %}opt-c{% else %}opt-d{% endif %}"
+                        style="cursor:pointer;">
+                        <input type="radio" name="q_{{ q.pk }}" value="{{ opt }}" class="form-check-input me-2"
+                            style="min-width:16px;">
+                        <span><strong>{{ opt }}.</strong>
+                            {% if opt == 'A' %}{{ q.option_a }}{% elif opt == 'B' %}{{ q.option_b }}{% elif opt == 'C'
+                            %}{{ q.option_c }}{% else %}{{ q.option_d }}{% endif %}
+                        </span>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+    <div class="d-flex justify-content-end mt-3 mb-5">
+        <button type="submit" class="btn btn-success btn-lg px-5"
+            onclick="return confirm('Submit exam? You cannot change answers after submission.')">
+            Submit Exam
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let timeLeft = {{ time_left }};
+    const timerEl = document.getElementById('timer');
+    function updateTimer() {
+        if (timeLeft <= 0) {
+            timerEl.textContent = '00:00';
+            document.getElementById('examForm').submit();
+            return;
+        }
+        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const s = (timeLeft % 60).toString().padStart(2, '0');
+        timerEl.textContent = `${m}:${s}`;
+        if (timeLeft < 300) timerEl.className = 'text-danger fw-bold';
+        timeLeft--;
+        setTimeout(updateTimer, 1000);
+    }
+    updateTimer();
+</script>
+{% endblock %}

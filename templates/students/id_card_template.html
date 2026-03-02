@@ -1,0 +1,446 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print ID Cards</title>
+    <!-- Merriweather font for ID cards -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Merriweather', serif;
+            background-color: #e9ecef;
+            padding: 20px;
+        }
+
+        /* ── Print controls ─────────────────────────── */
+        .print-controls {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .btn-print {
+            background-color: #138496;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: .5px;
+        }
+
+        .btn-print:hover {
+            background-color: #0f6c7a;
+        }
+
+        .print-hint {
+            margin-top: 8px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        /* ── A4 Page container ───────────────────────── */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 0 auto;
+            padding: 10mm;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8mm;
+            align-content: flex-start;
+        }
+
+        /* ── Card pair wrapper (front + back side-by-side) ─── */
+        .card-pair {
+            display: flex;
+            gap: 5mm;
+            page-break-inside: avoid;
+        }
+
+        /* ── Base card size (CR80 standard) ─────────── */
+        .id-card {
+            width: 54mm;
+            min-height: 86mm;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #c8d3de;
+        }
+
+        /* ═══════════════════
+           FRONT SIDE
+        ═══════════════════ */
+        .id-card.front {
+            background: #ffffff;
+        }
+
+        /* Header strip */
+        .card-header {
+            background: linear-gradient(135deg, #0f7d8c 0%, #138496 60%, #1ab3cc 100%);
+            padding: 8px 6px 7px;
+            text-align: center;
+        }
+
+        .card-header .school-name {
+            color: #fff;
+            font-size: 9.5px;
+            font-weight: 900;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            line-height: 1.3;
+        }
+
+        /* Photo */
+        .card-photo-wrap {
+            text-align: center;
+            padding: 10px 0 4px;
+        }
+
+        .card-photo,
+        .avatar-placeholder {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 2.5px solid #138496;
+            object-fit: cover;
+        }
+
+        .avatar-placeholder {
+            background: #e3f4f7;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: #138496;
+        }
+
+        /* Student info */
+        .card-body {
+            padding: 4px 8px 6px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .s-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 1px;
+        }
+
+        .s-role {
+            font-size: 7.5px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #138496;
+            font-weight: 400;
+            margin-bottom: 6px;
+        }
+
+        .s-details {
+            text-align: left;
+            font-size: 8px;
+            line-height: 1.65;
+            color: #333;
+        }
+
+        .s-details strong {
+            color: #0f7d8c;
+        }
+
+        /* Barcode */
+        .barcode-wrap {
+            text-align: center;
+            padding: 4px 4px 0;
+        }
+
+        .barcode-wrap svg {
+            width: 115px;
+            height: 28px;
+        }
+
+        /* Footer / Signature */
+        .card-footer {
+            background: linear-gradient(135deg, #0f7d8c 0%, #138496 100%);
+            padding: 6px 8px 5px;
+            text-align: center;
+        }
+
+        .sig-img {
+            display: block;
+            max-width: 80px;
+            max-height: 22px;
+            object-fit: contain;
+            margin: 0 auto 3px;
+            border-bottom: 1px solid rgba(255, 255, 255, .4);
+            padding-bottom: 2px;
+            filter: brightness(0) invert(1);
+            /* white tint for dark bg */
+        }
+
+        .sig-label {
+            font-size: 7px;
+            color: rgba(255, 255, 255, .85);
+            letter-spacing: .8px;
+            text-transform: uppercase;
+        }
+
+        /* ═══════════════════
+           BACK SIDE
+        ═══════════════════ */
+        .id-card.back {
+            background: linear-gradient(160deg, #0f7d8c 0%, #1ab3cc 100%);
+            color: white;
+            justify-content: space-between;
+        }
+
+        .back-header {
+            text-align: center;
+            padding: 10px 6px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, .2);
+        }
+
+        .back-header .school-name-back {
+            font-size: 9.5px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .back-header .school-tagline {
+            font-size: 7px;
+            opacity: .8;
+            margin-top: 2px;
+            font-style: italic;
+        }
+
+        .back-body {
+            padding: 8px 10px;
+            font-size: 8px;
+            line-height: 1.7;
+            flex: 1;
+        }
+
+        .back-rule-title {
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            opacity: .9;
+        }
+
+        .back-rule {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 2px;
+            opacity: .9;
+        }
+
+        .back-rule .num {
+            min-width: 12px;
+            font-weight: 700;
+        }
+
+        .back-contact {
+            padding: 6px 10px;
+            border-top: 1px solid rgba(255, 255, 255, .2);
+            font-size: 7.5px;
+            line-height: 1.6;
+            opacity: .85;
+        }
+
+        .back-contact strong {
+            opacity: 1;
+            font-size: 8px;
+        }
+
+        .back-footer {
+            background: rgba(0, 0, 0, .18);
+            padding: 5px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-footer .valid {
+            font-size: 7px;
+            opacity: .75;
+        }
+
+        .back-footer .mag-strip {
+            width: 40px;
+            height: 10px;
+            background: rgba(0, 0, 0, .35);
+            border-radius: 2px;
+        }
+
+        /* ── Decorative circles ──────────────────── */
+        .deco-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .07);
+            pointer-events: none;
+        }
+
+        /* ── Print media ─────────────────────────── */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .page {
+                box-shadow: none;
+                margin: 0;
+                padding: 5mm;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="print-controls no-print">
+        <button class="btn-print" onclick="window.print()">🖨 Print ID Cards</button>
+        <p class="print-hint">Select "Save as PDF" or your printer. Ensure margins are set to "None" or "Minimum" for
+            best results.</p>
+    </div>
+
+    <div class="page">
+        {% for student in students %}
+
+        <!-- ── Card Pair: Front + Back ────────── -->
+        <div class="card-pair">
+
+            <!-- FRONT -->
+            <div class="id-card front">
+                <div class="card-header">
+                    <div class="school-name">{{ school.name|default:"School IMS" }}</div>
+                </div>
+
+                <div class="card-photo-wrap">
+                    {% if student.user.image %}
+                    <img src="{{ student.user.image.url }}" alt="Photo" class="card-photo">
+                    {% else %}
+                    <div class="avatar-placeholder">
+                        {{ student.user.first_name|default:student.user.email|first|upper }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-body">
+                    <div class="s-name">{{ student.user.get_full_name }}</div>
+                    <div class="s-role">Student</div>
+
+                    <div class="s-details">
+                        <div><strong>ID:</strong> {{ student.admission_number }}</div>
+                        <div>
+                            <strong>Class:</strong>
+                            {% if student.current_class %}
+                            {{ student.current_class }}{% if student.section %} ({{ student.section }}){% endif %}
+                            {% else %}—{% endif %}
+                        </div>
+                        <div><strong>Roll No:</strong> {{ student.roll_number|default:"—" }}</div>
+                        <div><strong>Blood Gp:</strong> {{ student.blood_group|default:"—" }}</div>
+                        <div><strong>Guardian:</strong> {{ student.guardian_phone|default:"—" }}</div>
+                    </div>
+
+                    <div class="barcode-wrap">
+                        <svg class="barcode" jsbarcode-format="CODE128" jsbarcode-value="{{ student.admission_number }}"
+                            jsbarcode-displayvalue="false" jsbarcode-height="22" jsbarcode-width="1.4"
+                            jsbarcode-margin="0">
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Footer with signature — NOT inside overflow:hidden zone -->
+                <div class="card-footer">
+                    {% if school.signature %}
+                    <img src="{{ school.signature.url }}" alt="Signature" class="sig-img">
+                    {% endif %}
+                    <div class="sig-label">Authorized Signature</div>
+                </div>
+            </div>
+            <!-- / FRONT -->
+
+            <!-- BACK -->
+            <div class="id-card back">
+                <!-- Decorative circles -->
+                <div class="deco-circle" style="width:70px;height:70px;top:-20px;right:-20px;"></div>
+                <div class="deco-circle" style="width:50px;height:50px;bottom:30px;left:-15px;"></div>
+
+                <div class="back-header">
+                    <div class="school-name-back">{{ school.name|default:"School IMS" }}</div>
+                    <div class="school-tagline">Knowledge · Character · Service</div>
+                </div>
+
+                <div class="back-body">
+                    <div class="back-rule-title">Rules & Regulations</div>
+                    <div class="back-rule"><span class="num">1.</span><span>This card must be carried at all times on
+                            school premises.</span></div>
+                    <div class="back-rule"><span class="num">2.</span><span>If found, please return to the school
+                            office.</span></div>
+                    <div class="back-rule"><span class="num">3.</span><span>Loss of card must be reported
+                            immediately.</span></div>
+                    <div class="back-rule"><span class="num">4.</span><span>This card is non-transferable.</span></div>
+                    <div class="back-rule"><span class="num">5.</span><span>Misuse will lead to disciplinary
+                            action.</span></div>
+                </div>
+
+                <div class="back-contact">
+                    <strong>Contact Us</strong><br>
+                    {% if school.name %}{{ school.name }}{% else %}School IMS{% endif %}<br>
+                    📞 Your school phone number<br>
+                    ✉ admin@school.edu
+                </div>
+
+                <div class="back-footer">
+                    <span class="valid">Valid for the Academic Year</span>
+                    <div class="mag-strip"></div>
+                </div>
+            </div>
+            <!-- / BACK -->
+
+        </div>
+        <!-- / Card Pair -->
+
+        {% empty %}
+        <p>No students selected for ID cards.</p>
+        {% endfor %}
+    </div>
+
+    <!-- JsBarcode -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script>
+        window.onload = function () {
+            JsBarcode(".barcode").init();
+        };
+    </script>
+</body>
+
+</html>

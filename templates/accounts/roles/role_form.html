@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Role | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mx-auto">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ action }} Role</h5>
+                <small class="text-muted float-end">Role Management</small>
+            </div>
+            <div class="card-body">
+                <form id="addRoleForm" class="row g-6" method="POST">
+                    {% csrf_token %}
+
+                    <div class="col-12 mb-4">
+                        <label class="form-label" for="id_name">Role Name</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="text-danger mt-1 small">
+                            {{ form.name.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12">
+                        <h5 class="mb-4">Role Permissions</h5>
+                        <div class="form-text mb-3">Select the permissions you want to assign to this role.</div>
+
+                        <!-- We will manually render the permissions to match the UI -->
+                        <div class="d-none">
+                            <!-- Keep the original select hidden so Django validation passes and our JS can sync it -->
+                            {{ form.permissions }}
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-flush-spacing">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-nowrap fw-medium border-bottom-0">
+                                            Administrator Access
+                                            <i class="icon-base ti tabler-info-circle icon-xs" data-bs-toggle="tooltip"
+                                                data-bs-placement="top" title="Allows a full access to the system"></i>
+                                        </td>
+                                        <td class="border-bottom-0">
+                                            <div class="d-flex justify-content-end">
+                                                <div class="form-check mb-0">
+                                                    <input class="form-check-input" type="checkbox" id="selectAll" />
+                                                    <label class="form-check-label" for="selectAll"> Select All </label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    {% for group_name, perms in grouped_permissions %}
+                                    <tr>
+                                        <td class="text-nowrap fw-medium text-heading">{{ group_name }}</td>
+                                        <td>
+                                            <div class="d-flex justify-content-end flex-wrap">
+                                                {% for perm in perms %}
+                                                <div class="form-check mb-2 me-4">
+    <input class="form-check-input permission-checkbox"
+           type="checkbox"
+           name="permissions"
+           value="{{ perm.id }}"
+           id="perm_{{ perm.id }}"
+           data-perm-id="{{ perm.id }}"
+           {% if perm.id in role_permissions %}checked{% endif %} />
+
+    <label class="form-check-label text-capitalize"
+           for="perm_{{ perm.id }}">
+        {{ perm.action }}
+    </label>
+</div>
+                                                {% empty %}
+                                                <span class="text-muted">No permissions found</span>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {% if form.permissions.errors %}
+                        <div class="text-danger mt-1 small">
+                            {{ form.permissions.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12 pt-4 text-center">
+                        <button type="submit" class="btn btn-primary me-sm-4 me-1">Submit</button>
+                        <a href="{% url 'role_list' %}" class="btn btn-label-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const permissionCheckboxes = document.querySelectorAll('.permission-checkbox');
+
+        // Select All functionality
+        if (selectAllCheckbox && permissionCheckboxes.length > 0) {
+
+            // 1. When Select All is clicked, toggle all permissions
+            selectAllCheckbox.addEventListener('change', function () {
+                const isChecked = selectAllCheckbox.checked;
+                permissionCheckboxes.forEach(function (checkbox) {
+                    checkbox.checked = isChecked;
+                });
+            });
+
+            // 2. When an individual permission is clicked, update Select All state
+            permissionCheckboxes.forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
+                    let allChecked = true;
+                    permissionCheckboxes.forEach(function (cb) {
+                        if (!cb.checked) {
+                            allChecked = false;
+                        }
+                    });
+                    selectAllCheckbox.checked = allChecked;
+                });
+            });
+
+            // 3. Initial sync on page load (in case some are already checked from backend/validation)
+            let allCheckedInit = true;
+            permissionCheckboxes.forEach(function (cb) {
+                if (!cb.checked) {
+                    allCheckedInit = false;
+                }
+            });
+            selectAllCheckbox.checked = allCheckedInit;
+        }
+    });
+</script>
+{% endblock %}

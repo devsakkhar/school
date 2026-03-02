@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Student | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-6 col-md-8 mx-auto">
+        <div class="card mb-6">
+            <h5 class="card-header border-bottom mb-4">Confirm Deletion</h5>
+            <div class="card-body">
+                <div class="alert alert-danger" role="alert">
+                    <h6 class="alert-heading mb-1">
+                        <i class="ti tabler-alert-triangle me-1"></i> Warning
+                    </h6>
+                    <span>
+                        Are you sure you want to delete the student
+                        <strong>
+                            {% if student.user.get_full_name %}
+                                {{ student.user.get_full_name }}
+                            {% else %}
+                                {{ student.user.username }}
+                            {% endif %}
+                        </strong>?
+                    </span>
+                    <br>
+                    <span>
+                        This action cannot be undone and will permanently delete their associated user account.
+                    </span>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mt-4 text-end">
+                        <a href="{% url 'student_list' %}" class="btn btn-label-primary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-danger">Yes, Delete Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

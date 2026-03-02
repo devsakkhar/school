@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+
+{% block title %}Class Promotion | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-6">
+            <div class="card-header border-bottom">
+                <h5 class="mb-0">Class Promotion</h5>
+                <small class="text-muted">Promote or transfer multiple students from one class to another
+                    simultaneously.</small>
+            </div>
+
+            <div class="card-body mt-4">
+                <!-- Select Source Class Form (GET) -->
+                <form method="GET" action="{% url 'class_promotion' %}" class="row g-3 mb-5 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label">Select Source Class <span class="text-danger">*</span></label>
+                        <select name="from_class" class="form-select" required>
+                            <option value="">-- Select Class --</option>
+                            {% for c in classes %}
+                            <option value="{{ c.id }}" {% if from_class_id == c.id|stringformat:"s" %}selected{% endif %}>
+                                {{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary">Load Students</button>
+                    </div>
+                </form>
+
+                {% if from_class_id %}
+                <hr>
+
+                <!-- Promotion Form (POST) -->
+                <form method="POST" action="{% url 'class_promotion' %}" id="promotionForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="promote">
+
+                    <div class="row g-3 mb-4 mt-2">
+                        <div class="col-md-5">
+                            <label class="form-label text-primary fw-medium">Promote To Class <span
+                                    class="text-danger">*</span></label>
+                            <select name="to_class" id="to_class" class="form-select" required>
+                                <option value="">-- Select Target Class --</option>
+                                {% for c in classes %}
+                                <option value="{{ c.id }}">{{ c.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label text-primary fw-medium">Promote To Section</label>
+                            <select name="to_section" id="to_section" class="form-select">
+                                <option value="">-- Select Target Section --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success w-100" id="btnPromote">Promote
+                                Selected</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive border rounded pt-2">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 50px;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="selectAll" checked>
+                                            <label class="form-check-label" for="selectAll"></label>
+                                        </div>
+                                    </th>
+                                    <th>Student Name</th>
+                                    <th>Admission No</th>
+                                    <th>Current Roll</th>
+                                    <th>Current Section</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-border-bottom-0">
+                                {% for student in students %}
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input student-checkbox" type="checkbox"
+                                                name="student_ids" value="{{ student.id }}" checked>
+                                            <label class="form-check-label"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-start align-items-center user-name">
+                                            <div class="avatar-wrapper">
+                                                <div class="avatar avatar-sm me-3">
+                                                    {% if student.user.image %}
+                                                    <img src="{{ student.user.image.url }}" alt="Avatar"
+                                                        class="rounded-circle">
+                                                    {% else %}
+                                                    <span class="avatar-initial rounded-circle bg-label-primary">
+                                                        {{
+                                                        student.user.first_name|default:student.user.email|first|upper
+                                                        }}
+                                                    </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="d-flex flex-column">
+                                                <span class="fw-medium">{{ student.user.get_full_name }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ student.admission_number }}</td>
+                                    <td>{{ student.roll_number|default:"-" }}</td>
+                                    <td>{{ student.section.name|default:"-" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">No active students found in this class.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Promotion History ───────────────────────────────── -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0">Promotion History</h5>
+                    <small class="text-muted">Most recent 20 promotion batches.</small>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date &amp; Time</th>
+                                <th>Promoted By</th>
+                                <th>From Class</th>
+                                <th>To Class</th>
+                                <th>To Section</th>
+                                <th class="text-center">Students</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in promotion_logs %}
+                            <tr>
+                                <td>
+                                    <span class="fw-medium">{{ log.promoted_at|date:"d M Y" }}</span><br>
+                                    <small class="text-muted">{{ log.promoted_at|time:"h:i A" }}</small>
+                                </td>
+                                <td>
+                                    {% if log.promoted_by %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="avatar avatar-xs rounded-circle bg-label-primary">
+                                            {{ log.promoted_by.first_name|default:log.promoted_by.username|first|upper
+                                            }}
+                                        </span>
+                                        {{ log.promoted_by.get_full_name|default:log.promoted_by.username }}
+                                    </div>
+                                    {% else %}—{% endif %}
+                                </td>
+                                <td>
+                                    {% if log.from_class %}
+                                    <span class="badge bg-label-secondary">{{ log.from_class.name }}</span>
+                                    {% else %}—{% endif %}
+                                </td>
+                                <td>
+                                    {% if log.to_class %}
+                                    <span class="badge bg-label-success">{{ log.to_class.name }}</span>
+                                    {% else %}—{% endif %}
+                                </td>
+                                <td>
+                                    {% if log.to_section %}{{ log.to_section.name }}{% else %}—{% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary rounded-pill">{{ log.student_count }}</span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <i class="ti ti tabler-history" style="font-size: 2rem; opacity: .3;"></i>
+                                    <p class="mb-0 mt-2">No promotions recorded yet.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        // Toggle all checkboxes
+        $('#selectAll').on('change', function () {
+            $('.student-checkbox').prop('checked', $(this).prop('checked'));
+            updatePromoteButton();
+        });
+
+        // Toggle individual checkbox
+        $('.student-checkbox').on('change', function () {
+            if ($('.student-checkbox:checked').length === $('.student-checkbox').length) {
+                $('#selectAll').prop('checked', true);
+            } else {
+                $('#selectAll').prop('checked', false);
+            }
+            updatePromoteButton();
+        });
+
+        // Dependent dropdown for Target Section
+        $('#to_class').on('change', function () {
+            var classId = $(this).val();
+            var sectionSelect = $('#to_section');
+
+            sectionSelect.html('<option value="">-- Select Target Section --</option>');
+            if (classId) {
+                $.ajax({
+                    url: '{% url "get_sections" %}',
+                    data: { 'class_id': classId },
+                    success: function (data) {
+                        data.forEach(function (section) {
+                            sectionSelect.append('<option value="' + section.id + '">' + section.name + '</option>');
+                        });
+                    }
+                });
+            }
+        });
+
+        // Disable promote button if no students selected
+        function updatePromoteButton() {
+            var selectedCount = $('.student-checkbox:checked').length;
+            if (selectedCount === 0) {
+                $('#btnPromote').prop('disabled', true);
+                $('#btnPromote').text('Promote (0)');
+            } else {
+                $('#btnPromote').prop('disabled', false);
+                $('#btnPromote').text('Promote (' + selectedCount + ')');
+            }
+        }
+
+        // Initial setup
+        updatePromoteButton();
+    });
+</script>
+{% endblock %}

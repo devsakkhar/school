@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Question Bank{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Question Bank</h4>
+            <small class="text-muted">All MCQ questions available for online exams.</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'online_exam_list' %}" class="btn btn-label-success">← Exams</a>
+            <a href="{% url 'question_create' %}" class="btn btn-primary">+ Add Question</a>
+        </div>
+    </div>
+</div>
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <input type="text" name="subject" class="form-control" placeholder="Filter by subject..."
+                value="{{ subject }}">
+        </div>
+
+        <div class="col-md-3">
+            <select name="class_id" class="form-select">
+                <option value="">All Classes</option>
+                {% for c in classes %}
+                    <option value="{{ c.id }}" {% if class_id == c.id|slugify %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <select name="difficulty" class="form-select">
+                <option value="">All Levels</option>
+                {% for val, label in difficulty_choices %}
+                    <option value="{{ val }}" {% if difficulty == val|slugify %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+        <div class="col-md-2">
+            <a href="{% url 'question_bank' %}" class="btn btn-label-secondary w-100">Reset</a>
+        </div>
+    </form>
+</div>
+</div>
+<!-- Questions Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:40%">Question</th>
+                    <th>Subject</th>
+                    <th>Class</th>
+                    <th>Marks</th>
+                    <th>Difficulty</th>
+                    <th>Correct</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for q in questions %}
+                <tr>
+                    <td>{{ q.question_text|truncatechars:80 }}</td>
+                    <td><span class="badge bg-label-info">{{ q.subject }}</span></td>
+                    <td>{{ q.student_class|default:"—" }}</td>
+                    <td class="fw-bold">{{ q.marks }}</td>
+                    <td>
+                        <span
+                            class="badge bg-label-{% if q.difficulty == 'easy' %}success{% elif q.difficulty == 'medium' %}warning{% else %}danger{% endif %}">
+                            {{ q.get_difficulty_display }}
+                        </span>
+                    </td>
+                    <td><strong class="text-success">{{ q.correct_option }}</strong></td>
+                    <td>
+                        <a href="{% url 'question_edit' q.pk %}" class="btn btn-sm btn-icon btn-label-warning"><i
+                                class="ti tabler-edit"></i></a>
+                        <a href="{% url 'question_delete' q.pk %}" class="btn btn-sm btn-icon btn-label-danger"><i
+                                class="ti tabler-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">No questions yet. <a
+                            href="{% url 'question_create' %}">Add one →</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

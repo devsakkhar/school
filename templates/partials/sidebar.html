@@ -1,0 +1,266 @@
+{% load static %}
+<!-- Menu -->
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+  <div class="app-brand demo ">
+    <a href="{% url 'index' %}" class="app-brand-link">
+      <span class="app-brand-text demo menu-text fw-bold ms-3"
+        style="font-family: var(--bs-font-sans-serif);">School</span>
+    </a>
+
+    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+      <i class="menu-toggle-icon icon-base ti tabler-menu-2 d-none d-xl-block ti-sm align-middle"></i>
+      <i class="icon-base ti tabler-x d-block d-xl-none ti-sm align-middle"></i>
+    </a>
+  </div>
+
+  <div class="menu-inner-shadow"></div>
+
+  <ul class="menu-inner py-1">
+    <!-- Dashboards -->
+    <li class="menu-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+      <a href="{% url 'index' %}" class="menu-link">
+        <i class="menu-icon tf-icons icon-base ti tabler-smart-home"></i>
+        <div data-i18n="Dashboard">Dashboard</div>
+      </a>
+    </li>
+
+    <!-- Role Management -->
+    {% if perms.accounts.manage_roles %}
+    <li class="menu-header small text-uppercase">
+      <span class="menu-header-text" data-i18n="Admin">Admin Options</span>
+    </li>
+    <li class="menu-item {% if 'role' in request.resolver_match.url_name %}active{% endif %}">
+      <a href="{% url 'role_list' %}" class="menu-link">
+        <i class="menu-icon tf-icons icon-base ti tabler-shield-lock"></i>
+        <div data-i18n="Role Management">Role Management</div>
+      </a>
+    </li>
+    {% endif %}
+
+    <!-- User Management -->
+    {% if perms.accounts.manage_users %}
+    <li class="menu-item {% if 'user' in request.resolver_match.url_name %}active{% endif %}">
+      <a href="{% url 'user_list' %}" class="menu-link">
+        <i class="menu-icon tf-icons icon-base ti tabler-users"></i>
+        <div data-i18n="User Management">User Management</div>
+      </a>
+    </li>
+    {% endif %}
+
+    <!-- Academic -->
+    {% if request.user.is_staff or request.user.is_superuser %}
+    <li class="menu-header small text-uppercase">
+      <span class="menu-header-text" data-i18n="Academic">Academic</span>
+    </li>
+    <li class="menu-item {% if 'class' in request.resolver_match.url_name %}active{% endif %}">
+      <a href="{% url 'class_list' %}" class="menu-link">
+        <i class="menu-icon tf-icons icon-base ti tabler-building"></i>
+        <div data-i18n="Classes">Classes</div>
+      </a>
+    </li>
+    <li class="menu-item {% if 'section' in request.resolver_match.url_name %}active{% endif %}">
+      <a href="{% url 'section_list' %}" class="menu-link">
+        <i class="menu-icon tf-icons icon-base ti tabler-layers-intersect"></i>
+        <div data-i18n="Sections">Sections</div>
+      </a>
+    </li>
+
+    <!-- School Settings -->
+    <li class="menu-item {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
+      <a href="{% url 'school_settings' %}" class="menu-link">
+        <i class="menu-icon tf-icons icon-base ti tabler-settings"></i>
+        <div data-i18n="School Settings">School Settings</div>
+      </a>
+    </li>
+
+    <!-- Students -->
+    <li class="menu-item {% if 'student' in request.resolver_match.url_name %}active open{% endif %}">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons icon-base ti tabler-school"></i>
+        <div data-i18n="Students">Students</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item {% if request.resolver_match.url_name == 'student_list' %}active{% endif %}">
+          <a href="{% url 'student_list' %}" class="menu-link">
+            <div>Student List</div>
+          </a>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'class_promotion' %}active{% endif %}">
+          <a href="{% url 'class_promotion' %}" class="menu-link">
+            <div>Class Promotion</div>
+          </a>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'student_analytics' %}active{% endif %}">
+          <a href="{% url 'student_analytics' %}" class="menu-link">
+            <div>Analytics</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Attendance -->
+    <li class="menu-item {% if 'attendance' in request.resolver_match.url_name %}active open{% endif %}">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons icon-base ti tabler-calendar-check"></i>
+        <div>Attendance</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item {% if request.resolver_match.url_name == 'attendance_home' %}active{% endif %}">
+          <a href="{% url 'attendance_home' %}" class="menu-link">
+            <div>Sessions</div>
+          </a>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'attendance_take' %}active{% endif %}">
+          <a href="{% url 'attendance_take' %}" class="menu-link">
+            <div>Take Attendance</div>
+          </a>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'attendance_report' %}active{% endif %}">
+          <a href="{% url 'attendance_report' %}" class="menu-link">
+            <div>Report</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Finance -->
+    <li
+      class="menu-item {% if 'fee' in request.resolver_match.url_name or 'payment' in request.resolver_match.url_name %}active open{% endif %}">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons icon-base ti tabler-moneybag"></i>
+        <div>Finance</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item {% if request.resolver_match.url_name == 'fee_list' %}active{% endif %}">
+          <a href="{% url 'fee_list' %}" class="menu-link">
+            <div>Fee Types</div>
+          </a>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'fee_payments' %}active{% endif %}">
+          <a href="{% url 'fee_payments' %}" class="menu-link">
+            <div>Payment Records</div>
+          </a>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'record_payment' %}active{% endif %}">
+          <a href="{% url 'record_payment' %}" class="menu-link">
+            <div>Record Payment</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Exams -->
+    <li class="menu-item {% if 'exam' in request.resolver_match.url_name %}active open{% endif %}">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons icon-base ti tabler-clipboard-list"></i>
+        <div>Exams &amp; Results</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item {% if request.resolver_match.url_name == 'exam_list' %}active{% endif %}">
+          <a href="{% url 'exam_list' %}" class="menu-link">
+            <div>Exam List</div>
+          </a>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'exam_create' %}active{% endif %}">
+          <a href="{% url 'exam_create' %}" class="menu-link">
+            <div>Create Exam</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Notifications -->
+    <li class="menu-item {% if 'notification' in request.resolver_match.url_name %}active open{% endif %}">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons icon-base ti tabler-bell"></i>
+        <div>Notifications</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item {% if request.resolver_match.url_name == 'send_notification' %}active{% endif %}">
+          <a href="{% url 'send_notification' %}" class="menu-link">
+            <div>Send</div>
+          </a>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}">
+          <a href="{% url 'notifications_list' %}" class="menu-link">
+            <div>History</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Online Exam -->
+    <li class="menu-item {% if 'online_exam' in request.resolver_match.url_name or 'question' in request.resolver_match.url_name or 'exam_take' in request.resolver_match.url_name %}active open{% endif %}">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons icon-base ti tabler-device-laptop"></i>
+        <div>Online Exam (MCQ)</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item {% if request.resolver_match.url_name == 'online_exam_list' %}active{% endif %}">
+          <a href="{% url 'online_exam_list' %}" class="menu-link">
+            <div>All Exams</div>
+          </a>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'online_exam_create' %}active{% endif %}">
+          <a href="{% url 'online_exam_create' %}" class="menu-link">
+            <div>Create Exam</div>
+          </a>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'question_bank' %}active{% endif %}">
+          <a href="{% url 'question_bank' %}" class="menu-link">
+            <div>Question Bank</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Routines -->
+    <li class="menu-item {% if 'routine' in request.resolver_match.url_name or 'calendar' in request.resolver_match.url_name %}active open{% endif %}">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons icon-base ti tabler-calendar-time"></i>
+        <div>Routines</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item {% if 'class_routine' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'class_routine_home' %}" class="menu-link">
+            <div>Class Routine</div>
+          </a>
+        </li>
+        <li class="menu-item {% if 'exam_routine' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'exam_routine_home' %}" class="menu-link">
+            <div>Exam Routine</div>
+          </a>
+        </li>
+        <li class="menu-item {% if 'calendar' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'year_calendar' %}" class="menu-link">
+            <div>Year Calendar</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- SMS -->
+    <li class="menu-item {% if 'sms' in request.resolver_match.url_name %}active open{% endif %}">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons icon-base ti tabler-message-2"></i>
+        <div>SMS</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item {% if request.resolver_match.url_name == 'send_sms' %}active{% endif %}">
+          <a href="{% url 'send_sms' %}" class="menu-link">
+            <div>Send SMS</div>
+          </a>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'sms_history' %}active{% endif %}">
+          <a href="{% url 'sms_history' %}" class="menu-link">
+            <div>SMS History</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    {% endif %}
+
+  </ul>
+</aside>
+<!-- / Menu -->

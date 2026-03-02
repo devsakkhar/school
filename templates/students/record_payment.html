@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Record Fee Payment{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-7 mx-auto">
+        <div class="card">
+            <div class="card-header border-bottom d-flex justify-content-between">
+                <h5 class="mb-0">Record Payment</h5>
+                <a href="{% url 'fee_payments' %}" class="btn btn-sm btn-label-secondary">← Back</a>
+            </div>
+            <div class="card-body mt-3">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Student <span class="text-danger">*</span></label>
+                            <select name="student" class="form-select" required>
+                                <option value="">-- Select Student --</option>
+                                {% for s in students %}<option value="{{ s.id }}">{{ s.user.get_full_name }} ({{
+                                    s.admission_number }}) — {{ s.current_class }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fee Type <span class="text-danger">*</span></label>
+                            <select name="fee_type" class="form-select" required>
+                                <option value="">-- Select Fee Type --</option>
+                                {% for ft in fee_types %}<option value="{{ ft.id }}">{{ ft.name }} (৳{{ ft.amount }})
+                                </option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Amount Paid (৳)</label>
+                            <input type="number" name="amount_paid" step="0.01" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Payment Date</label>
+                            <input type="date" name="payment_date" class="form-control" value="{{ today }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Notes</label>
+                            <input type="text" name="notes" class="form-control" placeholder="Optional notes...">
+                        </div>
+                        <div class="col-12 d-flex justify-content-end gap-2">
+                            <a href="{% url 'fee_payments' %}" class="btn btn-label-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-success">Save Payment</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

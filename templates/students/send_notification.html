@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Send Notification{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card mb-4">
+            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Send Bulk Notification</h5>
+                <a href="{% url 'notifications_list' %}" class="btn btn-sm btn-label-secondary">← History</a>
+            </div>
+            <div class="card-body mt-2">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+
+                        <!-- Target Class -->
+                        <div class="col-md-6">
+                            <label class="form-label">Target Class</label>
+                            <select name="recipient_class" class="form-select">
+                                <option value="">All Classes</option>
+                                {% for c in classes %}
+                                    <option value="{{ c.id }}">{{ c.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Target Status -->
+                        <div class="col-md-6">
+                            <label class="form-label">Target Status</label>
+                            <select name="recipient_status" class="form-select">
+                                {% for val, label in status_choices %}
+                                    <option value="{{ val }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Subject -->
+                        <div class="col-12">
+                            <label class="form-label">Subject <span class="text-danger">*</span></label>
+                            <input type="text" name="subject" class="form-control" placeholder="Notice subject…" required>
+                        </div>
+
+                        <!-- Message -->
+                        <div class="col-12">
+                            <label class="form-label">Message <span class="text-danger">*</span></label>
+                            <textarea name="message" class="form-control" rows="5" placeholder="Type your message here…" required></textarea>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="col-12 d-flex justify-content-end gap-2">
+                            <a href="{% url 'notifications_list' %}" class="btn btn-label-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-5">Send Notification</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

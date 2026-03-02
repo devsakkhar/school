@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Parent Contact Log | {{ student.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header border-bottom d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="mb-0">Parent Contact Log — {{ student.user.get_full_name }}</h5>
+                    <small class="text-muted">Record of communications with the student's guardian.</small>
+                </div>
+                <a href="{% url 'student_detail' student.pk %}" class="btn btn-sm btn-label-secondary">
+                    <i class="ti tabler-arrow-left me-1"></i> Back to Student
+                </a>
+            </div>
+            <div class="card-body mt-4">
+                <form method="POST" class="border rounded p-3 bg-light mb-4">
+                    {% csrf_token %}
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Date</label>
+                            <input type="date" name="contact_date" class="form-control" value="{{ today }}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Method</label>
+                            <select name="method" class="form-select">
+                                {% for val, label in methods %}
+                                    <option value="{{ val }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Notes</label>
+                            <input type="text" name="notes" class="form-control" placeholder="Summary of the conversation...">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Log Entry</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Method</th>
+                                <th>Contacted By</th>
+                                <th>Notes</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td><strong>{{ log.contact_date|date:"d M Y" }}</strong></td>
+                                <td>
+                                    <span class="badge bg-label-{% if log.method == 'call' %}success{% elif log.method == 'sms' %}info{% elif log.method == 'in_person' %}warning{% else %}secondary{% endif %}">
+                                        {{ log.get_method_display }}
+                                    </span>
+                                </td>
+                                <td>{{ log.contacted_by.get_full_name|default:log.contacted_by.username }}</td>
+                                <td style="max-width: 300px;" class="text-wrap">{{ log.notes|default:"—" }}</td>
+                                <td class="text-center">
+                                    <form method="POST" action="{% url 'student_contact_delete' student.pk log.pk %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-icon btn-label-danger" onclick="return confirm('Are you sure you want to delete this log?')">
+                                            <i class="ti tabler-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">No contact logs found for this student.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

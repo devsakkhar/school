@@ -1,0 +1,285 @@
+
+<!doctype html>
+
+<html lang="en" class=" layout-navbar-fixed layout-menu-fixed layout-compact " dir="ltr" data-skin="default"
+  data-bs-theme="light" data-assets-path="/static/assets/" data-template="vertical-menu-template">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Profile | School Management System</title>
+
+  <meta name="description" content="School Management System" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/static/assets/img/favicon/favicon.ico" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Replaced font with Merriweather inside custom.css, but keep original for fallback -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href="/static/assets/vendor/fonts/iconify-icons.css" />
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="/static/assets/vendor/css/core.css" class="template-customizer-core-css" />
+  <link rel="stylesheet" href="/static/assets/vendor/css/theme-default.css"
+    class="template-customizer-theme-css" />
+  <link rel="stylesheet" href="/static/assets/css/demo.css" />
+
+  <!-- Custom Override CSS -->
+  <link rel="stylesheet" href="/static/css/custom.css" />
+
+  <!-- Vendors CSS -->
+  <link rel="stylesheet" href="/static/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+
+  <!-- Helpers -->
+  <script src="/static/assets/vendor/js/helpers.js"></script>
+  <script src="/static/assets/js/config.js"></script>
+  
+</head>
+
+<body>
+  <!-- Layout wrapper -->
+  <div class="layout-wrapper layout-content-navbar  ">
+    <div class="layout-container">
+      
+  <!-- Menu -->
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+          <div class="app-brand demo ">
+            <a href="/dashboard/" class="app-brand-link">
+              <span class="app-brand-text demo menu-text fw-bold ms-3" style="font-family: var(--bs-font-sans-serif);">School.Sys</span>
+            </a>
+
+            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+              <i class="menu-toggle-icon icon-base ti tabler-menu-2 d-none d-xl-block ti-sm align-middle"></i>
+              <i class="icon-base ti tabler-x d-block d-xl-none ti-sm align-middle"></i>
+            </a>
+          </div>
+
+          <div class="menu-inner-shadow"></div>
+
+          <ul class="menu-inner py-1">
+            <!-- Dashboards -->
+            <li class="menu-item active">
+              <a href="/dashboard/" class="menu-link">
+                <i class="menu-icon tf-icons icon-base ti tabler-smart-home"></i>
+                <div data-i18n="Dashboard">Dashboard</div>
+              </a>
+            </li>
+          </ul>
+        </aside>
+        <!-- / Menu -->
+
+      <!-- Layout container -->
+      <div class="layout-page">
+        
+<!-- Navbar -->
+          <nav
+            class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+            id="layout-navbar">
+            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0   d-xl-none ">
+              <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                <i class="icon-base ti tabler-menu-2 ti-sm"></i>
+              </a>
+            </div>
+
+            <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+                <!-- User Profile -->
+                <ul class="navbar-nav flex-row align-items-center ms-auto">
+                    <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                        <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                            <div class="avatar avatar-online">
+                            
+                                <img src="/media/profile_pics/Gemini_Generated_Image_gqg9vvgqg9vvgqg9.png" alt class="rounded-circle" style="object-fit: cover;" />
+                            
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                            <a class="dropdown-item" href="/profile/">
+                                <div class="d-flex">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="avatar avatar-online">
+                                    
+                                        <img src="/media/profile_pics/Gemini_Generated_Image_gqg9vvgqg9vvgqg9.png" alt class="rounded-circle" style="object-fit: cover;" />
+                                    
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <span class="fw-medium d-block">sakkhar</span>
+                                    <small class="text-muted text-capitalize">student</small>
+                                </div>
+                                </div>
+                            </a>
+                            </li>
+                            <li>
+                            <div class="dropdown-divider"></div>
+                            </li>
+                            <li>
+                            <a class="dropdown-item" href="/profile/">
+                                <i class="icon-base ti tabler-user me-2 ti-sm"></i>
+                                <span class="align-middle">My Profile</span>
+                            </a>
+                            </li>
+                            <li>
+                            <div class="dropdown-divider"></div>
+                            </li>
+                            <li>
+                            <form method="POST" action="/logout/">
+                                <input type="hidden" name="csrfmiddlewaretoken" value="9FA4OfP59XhQjoQ4pUGAXWieas4UhWeBRB2DXUJhdXlFzwYYynto6ua8YmdNcLs4">
+                                <button type="submit" class="dropdown-item w-100 text-start">
+                                    <i class="icon-base ti tabler-logout me-2 ti-sm"></i>
+                                    <span class="align-middle">Log Out</span>
+                                </button>
+                            </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+          </nav>
+          <!-- / Navbar -->
+
+        <!-- Content wrapper -->
+        <div class="content-wrapper">
+          <!-- Content -->
+          <div class="container-xxl flex-grow-1 container-p-y">
+            
+<div class="row">
+  <div class="col-12">
+    <div class="card mb-6">
+      <div class="user-profile-header-banner">
+        <img src="/static/assets/img/pages/profile-banner.png" alt="Banner image" class="rounded-top" />
+      </div>
+      <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-5">
+        <div class="flex-shrink-0 mt-n2 mx-sm-0 mx-auto">
+          
+          <img src="/media/profile_pics/Gemini_Generated_Image_gqg9vvgqg9vvgqg9.png" alt="user image" class="d-block h-auto ms-0 ms-sm-6 rounded user-profile-img"
+            style="width: 120px; height: 120px; object-fit: cover; border: 5px solid #fff;" />
+          
+        </div>
+        <div class="flex-grow-1 mt-3 mt-lg-5">
+          <div
+            class="d-flex align-items-md-end align-items-sm-start align-items-center justify-content-md-between justify-content-start mx-5 flex-md-row flex-column gap-4">
+            <div class="user-profile-info">
+              <h4 class="mb-2 mt-lg-6">
+                <span>sakkhar</span>
+              </h4>
+              <ul
+                class="list-inline mb-0 d-flex align-items-center flex-wrap justify-content-sm-start justify-content-center gap-4 my-2">
+                <li class="list-inline-item d-flex gap-2 align-items-center">
+                  <i class="icon-base ti tabler-crown"></i>
+                  <span class="fw-medium text-capitalize">
+                    <span>student</span>
+                  </span>
+                </li>
+                <li class="list-inline-item d-flex gap-2 align-items-center">
+                  <i class="icon-base ti tabler-calendar"></i>
+                  <span class="fw-medium">
+                    Joined <span>February 2026</span>
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <a href="/profile/edit/" class="btn btn-primary mb-1">
+              <i class="icon-base ti tabler-edit me-2"></i>Edit Profile
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col-xl-4 col-lg-5 col-md-5 mx-auto">
+  <!-- About User -->
+  <div class="card mb-6">
+    <div class="card-body">
+      <p class="card-text text-uppercase text-muted small mb-0">About</p>
+      <ul class="list-unstyled my-3 py-1">
+        <li class="d-flex align-items-center mb-4">
+          <i class="icon-base ti tabler-user me-2"></i>
+          <span class="fw-medium mx-2">Full Name:</span>
+          <span>
+            <span>sakkhar</span>
+          </span>
+        </li>
+        <li class="d-flex align-items-center mb-4">
+          <i class="icon-base ti tabler-check me-2"></i><span class="fw-medium mx-2">Status:</span>
+          <span>Active</span>
+        </li>
+        <li class="d-flex align-items-center mb-4">
+          <i class="icon-base ti tabler-crown me-2"></i>
+          <span class="fw-medium mx-2 text-capitalize">Role:</span>
+          <span class="text-capitalize">student</span>
+        </li>
+      </ul>
+      <p class="card-text text-uppercase text-muted small mb-0">Contacts</p>
+      <ul class="list-unstyled my-3 py-1">
+        <li class="d-flex align-items-center mb-4">
+          <i class="icon-base ti tabler-mail me-2"></i>
+          <span class="fw-medium mx-2">Email:</span>
+          <span>
+            <span>N/A</span>
+          </span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!--/ About User -->
+</div>
+</div>
+
+          </div>
+          <!-- / Content -->
+
+          <!-- Footer -->
+          <footer class="content-footer footer bg-footer-theme">
+            <div class="container-xxl">
+              <div
+                class="footer-container d-flex align-items-center justify-content-between py-2 flex-md-row flex-column">
+                <div>
+                  ©
+                  <script>document.write(new Date().getFullYear())</script>, School Management System.
+                </div>
+              </div>
+            </div>
+          </footer>
+          <!-- / Footer -->
+
+          <div class="content-backdrop fade"></div>
+        </div>
+        <!-- Content wrapper -->
+      </div>
+      <!-- / Layout page -->
+    </div>
+
+    <!-- Overlay -->
+    <div class="layout-overlay layout-menu-toggle"></div>
+
+    <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+    <div class="drag-target"></div>
+  </div>
+  <!-- / Layout wrapper -->
+
+  <!-- Core JS -->
+  <!-- build:js assets/vendor/js/core.js -->
+  <script src="/static/assets/vendor/libs/jquery/jquery.js"></script>
+  <script src="/static/assets/vendor/libs/popper/popper.js"></script>
+  <script src="/static/assets/vendor/js/bootstrap.js"></script>
+  <script src="/static/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+  <script src="/static/assets/vendor/js/menu.js"></script>
+  <!-- endbuild -->
+
+  <!-- Main JS -->
+  <script src="/static/assets/js/main.js"></script>
+  
+</body>
+
+</html>
