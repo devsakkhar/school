@@ -174,5 +174,32 @@ class StudentSectionForm(forms.ModelForm):
         fields = ['student_class', 'name']
         widgets = {
             'student_class': forms.Select(attrs={'class': 'form-select'}),
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., A, B, C'})
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class DisciplinaryRecordForm(forms.ModelForm):
+    class Meta:
+        model = DisciplinaryRecord
+        fields = ['incident_date', 'title', 'description', 'action_taken', 'severity']
+        widgets = {
+            'incident_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'action_taken': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'severity': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+class AlumniProfileForm(forms.ModelForm):
+    class Meta:
+        from .models import AlumniProfile
+        model = AlumniProfile
+        fields = ['graduation_year', 'current_profession', 'company_name', 'contact_email', 'contact_phone', 'higher_education_info', 'achievements']
+        widgets = {
+            'graduation_year': forms.NumberInput(attrs={'class': 'form-control'}),
+            'current_profession': forms.TextInput(attrs={'class': 'form-control'}),
+            'company_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'contact_email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'contact_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'higher_education_info': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'achievements': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }

@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Transfer Certificate | {{ student.user.get_full_name }}</title>
+    <!-- Merriweather font for Certificates -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background-color: #e9ecef;
+            padding: 20px;
+        }
+
+        /* ── Print controls ─────────────────────────── */
+        .print-controls {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .btn-print {
+            background-color: #138496;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: .5px;
+        }
+
+        .btn-print:hover {
+            background-color: #0f6c7a;
+        }
+
+        /* ── Certificate Wrapper ─────────────────────── */
+        .certificate-wrapper {
+            width: 800px;
+            /* Standard A4 Landscape-ish aspect */
+            height: 1100px;
+            /* A4 Portrait */
+            margin: 0 auto;
+            background-color: #fff;
+            position: relative;
+            padding: 40px;
+            border: 1px solid #ddd;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="none" stroke="%233b5998" stroke-width="20" stroke-dasharray="10,10" /></svg>');
+        }
+
+        .inner-border {
+            border: 4px solid #3b5998;
+            height: 100%;
+            padding: 30px;
+            position: relative;
+        }
+
+        /* ── Header Area ────────────────────────────── */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 20px;
+        }
+
+        .header img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .school-name {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a2b4c;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .school-address {
+            font-size: 16px;
+            color: #555;
+        }
+
+        /* ── Title Area ──────────────────────────── */
+        .certificate-title {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 48px;
+            color: #1a2b4c;
+            font-family: 'Great Vibes', cursive;
+            word-spacing: 5px;
+        }
+
+        /* ── Content Area ─────────────────────────── */
+        .content {
+            font-size: 20px;
+            line-height: 2.2;
+            color: #333;
+            text-align: justify;
+        }
+
+        .blank-line {
+            font-weight: 700;
+            border-bottom: 1.5px dotted #333;
+            padding: 0 10px;
+        }
+
+        /* ── Signatures ───────────────────────────── */
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 100px;
+        }
+
+        .sig-block {
+            text-align: center;
+            width: 250px;
+        }
+
+        .sig-line {
+            border-top: 1px solid #333;
+            margin-top: 40px;
+            padding-top: 5px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .sig-image {
+            height: 50px;
+            object-fit: contain;
+            margin-bottom: -10px;
+        }
+
+        /* ── Print Styles ────────────────────────── */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+                margin: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+
+            .print-controls {
+                display: none;
+            }
+
+            .certificate-wrapper {
+                box-shadow: none;
+                border: none;
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                page-break-after: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="print-controls">
+        <button class="btn-print" onclick="window.print()">
+            🖨️ Print Transfer Certificate
+        </button>
+    </div>
+
+    <!-- Certificate Card -->
+    <div class="certificate-wrapper">
+        <div class="inner-border">
+
+            <div class="header">
+                {% if school.logo %}
+                <img src="{{ school.logo.url }}" alt="{{ school.name }}">
+                {% endif %}
+                <div class="school-name">{{ school.name|default:"City Public School" }}</div>
+                <div class="school-address">
+                    {{ school.address|default:"123 School Avenue" }}, {{ school.city|default:"Metropolis" }}
+                    <br>
+                    Email: {{ school.email|default:"info@school.edu" }} | Phone: {{ school.phone|default:"+1 234 567
+                    890" }}
+                </div>
+            </div>
+
+            <div class="certificate-title">Transfer Certificate</div>
+
+            <div class="content">
+                <p>This is to certify that
+                    <span class="blank-line">{{ student.user.get_full_name }}</span>
+                    son/daughter of
+                    <span class="blank-line">{{ student.father_name|default:"_____________________" }}</span>
+                    and
+                    <span class="blank-line">{{ student.mother_name|default:"_____________________" }}</span>
+                    residing at
+                    <span class="blank-line">{{ student.present_address|default:"_________________________________"
+                        }}</span>
+                    was a student of this school from
+                    <span class="blank-line">{{ student.admission_date|date:"F Y" }}</span>
+                    to
+                    <span class="blank-line">{{ today }}</span>.
+                </p>
+                <p>
+                    His/Her date of birth according to the Admission Register is
+                    <span class="blank-line">{{ student.date_of_birth|date:"F j, Y"|default:"________________"
+                        }}</span>.
+                </p>
+                <p>
+                    He/She was reading in Class
+                    <span class="blank-line">{{ student.current_class.name|default:"_________" }}</span>.
+                    All dues to the school have been cleared up to
+                    <span class="blank-line">{{ today }}</span>.
+                </p>
+                <br>
+                <p>
+                    <strong>Reason for leaving:</strong> ___________________________________________________________
+                </p>
+                <p>
+                    <strong>Character & Conduct:</strong> ___________________________________________________________
+                </p>
+            </div>
+
+            <div class="signatures">
+                <div class="sig-block">
+                    <p style="margin-bottom: 20px;">Date: <strong>{{ today }}</strong></p>
+                </div>
+                <div class="sig-block">
+                    <br>
+                    <div class="sig-line">Class Teacher</div>
+                </div>
+                <div class="sig-block">
+                    {% if school.signature %}
+                    <img src="{{ school.signature.url }}" class="sig-image" alt="Signature">
+                    {% else %}
+                    <br><br>
+                    {% endif %}
+                    <div class="sig-line">Principal</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

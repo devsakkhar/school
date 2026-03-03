@@ -16,6 +16,15 @@
   <div class="menu-inner-shadow"></div>
 
   <ul class="menu-inner py-1">
+    {% if request.user.role and request.user.role.name.lower == 'student' %}
+    <!-- Student Portal Dashboard -->
+    <li class="menu-item {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+      <a href="{% url 'student_dashboard' %}" class="menu-link">
+        <i class="menu-icon tf-icons icon-base ti tabler-smart-home"></i>
+        <div data-i18n="Student Portal">Student Portal</div>
+      </a>
+    </li>
+    {% else %}
     <!-- Dashboards -->
     <li class="menu-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
       <a href="{% url 'index' %}" class="menu-link">
@@ -72,6 +81,11 @@
         <li class="menu-item {% if request.resolver_match.url_name == 'student_analytics' %}active{% endif %}">
           <a href="{% url 'student_analytics' %}" class="menu-link">
             <div>Analytics</div>
+          </a>
+        </li>
+        <li class="menu-item {% if 'alumni' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'alumni_directory' %}" class="menu-link">
+            <div>Alumni Directory</div>
           </a>
         </li>
       </ul>
@@ -398,6 +412,7 @@
       </a>
     </li>
 
+    {% endif %}
   </ul>
 </aside>
 <!-- / Menu -->

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Update Alumni Profile | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card mb-4">
+            <h5 class="card-header border-bottom">Edit Alumni Profile: {{ student.user.get_full_name }}</h5>
+            <div class="card-body mt-4">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Graduation Year</label>
+                            {{ form.graduation_year }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Current Profession / Job Title</label>
+                            {{ form.current_profession }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Company Name</label>
+                            {{ form.company_name }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Email (Alumni)</label>
+                            {{ form.contact_email }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Phone</label>
+                            {{ form.contact_phone }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Higher Education Info</label>
+                            {{ form.higher_education_info }}
+                            <small class="text-muted">e.g., BSc Computer Science at University of Dhaka</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Key Achievements</label>
+                            {{ form.achievements }}
+                        </div>
+                    </div>
+
+                    <div class="pt-4 mt-4 border-top">
+                        <button type="submit" class="btn btn-primary me-2">Save Changes</button>
+                        <a href="{% url 'alumni_directory' %}" class="btn btn-label-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

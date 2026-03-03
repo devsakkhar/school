@@ -11,6 +11,11 @@ import json
 
 @login_required
 def index(request):
+    user = request.user
+    if getattr(user, 'role', None) and user.role.name.lower() == 'student':
+        from django.shortcuts import redirect
+        return redirect('student_dashboard')
+
     now = timezone.now()
     first_day_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     

@@ -120,6 +120,13 @@
                             {% if cnt %}<span class="badge bg-success rounded-pill ms-1">{{ cnt }}</span>{% endif %}
                             {% endwith %}
                         </a>
+                        <a href="{% url 'disciplinary_records' student.pk %}"
+                            class="btn btn-sm btn-label-warning flex-fill text-center">
+                            <i class="ti tabler-gavel me-1"></i>Disciplinary
+                            {% with student.disciplinary_records.count as cnt %}
+                            {% if cnt %}<span class="badge bg-warning rounded-pill ms-1">{{ cnt }}</span>{% endif %}
+                            {% endwith %}
+                        </a>
                         <a href="{% url 'student_report_card' student.pk %}"
                             class="btn btn-sm btn-label-primary flex-fill text-center">
                             <i class="ti tabler-report me-1"></i>Results
@@ -222,6 +229,19 @@
                 <div class="row mb-3">
                     <div class="col-sm-4"><span class="fw-medium">Admission Date:</span></div>
                     <div class="col-sm-8">{{ student.admission_date|date:"d M Y"|default:"-" }}</div>
+                    <!-- ── Generate Documents ──────────────────── -->
+                    <h6 class="text-uppercase text-muted fw-bold mt-4 mb-2" style="font-size:11px; letter-spacing:1px;">
+                        Generate Documents</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <a href="{% url 'generate_id_cards' %}?student_id={{ student.id }}" target="_blank"
+                            class="btn btn-sm btn-label-primary flex-fill text-center">
+                            <i class="ti tabler-id-badge-2 me-1"></i> ID Card
+                        </a>
+                        <a href="{% url 'generate_tc' student.id %}" target="_blank"
+                            class="btn btn-sm btn-label-warning flex-fill text-center">
+                            <i class="ti tabler-certificate me-1"></i> Transfer Certificate
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

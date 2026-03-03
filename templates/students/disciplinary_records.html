@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Disciplinary Records - {{ student.user.get_full_name }} | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Left Sidebar: Student Info -->
+    <div class="col-xl-4 col-lg-5 col-md-5 order-1 order-md-0">
+        <div class="card mb-6">
+            <div class="card-body">
+                <div class="user-avatar-section">
+                    <div class=" d-flex align-items-center flex-column">
+                        {% if student.user.image %}
+                        <img class="img-fluid rounded mb-4 pt-1 mt-4" src="{{ student.user.image.url }}" height="100"
+                            width="100" alt="User avatar" />
+                        {% else %}
+                        <div class="avatar avatar-xl mb-4 pt-1 mt-4">
+                            <span class="avatar-initial rounded bg-label-primary fs-3">
+                                {{ student.user.first_name|first|upper }}
+                            </span>
+                        </div>
+                        {% endif %}
+                        <div class="user-info text-center">
+                            <h4 class="mb-2">{{ student.user.get_full_name }}</h4>
+                            <span class="badge bg-label-primary">{{ student.user.role.name|default:"Student" }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-around flex-wrap my-5 gap-0 border-bottom pb-4">
+                    <div class="d-flex align-items-start me-4 mt-3 gap-2">
+                        <span class="badge bg-label-warning p-2 rounded"><i
+                                class="ti ti tabler-gavel ti-26px"></i></span>
+                        <div>
+                            <p class="mb-0 fw-medium">{{ actions_count }}</p>
+                            <small>Total Records</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-container">
+                    <ul class="list-unstyled mb-6">
+                        <li class="mb-2">
+                            <span class="fw-medium text-heading me-2">Admission No:</span>
+                            <span>{{ student.admission_number }}</span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="fw-medium text-heading me-2">Class:</span>
+                            <span>{{ student.current_class }} ({{ student.section }})</span>
+                        </li>
+                    </ul>
+                    <div class="d-grid w-100 mt-4 pt-2">
+                        <a href="{% url 'student_detail' student.pk %}" class="btn btn-primary pb-3">
+                            <i class="ti tabler-arrow-left me-1"></i>Back to Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side: Records & Add Form -->
+    <div class="col-xl-8 col-lg-7 col-md-7 order-0 order-md-1">
+
+        <!-- Add Record Box -->
+        <div class="card mb-6">
+            <div class="card-header border-bottom">
+                <h5 class="card-title mb-0">Record New Incident</h5>
+            </div>
+            <div class="card-body mt-4">
+                <form method="POST" action="{% url 'disciplinary_records' student.pk %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Incident Date</label>
+                            {{ form.incident_date }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Severity Level</label>
+                            {{ form.severity }}
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Title / Topic</label>
+                            {{ form.title }}
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Details / Description</label>
+                            {{ form.description }}
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Action Taken</label>
+                            {{ form.action_taken }}
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-warning"><i class="ti tabler-plus me-1"></i> Save
+                            Record</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Recorded History List -->
+        <div class="card">
+            <div class="card-header border-bottom">
+                <h5 class="card-title mb-0">Disciplinary History</h5>
+            </div>
+            <div class="card-body">
+                {% if records %}
+                <ul class="timeline mt-4">
+                    {% for rec in records %}
+                    <li
+                        class="timeline-item timeline-item-transparent ps-4 {% if rec.severity == 'High' %}border-danger{% elif rec.severity == 'Medium' %}border-warning{% elif rec.severity == 'Low' %}border-info{% else %}border-success{% endif %}">
+                        <span
+                            class="timeline-point {% if rec.severity == 'High' %}timeline-point-danger{% elif rec.severity == 'Medium' %}timeline-point-warning{% elif rec.severity == 'Low' %}timeline-point-info{% else %}timeline-point-success{% endif %}"></span>
+                        <div class="timeline-event pb-0">
+                            <div class="timeline-header mb-1">
+                                <h6 class="mb-0 fw-bold">{{ rec.title }}</h6>
+                                <small class="text-muted">{{ rec.incident_date|date:"d M Y" }}</small>
+                            </div>
+                            <p class="mb-2">{{ rec.description }}</p>
+
+                            {% if rec.action_taken %}
+                            <div class="bg-label-secondary p-3 rounded mb-3">
+                                <strong>Action Taken:</strong><br>
+                                {{ rec.action_taken }}
+                            </div>
+                            {% endif %}
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="text-muted small">
+                                    <i class="ti tabler-user me-1"></i>Reported by {{ rec.reported_by.get_full_name }}
+                                </div>
+                                <form method="POST" action="{% url 'disciplinary_record_delete' student.pk rec.pk %}"
+                                    class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-label-danger"
+                                        onclick="return confirm('Are you sure you want to delete this record?');">
+                                        <i class="ti tabler-trash me-1"></i>Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted mb-0">No disciplinary records found for this student.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

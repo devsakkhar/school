@@ -30,6 +30,45 @@ from .models import ClassTeacher, Homework, HomeworkSubmission, Subject
 
 
 @login_required
+def student_dashboard(request):
+    try:
+        student = request.user.student_profile
+    except Student.DoesNotExist:
+        messages.error(request, 'Student profile not found.')
+        return redirect('index')
+
+    now = timezone.now()
+    
+    # Get Attendance info
+    total_sessions = AttendanceRecord.objects.filter(student=student).count()
+    present_sessions = AttendanceRecord.objects.filter(student=student, status='Present').count()
+    attendance_percentage = round((present_sessions / total_sessions * 100), 1) if total_sessions > 0 else 0
+
+    # Get Recent Results
+    recent_results = StudentResult.objects.filter(student=student).select_related('exam').order_by('-exam__exam_date')[:5]
+
+    # Get Pending Fees
+    paid_fees = FeePayment.objects.filter(student=student).values_list('fee_type_id', flat=True)
+    pending_fees = FeeType.objects.filter(
+        Q(applies_to_class=student.current_class) | Q(applies_to_class__isnull=True)
+    ).exclude(id__in=paid_fees).order_by('due_date')
+
+    # Get HomeWork
+    recent_homework = Homework.objects.filter(
+        student_class=student.current_class,
+        section=student.section
+    ).order_by('-due_date')[:5]
+
+    context = {
+        'student': student,
+        'attendance_percentage': attendance_percentage,
+        'recent_results': recent_results,
+        'pending_fees': pending_fees,
+        'recent_homework': recent_homework
+    }
+    return render(request, 'students/student_dashboard.html', context)
+
+@login_required
 def student_list(request):
     search_query = request.GET.get('q', '')
     class_id = request.GET.get('class_id', '')
@@ -254,6 +293,18 @@ def generate_id_cards(request):
         'school': school_settings
     }
     return render(request, 'students/id_card_template.html', context)
+
+@login_required
+def generate_tc(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    school_settings = SchoolSettings.objects.first()
+    
+    context = {
+        'student': student,
+        'school': school_settings,
+        'today': date.today().strftime("%B %d, %Y")
+    }
+    return render(request, 'students/tc_print.html', context)
 
 @login_required
 def class_promotion(request):
@@ -539,8 +590,86 @@ def student_remark_delete(request, pk, remark_pk):
     remark = get_object_or_404(StudentRemark, pk=remark_pk, student__pk=pk)
     if request.method == 'POST':
         remark.delete()
+        remark.delete()
         messages.success(request, 'Remark deleted.')
     return redirect('student_remarks', pk=pk)
+
+
+# ══════════════════════════════════════════════════
+# Disciplinary Tracking
+# ══════════════════════════════════════════════════
+from .forms import DisciplinaryRecordForm
+
+@login_required
+def disciplinary_records(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    if request.method == 'POST':
+        form = DisciplinaryRecordForm(request.POST)
+        if form.is_valid():
+            record = form.save(commit=False)
+            record.student = student
+            record.reported_by = request.user
+            record.save()
+            messages.success(request, 'Disciplinary record added.')
+            return redirect('disciplinary_records', pk=pk)
+    else:
+        form = DisciplinaryRecordForm()
+        
+    records = student.disciplinary_records.select_related('reported_by').all()
+    actions_count = records.count()
+    
+    return render(request, 'students/disciplinary_records.html', {
+        'student': student, 
+        'records': records,
+        'form': form,
+        'actions_count': actions_count
+    })
+
+@login_required
+def disciplinary_record_delete(request, pk, record_pk):
+    from .models import DisciplinaryRecord
+    record = get_object_or_404(DisciplinaryRecord, pk=record_pk, student__pk=pk)
+    if request.method == 'POST':
+        record.delete()
+        messages.success(request, 'Disciplinary record deleted.')
+    return redirect('disciplinary_records', pk=pk)
+
+
+# ══════════════════════════════════════════════════
+# Alumni Management
+# ══════════════════════════════════════════════════
+from .forms import AlumniProfileForm
+from .models import AlumniProfile
+
+@login_required
+def alumni_directory(request):
+    # Only show students with status 'Alumni'
+    alumni_students = Student.objects.filter(status='Alumni').select_related('alumni_profile', 'user').order_by('-alumni_profile__graduation_year', 'user__first_name')
+    return render(request, 'students/alumni_directory.html', {'alumni': alumni_students})
+
+@login_required
+def alumni_profile_update(request, pk):
+    student = get_object_or_404(Student, pk=pk, status='Alumni')
+    
+    # Get or create the profile
+    profile, created = AlumniProfile.objects.get_or_create(
+        student=student,
+        defaults={'graduation_year': date.today().year}
+    )
+    
+    if request.method == 'POST':
+        form = AlumniProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Alumni profile updated successfully.')
+            return redirect('alumni_directory')
+    else:
+        form = AlumniProfileForm(instance=profile)
+        
+    return render(request, 'students/alumni_profile_form.html', {
+        'form': form,
+        'student': student
+    })
 
 
 # ══════════════════════════════════════════════════

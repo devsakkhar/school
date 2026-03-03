@@ -443,3 +443,44 @@ class InAppNotification(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.title}"
+
+# ══════════════════════════════════════════════════════════
+# Disciplinary Tracking
+# ══════════════════════════════════════════════════════════
+class DisciplinaryRecord(models.Model):
+    SEVERITY_CHOICES = [
+        ('Low', 'Low - Warning'),
+        ('Medium', 'Medium - Detention/Call'),
+        ('High', 'High - Suspension/Expulsion'),
+        ('Positive', 'Positive - Award/Commendation')
+    ]
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='disciplinary_records')
+    incident_date = models.DateField()
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    action_taken = models.TextField(blank=True, null=True)
+    severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default='Low')
+    reported_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"[{self.severity}] {self.student.user.get_full_name()} - {self.title}"
+
+    class Meta:
+        ordering = ['-incident_date', '-created_at']
+
+# ══════════════════════════════════════════════════════════
+# Alumni Management
+# ══════════════════════════════════════════════════════════
+class AlumniProfile(models.Model):
+    student = models.OneToOneField(Student, on_delete=models.CASCADE, related_name='alumni_profile')
+    graduation_year = models.IntegerField()
+    current_profession = models.CharField(max_length=200, blank=True, null=True)
+    company_name = models.CharField(max_length=200, blank=True, null=True)
+    contact_email = models.EmailField(blank=True, null=True)
+    contact_phone = models.CharField(max_length=20, blank=True, null=True)
+    higher_education_info = models.TextField(blank=True, null=True, help_text="Details about university or college attended after graduation.")
+    achievements = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Alumni: {self.student.user.get_full_name()} ({self.graduation_year})"

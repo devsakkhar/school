@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Alumni Directory | School Management System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Alumni Directory</h4>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-datatable table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Alumni Name</th>
+                    <th>Graduation Year</th>
+                    <th>Profession / Company</th>
+                    <th>Contact Info</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in alumni %}
+                <tr>
+                    <td>
+                        <div class="d-flex justify-content-start align-items-center">
+                            <div class="avatar-wrapper">
+                                <div class="avatar me-2">
+                                    {% if student.user.image %}
+                                    <img src="{{ student.user.image.url }}" alt="Avatar" class="rounded-circle">
+                                    {% else %}
+                                    <span class="avatar-initial rounded-circle bg-label-primary">{{
+                                        student.user.first_name|first|upper }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <span class="fw-medium">{{ student.user.get_full_name }}</span>
+                                <small class="text-muted">{{ student.user.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-label-info">{{ student.alumni_profile.graduation_year|default:"N/A"
+                            }}</span>
+                    </td>
+                    <td>
+                        {% if student.alumni_profile.current_profession %}
+                        <span class="fw-medium">{{ student.alumni_profile.current_profession }}</span>
+                        {% if student.alumni_profile.company_name %}
+                        <br><small class="text-muted">at {{ student.alumni_profile.company_name }}</small>
+                        {% endif %}
+                        {% else %}
+                        <span class="text-muted">Not specified</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if student.alumni_profile.contact_phone %}
+                        <i class="ti tabler-phone text-muted me-1"></i>{{ student.alumni_profile.contact_phone }}<br>
+                        {% endif %}
+                        {% if student.alumni_profile.contact_email %}
+                        <i class="ti tabler-mail text-muted me-1"></i>{{ student.alumni_profile.contact_email }}
+                        {% endif %}
+                        {% if not student.alumni_profile.contact_phone and not student.alumni_profile.contact_email %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <a href="{% url 'alumni_profile_update' student.pk %}"
+                                class="btn btn-sm btn-icon border-primary text-primary me-2"><i
+                                    class="ti tabler-edit"></i></a>
+                            <a href="{% url 'student_detail' student.pk %}"
+                                class="btn btn-sm btn-icon border-secondary text-secondary"><i
+                                    class="ti tabler-eye"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">No alumni records found. Only students with
+                        status "Alumni" appear here.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

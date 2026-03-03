@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('dashboard/', views.student_dashboard, name='student_dashboard'),
     path('', views.student_list, name='student_list'),
     path('add/', views.student_create, name='student_create'),
     path('<int:pk>/edit/', views.student_update, name='student_update'),
@@ -11,6 +12,9 @@ urlpatterns = [
     path('bulk-upload/template/', views.student_bulk_upload_template, name='student_bulk_upload_template'),
     path('export-csv/', views.student_export_csv, name='student_export_csv'),
     path('id-cards/', views.generate_id_cards, name='generate_id_cards'),
+    path('<int:pk>/tc/', views.generate_tc, name='generate_tc'),
+    path('alumni/', views.alumni_directory, name='alumni_directory'),
+    path('<int:pk>/alumni/edit/', views.alumni_profile_update, name='alumni_profile_update'),
     path('promote/', views.class_promotion, name='class_promotion'),
     path('settings/', views.school_settings_view, name='school_settings'),
     path('get-sections/', views.get_sections, name='get_sections'),
@@ -30,6 +34,11 @@ urlpatterns = [
     # Per-Student sub-pages
     path('<int:pk>/remarks/', views.student_remarks, name='student_remarks'),
     path('<int:pk>/remarks/<int:remark_pk>/delete/', views.student_remark_delete, name='student_remark_delete'),
+    
+    # Disciplinary
+    path('<int:pk>/disciplinary/', views.disciplinary_records, name='disciplinary_records'),
+    path('<int:pk>/disciplinary/<int:record_pk>/delete/', views.disciplinary_record_delete, name='disciplinary_record_delete'),
+    
     path('<int:pk>/documents/', views.student_documents, name='student_documents'),
     path('<int:pk>/documents/<int:doc_pk>/delete/', views.student_document_delete, name='student_document_delete'),
     path('<int:pk>/contacts/', views.student_contacts, name='student_contacts'),
