@@ -64,6 +64,8 @@ INSTALLED_APPS = [
     'staff',
     'exam_seat_plan',
     'library',
+    'facilities',
+    'finance',
 ]
 
 MIDDLEWARE = [

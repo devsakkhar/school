@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card mb-4">
+            <h5 class="card-header">{{ title }}</h5>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary me-2">Save Changes</button>
+                        <a href="{% url 'route_list' %}" class="btn btn-label-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

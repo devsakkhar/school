@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Manage Assets{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">School Assets</h4>
+        <button class="btn btn-primary">+ Add New Asset</button>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Asset Name</th>
+                    <th>Category</th>
+                    <th>Purchase Date</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asset in assets %}
+                <tr>
+                    <td class="fw-bold">{{ asset.name }}</td>
+                    <td>{{ asset.category.name }}</td>
+                    <td>{{ asset.purchase_date|date:"d M Y" }}</td>
+                    <td class="text-success fw-bold">৳{{ asset.purchase_price }}</td>
+                    <td>{{ asset.quantity }}</td>
+                    <td>
+                        {% if asset.status == 'Available' %}
+                        <span class="badge bg-label-success">Available</span>
+                        {% elif asset.status == 'In Use' %}
+                        <span class="badge bg-label-info">In Use</span>
+                        {% elif asset.status == 'Maintenance' %}
+                        <span class="badge bg-label-warning">Maintenance</span>
+                        {% else %}
+                        <span class="badge bg-label-danger">Discarded</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-icon"><i class="ti tabler-pencil text-primary"></i></button>
+                        <button class="btn btn-sm btn-icon"><i class="ti tabler-trash text-danger"></i></button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">No assets found in the system.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

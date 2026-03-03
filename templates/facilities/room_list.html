@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Manage Rooms{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Hostel Rooms</h4>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRoomModal">+ Add Room</button>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Hostel</th>
+                    <th>Room No.</th>
+                    <th>Beds</th>
+                    <th>Cost Per Bed</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for room in rooms %}
+                <tr>
+                    <td>{{ room.hostel.name }}</td>
+                    <td class="fw-bold">{{ room.room_number }}</td>
+                    <td>{{ room.no_of_beds }}</td>
+                    <td class="text-success fw-bold">৳{{ room.cost_per_bed }}</td>
+                    <td>
+                        <a href="{% url 'room_update' room.pk %}" class="btn btn-sm btn-icon"><i
+                                class="ti tabler-pencil text-primary"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">No rooms added yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Room Modal -->
+<div class="modal fade" id="addRoomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Room</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'room_list' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    {{ form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Room</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Asset Assignments{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Asset Assignments</h4>
+        <button class="btn btn-primary">+ Assign Asset</button>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Asset Name</th>
+                    <th>Assigned To</th>
+                    <th>Assignment Date</th>
+                    <th>Expected Return</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for assignment in assignments %}
+                <tr>
+                    <td class="fw-bold">{{ assignment.asset.name }}</td>
+                    <td>{{ assignment.assigned_to.get_full_name }}</td>
+                    <td>{{ assignment.assignment_date|date:"d M Y" }}</td>
+                    <td>{{ assignment.expected_return_date|date:"d M Y"|default:"N/A" }}</td>
+                    <td>
+                        {% if assignment.status == 'Assigned' %}
+                        <span class="badge bg-label-warning">Assigned</span>
+                        {% else %}
+                        <span class="badge bg-label-success">Returned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-icon" title="Mark Returned"><i
+                                class="ti tabler-arrow-back-up text-primary"></i></button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">No assets are currently assigned.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

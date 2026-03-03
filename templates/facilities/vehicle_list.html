@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Manage Vehicles{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Transport Vehicles</h4>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVehicleModal">+ Add Vehicle</button>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Vehicle No.</th>
+                    <th>Model</th>
+                    <th>Driver Name</th>
+                    <th>Driver Contact</th>
+                    <th>Seating Capacity</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehicle in vehicles %}
+                <tr>
+                    <td class="fw-bold">{{ vehicle.vehicle_number }}</td>
+                    <td>{{ vehicle.vehicle_model|default:vehicle.model|default:"-" }}</td>
+                    <td>{{ vehicle.driver_name }}</td>
+                    <td>{{ vehicle.driver_phone }}</td>
+                    <td>{{ vehicle.max_seating_capacity }} Seats</td>
+                    <td>
+                        <a href="{% url 'vehicle_update' vehicle.pk %}" class="btn btn-sm btn-icon"><i
+                                class="ti tabler-pencil text-primary"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">No vehicles registered.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Vehicle Modal -->
+<div class="modal fade" id="addVehicleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Vehicle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'vehicle_list' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    {{ form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Vehicle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Transport Allocations{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Transport Allocations</h4>
+        <button class="btn btn-primary">+ Allocate Student</button>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Student Name</th>
+                    <th>Route</th>
+                    <th>Boarding Point</th>
+                    <th>Date Allocated</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alloc in allocations %}
+                <tr>
+                    <td class="fw-bold">{{ alloc.student.user.get_full_name }} <br><small class="text-muted">{{
+                            alloc.student.admission_number }}</small></td>
+                    <td>{{ alloc.route.route_name }}</td>
+                    <td>{{ alloc.boarding_point }}</td>
+                    <td>{{ alloc.allocation_date|date:"d M Y" }}</td>
+                    <td>
+                        {% if alloc.status == 'Active' %}
+                        <span class="badge bg-label-success">Active</span>
+                        {% else %}
+                        <span class="badge bg-label-secondary">Cancelled</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-icon"><i class="ti tabler-pencil text-primary"></i></button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">No transport allocations yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

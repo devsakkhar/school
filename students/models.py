@@ -289,18 +289,7 @@ class StudentResult(models.Model):
 # Module 2: Enhanced Academics
 # ══════════════════════════════════════════════════════════
 
-class ClassTeacher(models.Model):
-    student_class = models.ForeignKey(StudentClass, on_delete=models.CASCADE, related_name='class_teachers')
-    section = models.ForeignKey(StudentSection, on_delete=models.SET_NULL, null=True, blank=True)
-    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'role': 'Teacher'})
-    academic_year = models.CharField(max_length=20, default='2025-2026')
 
-    class Meta:
-        unique_together = ('student_class', 'section', 'academic_year')
-
-    def __str__(self):
-        sec = f" / {self.section.name}" if self.section else ""
-        return f"{self.teacher.get_full_name()} - {self.student_class.name}{sec}"
 
 def homework_upload_path(instance, filename):
     return f"homework/{instance.student_class.id}/{instance.subject.id}/{filename}"
