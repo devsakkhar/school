@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'library',
     'facilities',
     'finance',
+    'reports',
 ]
 
 MIDDLEWARE = [

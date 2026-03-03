@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Staff HR Report{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Staff & HR Report</h4>
+        <button class="btn btn-primary"><i class="ti tabler-download me-1"></i> Export Excel</button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <h5 class="card-header border-bottom">Recent Leave Requests</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Staff Member</th>
+                            <th>Type</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in leave_requests %}
+                        <tr>
+                            <td>{{ leave.user.get_full_name }}</td>
+                            <td>{{ leave.leave_type.name }}</td>
+                            <td>{{ leave.start_date|date:"M d" }} to {{ leave.end_date|date:"M d" }}</td>
+                            <td>
+                                {% if leave.status == 'Approved' %}
+                                <span class="badge bg-label-success">{{ leave.status }}</span>
+                                {% elif leave.status == 'Pending' %}
+                                <span class="badge bg-label-warning">{{ leave.status }}</span>
+                                {% else %}
+                                <span class="badge bg-label-danger">{{ leave.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">No leaves requested.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <h5 class="card-header border-bottom">Payroll Distributions</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Staff Member</th>
+                            <th>Month/Year</th>
+                            <th>Net Pay</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for salary in salaries %}
+                        <tr>
+                            <td>{{ salary.user.get_full_name }}</td>
+                            <td>{{ salary.get_month_display }}, {{ salary.year }}</td>
+                            <td class="text-success fw-bold">৳{{ salary.net_salary }}</td>
+                            <td>
+                                {% if salary.status == 'Paid' %}
+                                <span class="badge bg-label-success">{{ salary.status }}</span>
+                                {% else %}
+                                <span class="badge bg-label-warning">{{ salary.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">No salary records.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

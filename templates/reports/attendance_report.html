@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Report{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Class Attendance Report</h4>
+        <button class="btn btn-primary"><i class="ti tabler-download me-1"></i> Export PDF</button>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header border-bottom">
+        <h5 class="card-title mb-0">Recent Attendance Logs</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Date</th>
+                    <th>Class</th>
+                    <th>Student Name</th>
+                    <th>Status</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for att in recent_attendance %}
+                <tr>
+                    <td>{{ att.session.date|date:"M d, Y" }}</td>
+                    <td>{{ att.session.class_group.name }} - {{ att.session.section.name }}</td>
+                    <td>{{ att.student.user.get_full_name }}</td>
+                    <td>
+                        {% if att.status == 'Present' %}
+                        <span class="badge bg-label-success">Present</span>
+                        {% elif att.status == 'Absent' %}
+                        <span class="badge bg-label-danger">Absent</span>
+                        {% else %}
+                        <span class="badge bg-label-warning">{{ att.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ att.remarks|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4">No attendance data available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

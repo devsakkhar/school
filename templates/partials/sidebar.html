@@ -336,6 +336,37 @@
       </ul>
     </li>
 
+    <!-- Reports & Analytics -->
+    <li
+      class="menu-item {% if 'report' in request.resolver_match.url_name and 'academic' in request.resolver_match.url_name or 'financial_report' == request.resolver_match.url_name or 'attendance_report' == request.resolver_match.url_name or 'staff_report' == request.resolver_match.url_name %}active open{% endif %}">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons icon-base ti tabler-chart-pie"></i>
+        <div>Reports &amp; Analytics</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item {% if 'financial_report' == request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'financial_report' %}" class="menu-link">
+            <div>Financial Report</div>
+          </a>
+        </li>
+        <li class="menu-item {% if 'attendance_report' == request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'attendance_report' %}" class="menu-link">
+            <div>Attendance Report</div>
+          </a>
+        </li>
+        <li class="menu-item {% if 'academic_report' == request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'academic_report' %}" class="menu-link">
+            <div>Academic Report</div>
+          </a>
+        </li>
+        <li class="menu-item {% if 'staff_report' == request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'staff_report' %}" class="menu-link">
+            <div>HR / Staff Report</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
     <!-- Site Administration -->
     {% if perms.accounts.manage_roles or perms.accounts.manage_users %}
     <li class="menu-header small text-uppercase">

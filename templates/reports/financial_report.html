@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Financial Report{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Financial Report</h4>
+        <div>
+            <button class="btn btn-secondary me-2"><i class="ti tabler-printer me-1"></i> Print</button>
+            <button class="btn btn-primary"><i class="ti tabler-download me-1"></i> Export Excel</button>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="mb-0 text-muted">Total Income</h5>
+                        <h3 class="mb-0 mt-2 text-success">৳{{ total_income|floatformat:2 }}</h3>
+                    </div>
+                    <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-success"><i
+                                class="ti tabler-trending-up"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="mb-0 text-muted">Total Expense</h5>
+                        <h3 class="mb-0 mt-2 text-danger">৳{{ total_expense|floatformat:2 }}</h3>
+                    </div>
+                    <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-danger"><i
+                                class="ti tabler-trending-down"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="mb-0 text-muted">Net Balance</h5>
+                        <h3 class="mb-0 mt-2 {% if net_balance >= 0 %}text-primary{% else %}text-danger{% endif %}">৳{{
+                            net_balance|floatformat:2 }}</h3>
+                    </div>
+                    <div class="avatar">
+                        <span
+                            class="avatar-initial rounded {% if net_balance >= 0 %}bg-label-primary{% else %}bg-label-danger{% endif %}"><i
+                                class="ti tabler-cash"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <h5 class="card-header border-bottom">Income (Recent Fees)</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Student</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inc in incomes %}
+                        <tr>
+                            <td>{{ inc.payment_date|date:"M d, Y" }}</td>
+                            <td>{{ inc.fee.student.user.get_full_name }}</td>
+                            <td class="text-success fw-bold">+ ৳{{ inc.amount_paid }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">No income records found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <h5 class="card-header border-bottom">Expenses (Recent)</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exp in expenses %}
+                        <tr>
+                            <td>{{ exp.date|date:"M d, Y" }}</td>
+                            <td>{{ exp.category.name }}</td>
+                            <td class="text-danger fw-bold">- ৳{{ exp.amount }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">No expense records found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

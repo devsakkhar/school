@@ -3,22 +3,224 @@
 {% block title %}Dashboard | School Management System{% endblock %}
 
 {% block content %}
-<div class="row">
+<div class="row mb-4">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header border-bottom">
-                <h5 class="card-title mb-0">Welcome to School Management System</h5>
+        <h4 class="mb-0">Overview</h4>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="mb-0 text-muted">Total Students</h5>
+                        <h2 class="mb-0 mt-2 text-primary">{{ total_students }}</h2>
+                    </div>
+                    <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-primary"><i
+                                class="ti tabler-users text-primary"></i></span>
+                    </div>
+                </div>
             </div>
-            <div class="card-body mt-4">
-                <p>Welcome to the dashboard. The primary functionality of the application will be populated here.</p>
-                <button class="btn btn-primary d-inline-flex align-items-center">
-                    <i class="icon-base ti tabler-check me-2"></i>Primary Button
-                </button>
-                <div class="mt-4">
-                    <p class="text-primary fw-bold">This text ensures the primary color and styling works!</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="mb-0 text-muted">Total Teachers</h5>
+                        <h2 class="mb-0 mt-2 text-info">{{ total_teachers }}</h2>
+                    </div>
+                    <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-info"><i
+                                class="ti tabler-chalkboard text-info"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="mb-0 text-muted">Revenue (This Month)</h5>
+                        <h2 class="mb-0 mt-2 text-success">৳{{ monthly_revenue|floatformat:2 }}</h2>
+                    </div>
+                    <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-success"><i
+                                class="ti tabler-currency-taka text-success"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="mb-0 text-muted">Expenses (This Month)</h5>
+                        <h2 class="mb-0 mt-2 text-danger">৳{{ monthly_expenses|floatformat:2 }}</h2>
+                    </div>
+                    <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-danger"><i
+                                class="ti tabler-trending-down text-danger"></i></span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card h-100">
+            <div class="card-header border-bottom">
+                <h5 class="card-title mb-0">Income vs Expenses (Last 6 Months)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="financeChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header border-bottom">
+                <h5 class="card-title mb-0">Attendance Trend (7 Days)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="attendanceChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header border-bottom">
+                <h5 class="card-title mb-0">Recent Fee Payments</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student</th>
+                            <th>Class Setup</th>
+                            <th>Amount Paid</th>
+                            <th>Date</th>
+                            <th>Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pt in recent_payments %}
+                        <tr>
+                            <td class="fw-bold">{{ pt.fee.student.user.get_full_name }}</td>
+                            <td>{{ pt.fee.student.class_group.name }} ({{ pt.fee.student.section.name }})</td>
+                            <td class="text-success fw-bold">৳{{ pt.amount_paid }}</td>
+                            <td>{{ pt.payment_date|date:"M d, Y" }}</td>
+                            <td><span class="badge bg-label-info">{{ pt.payment_method }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No recent payments.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Attendance Chart
+        const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+        const attendanceLabels = JSON.parse('{{ attendance_labels|safe }}');
+        const attendanceData = JSON.parse('{{ attendance_data|safe }}');
+
+        new Chart(attendanceCtx, {
+            type: 'line',
+            data: {
+                labels: attendanceLabels,
+                datasets: [{
+                    label: 'Attendance %',
+                    data: attendanceData,
+                    borderColor: '#7367f0', // primary color
+                    backgroundColor: 'rgba(115, 103, 240, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Finance Chart
+        const financeCtx = document.getElementById('financeChart').getContext('2d');
+        const monthsLabels = JSON.parse('{{ months_labels|safe }}');
+        const incomeData = JSON.parse('{{ income_data|safe }}');
+        const expenseData = JSON.parse('{{ expense_data|safe }}');
+
+        new Chart(financeCtx, {
+            type: 'bar',
+            data: {
+                labels: monthsLabels,
+                datasets: [
+                    {
+                        label: 'Income',
+                        data: incomeData,
+                        backgroundColor: '#28c76f', // success color
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Expenses',
+                        data: expenseData,
+                        backgroundColor: '#ea5455', // danger color
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '৳' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}
