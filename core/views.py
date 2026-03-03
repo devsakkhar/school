@@ -15,12 +15,11 @@ def index(request):
     first_day_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     
     # 1. Metric Cards
-    total_students = Student.objects.filter(is_active=True).count()
+    total_students = Student.objects.filter(status='Active').count()
     total_teachers = Teacher.objects.filter(user__is_active=True).count()
     
     monthly_revenue = FeePayment.objects.filter(
-        payment_date__gte=first_day_of_month,
-        payment_status='Paid'
+        payment_date__gte=first_day_of_month
     ).aggregate(total=Sum('amount_paid'))['total'] or 0
     
     monthly_expenses = Expense.objects.filter(
@@ -61,8 +60,7 @@ def index(request):
         
         inc = FeePayment.objects.filter(
             payment_date__year=target_year,
-            payment_date__month=target_month,
-            payment_status='Paid'
+            payment_date__month=target_month
         ).aggregate(total=Sum('amount_paid'))['total'] or 0
         
         exp = Expense.objects.filter(
@@ -74,7 +72,7 @@ def index(request):
         expense_data.append(float(exp))
         
     # 3. Recent Activity
-    recent_payments = FeePayment.objects.filter(payment_status='Paid').select_related('fee__student__user').order_by('-payment_date')[:5]
+    recent_payments = FeePayment.objects.filter().select_related('student__user', 'fee_type').order_by('-payment_date')[:5]
 
     context = {
         'total_students': total_students,

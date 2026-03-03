@@ -83,7 +83,7 @@
                         {% for inc in incomes %}
                         <tr>
                             <td>{{ inc.payment_date|date:"M d, Y" }}</td>
-                            <td>{{ inc.fee.student.user.get_full_name }}</td>
+                            <td>{{ inc.student.user.get_full_name }}</td>
                             <td class="text-success fw-bold">+ ৳{{ inc.amount_paid }}</td>
                         </tr>
                         {% empty %}

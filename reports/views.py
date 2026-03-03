@@ -13,7 +13,7 @@ from datetime import timedelta
 @login_required
 def financial_report(request):
     expenses = Expense.objects.all().order_by('-date')
-    incomes = FeePayment.objects.filter(payment_status='Paid').order_by('-payment_date')
+    incomes = FeePayment.objects.all().order_by('-payment_date')
     
     total_expense = expenses.aggregate(total=Sum('amount'))['total'] or 0
     total_income = incomes.aggregate(total=Sum('amount_paid'))['total'] or 0

@@ -113,17 +113,17 @@
                             <th>Class Setup</th>
                             <th>Amount Paid</th>
                             <th>Date</th>
-                            <th>Method</th>
+                            <th>Fee Type</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for pt in recent_payments %}
                         <tr>
-                            <td class="fw-bold">{{ pt.fee.student.user.get_full_name }}</td>
-                            <td>{{ pt.fee.student.class_group.name }} ({{ pt.fee.student.section.name }})</td>
+                            <td class="fw-bold">{{ pt.student.user.get_full_name }}</td>
+                            <td>{{ pt.student.current_class.name }} ({{ pt.student.section.name }})</td>
                             <td class="text-success fw-bold">৳{{ pt.amount_paid }}</td>
                             <td>{{ pt.payment_date|date:"M d, Y" }}</td>
-                            <td><span class="badge bg-label-info">{{ pt.payment_method }}</span></td>
+                            <td><span class="badge bg-label-info">{{ pt.fee_type.name }}</span></td>
                         </tr>
                         {% empty %}
                         <tr>
