@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}My Transport | School Management System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">My Transport</h4>
+            <small class="text-muted">Details about your assigned transport route.</small>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header border-bottom">
+                <h5 class="card-title mb-0">Transport Allocation Details</h5>
+            </div>
+
+            <div class="card-body mt-4">
+                {% if allocation %}
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="text-primary border-bottom pb-2">Route Information</h6>
+                    </div>
+                    <div class="col-md-6 mb-3"><strong>Route Name:</strong> {{ allocation.route.route_name }}</div>
+                    <div class="col-md-6 mb-3"><strong>Start Point:</strong> {{ allocation.route.start_point }}</div>
+                    <div class="col-md-6 mb-3"><strong>End Point:</strong> {{ allocation.route.end_point }}</div>
+                    <div class="col-md-6 mb-3"><strong>Boarding Point:</strong> {{ allocation.boarding_point }}</div>
+                    <div class="col-md-6 mb-3"><strong>Monthly Fare:</strong> ৳{{ allocation.route.monthly_fare }}</div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Status:</strong>
+                        {% if allocation.status == 'Active' %}
+                        <span class="badge bg-label-success">Active</span>
+                        {% else %}
+                        <span class="badge bg-label-secondary">Cancelled</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="text-primary border-bottom pb-2">Vehicle & Driver Details</h6>
+                    </div>
+                    <div class="col-md-6 mb-3"><strong>Vehicle Number:</strong> {{
+                        allocation.route.vehicle.vehicle_number }}</div>
+                    <div class="col-md-6 mb-3"><strong>Vehicle Model:</strong> {{ allocation.route.vehicle.model }}
+                    </div>
+                    <div class="col-md-6 mb-3"><strong>Driver Name:</strong> {{ allocation.route.vehicle.driver_name }}
+                    </div>
+                    <div class="col-md-6 mb-3"><strong>Driver Phone:</strong> <a
+                            href="tel:{{ allocation.route.vehicle.driver_phone }}">{{
+                            allocation.route.vehicle.driver_phone }}</a></div>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="ti tabler-bus text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h5>No Transport Allocated</h5>
+                    <p class="text-muted">You are not currently assigned to any school transport routes.<br>Please
+                        contact the school administration if you need transportation services.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

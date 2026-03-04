@@ -4,8 +4,8 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from .models import CustomUser
-from .forms import ProfileUpdateForm, RoleForm, CustomUserCreationForm, CustomUserChangeForm
+from .models import CustomUser, Notice
+from .forms import ProfileUpdateForm, RoleForm, CustomUserCreationForm, CustomUserChangeForm, NoticeForm
 
 @login_required
 def profile(request):
@@ -187,3 +187,69 @@ def user_delete(request, pk):
         messages.success(request, 'User deleted successfully!')
         return redirect('user_list')
     return render(request, 'accounts/users/user_confirm_delete.html', {'user_obj': user})
+
+
+# ══════════════════════════════════════════════════════════
+# Notice Board
+# ══════════════════════════════════════════════════════════
+
+@login_required
+def notice_list(request):
+    if request.user.role and request.user.role.name in ['Admin', 'Principal']:
+        notices = Notice.objects.all()
+    else:
+        # Filter for public
+        role_map = {'Student': 'Students', 'Teacher': 'Teachers', 'Staff': 'Staff'}
+        user_group = role_map.get(request.user.role.name if request.user.role else '', 'All')
+        notices = Notice.objects.filter(is_active=True).filter(Q(target_audience='All') | Q(target_audience=user_group))
+        
+    return render(request, 'accounts/notice_list.html', {'notices': notices})
+
+@login_required
+def notice_create(request):
+    if not (request.user.role and request.user.role.name in ['Admin', 'Principal']):
+        messages.error(request, 'Access Denied.')
+        return redirect('notice_list')
+        
+    if request.method == 'POST':
+        form = NoticeForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Notice created successfully.')
+            return redirect('notice_list')
+    else:
+        form = NoticeForm()
+        
+    return render(request, 'accounts/notice_form.html', {'form': form, 'title': 'Create Notice'})
+
+@login_required
+def notice_update(request, pk):
+    notice = get_object_or_404(Notice, pk=pk)
+    if not (request.user.role and request.user.role.name in ['Admin', 'Principal']):
+        messages.error(request, 'Access Denied.')
+        return redirect('notice_list')
+        
+    if request.method == 'POST':
+        form = NoticeForm(request.POST, request.FILES, instance=notice)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Notice updated successfully.')
+            return redirect('notice_list')
+    else:
+        form = NoticeForm(instance=notice)
+        
+    return render(request, 'accounts/notice_form.html', {'form': form, 'obj': notice, 'title': 'Edit Notice'})
+
+@login_required
+def notice_delete(request, pk):
+    notice = get_object_or_404(Notice, pk=pk)
+    if not (request.user.role and request.user.role.name in ['Admin', 'Principal']):
+        messages.error(request, 'Access Denied.')
+        return redirect('notice_list')
+        
+    if request.method == 'POST':
+        notice.delete()
+        messages.success(request, 'Notice deleted successfully.')
+        return redirect('notice_list')
+        
+    return render(request, 'accounts/notice_confirm_delete.html', {'notice': notice})

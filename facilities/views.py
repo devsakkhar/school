@@ -126,7 +126,19 @@ def route_update(request, pk):
     return render(request, 'facilities/route_form.html', {'form': form, 'obj': route, 'title': 'Edit Route'})
 
 
+from .forms import HostelForm, RoomForm, VehicleForm, RouteForm, TransportAllocationForm
+
 @login_required
 def transport_allocation_list(request):
     allocations = TransportAllocation.objects.all().select_related('student', 'route')
-    return render(request, 'facilities/transport_allocation.html', {'allocations': allocations})
+    
+    if request.method == 'POST':
+        form = TransportAllocationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Student assigned to transport successfully.')
+            return redirect('transport_allocation_list')
+    else:
+        form = TransportAllocationForm()
+        
+    return render(request, 'facilities/transport_allocation.html', {'allocations': allocations, 'form': form})

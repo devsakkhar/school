@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Syllabus List | School Management System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Class Syllabuses</h4>
+            <small class="text-muted">Academic syllabus for different classes</small>
+        </div>
+        {% if not hasattr(request.user, 'student_profile') %}
+        <a href="{% url 'syllabus_create' %}" class="btn btn-primary">+ Upload Syllabus</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    {% for syllabus in syllabuses %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-start justify-content-between mb-3">
+                    <div class="bg-label-primary p-2 rounded">
+                        <i class="ti tabler-book fs-3"></i>
+                    </div>
+                    <span class="badge bg-label-info">{{ syllabus.academic_year }}</span>
+                </div>
+                <h5 class="card-title fw-bold mb-1">{{ syllabus.title }}</h5>
+                <h6 class="card-subtitle text-muted mb-3">{{ syllabus.student_class }} | {{ syllabus.subject }}</h6>
+
+                <p class="card-text text-muted mb-4 small">
+                    <i class="ti tabler-calendar-event me-1"></i>Uploaded: {{ syllabus.created_at|date:"d M Y" }}
+                </p>
+
+                {% if syllabus.file %}
+                <a href="{{ syllabus.file.url }}" target="_blank" class="btn btn-outline-primary w-100">
+                    <i class="ti tabler-download me-1"></i> Download
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <i class="ti tabler-book-off text-muted mb-3" style="font-size: 4rem;"></i>
+        <h5>No Syllabuses Available</h5>
+        <p class="text-muted">No syllabuses have been uploaded for your class yet.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

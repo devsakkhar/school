@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('dashboard/', views.student_dashboard, name='student_dashboard'),
+    path('my-transport/', views.my_transport, name='my_transport'),
     path('', views.student_list, name='student_list'),
     path('add/', views.student_create, name='student_create'),
     path('<int:pk>/edit/', views.student_update, name='student_update'),
@@ -96,4 +97,9 @@ urlpatterns = [
     # Academic Transcript & Merit List
     path('<int:student_id>/transcript/', views.academic_transcript, name='academic_transcript'),
     path('classes/<int:class_id>/merit-list/', views.class_merit_list, name='class_merit_list'),
+    # Syllabus & Lesson Plans
+    path('syllabus/', views.syllabus_list, name='syllabus_list'),
+    path('syllabus/upload/', views.syllabus_create, name='syllabus_create'),
+    path('lesson-plans/', views.lesson_plan_list, name='lesson_plan_list'),
+    path('lesson-plans/create/', views.lesson_plan_create, name='lesson_plan_create'),
 ]

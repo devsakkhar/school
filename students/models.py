@@ -484,3 +484,31 @@ class AlumniProfile(models.Model):
 
     def __str__(self):
         return f"Alumni: {self.student.user.get_full_name()} ({self.graduation_year})"
+
+# ══════════════════════════════════════════════════════════
+# Syllabus & Lesson Plan
+# ══════════════════════════════════════════════════════════
+class Syllabus(models.Model):
+    title = models.CharField(max_length=200)
+    student_class = models.ForeignKey(StudentClass, on_delete=models.CASCADE, related_name='syllabuses')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    academic_year = models.CharField(max_length=20)
+    file = models.FileField(upload_to='syllabus/')
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.student_class} ({self.subject})"
+
+class LessonPlan(models.Model):
+    title = models.CharField(max_length=200)
+    student_class = models.ForeignKey(StudentClass, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lesson_plans')
+    date = models.DateField()
+    content = models.TextField(help_text="Detailed plan for the class session")
+    file_attachment = models.FileField(upload_to='lesson_plans/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} on {self.date}"

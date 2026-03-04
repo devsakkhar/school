@@ -26,7 +26,9 @@ from .forms import (
 )
 
 CustomUser = get_user_model()
-from .models import ClassTeacher, Homework, HomeworkSubmission, Subject
+from .models import ClassTeacher, Homework, HomeworkSubmission, Subject, Syllabus, LessonPlan
+from .forms import SyllabusForm, LessonPlanForm
+
 
 
 @login_required
@@ -53,20 +55,38 @@ def student_dashboard(request):
         Q(applies_to_class=student.current_class) | Q(applies_to_class__isnull=True)
     ).exclude(id__in=paid_fees).order_by('due_date')
 
+    from accounts.models import Notice
+
     # Get HomeWork
     recent_homework = Homework.objects.filter(
         student_class=student.current_class,
         section=student.section
     ).order_by('-due_date')[:5]
 
+    # Get Active Notices
+    notices = Notice.objects.filter(is_active=True).filter(Q(target_audience='All') | Q(target_audience='Students')).order_by('-date_posted')[:3]
+
     context = {
         'student': student,
         'attendance_percentage': attendance_percentage,
         'recent_results': recent_results,
         'pending_fees': pending_fees,
-        'recent_homework': recent_homework
+        'recent_homework': recent_homework,
+        'notices': notices,
     }
     return render(request, 'students/student_dashboard.html', context)
+
+@login_required
+def my_transport(request):
+    try:
+        student = request.user.student_profile
+    except Student.DoesNotExist:
+        messages.error(request, 'Student profile not found.')
+        return redirect('index')
+        
+    allocation = getattr(student, 'transport_allocation', None)
+    
+    return render(request, 'students/my_transport.html', {'allocation': allocation, 'student': student})
 
 @login_required
 def student_list(request):
@@ -1161,7 +1181,7 @@ def class_academic_report(request, pk):
 
 @login_required
 def class_teacher_dashboard(request):
-    if not request.user.role or request.user.role.name != 'Teacher':
+    if not (request.user.is_superuser or request.user.is_staff or getattr(request.user, 'role', None) and request.user.role.name in ['Teacher', 'Admin', 'Principal']):
         messages.error(request, 'Access denied.')
         return redirect('index')
     
@@ -1170,9 +1190,9 @@ def class_teacher_dashboard(request):
 
 @login_required
 def homework_list(request):
-    if request.user.role in ['Admin', 'Principal', 'Teacher']:
+    if request.user.is_superuser or request.user.is_staff or (getattr(request.user, 'role', None) and request.user.role.name in ['Admin', 'Principal', 'Teacher']):
         homeworks = Homework.objects.all().order_by('-created_at')
-        if request.user.role and request.user.role.name == 'Teacher':
+        if getattr(request.user, 'role', None) and request.user.role.name == 'Teacher':
             homeworks = homeworks.filter(teacher=request.user)
     elif request.user.role and request.user.role.name == 'Student':
         student = getattr(request.user, 'student_profile', None)
@@ -1189,8 +1209,8 @@ def homework_list(request):
 
 @login_required
 def homework_create(request):
-    if not request.user.role or request.user.role.name != 'Teacher':
-        messages.error(request, 'Only teachers can create homework.')
+    if not (request.user.is_superuser or request.user.is_staff or getattr(request.user, 'role', None) and request.user.role.name in ['Teacher', 'Admin', 'Principal']):
+        messages.error(request, 'Only teachers and admins can create homework.')
         return redirect('homework_list')
     
     if request.method == 'POST':
@@ -1271,9 +1291,9 @@ def academic_transcript(request, student_id):
     # Ensure privacy
     if request.user.role and request.user.role.name == 'Student' and getattr(request.user, 'student_profile', None) != student:
         messages.error(request, 'Access denied.')
-        return redirect('dashboard')
+        return redirect('index')
         
-    exams = Exam.objects.filter(student_class=student.current_class).order_by('start_date')
+    exams = Exam.objects.filter(student_class=student.current_class).order_by('exam_date')
     results = ExamSubjectResult.objects.filter(student=student).select_related('exam', 'subject')
     
     # Organize by exam
@@ -1375,7 +1395,7 @@ def fee_receipt_print(request, payment_id):
 def attendance_analytics(request):
     if request.user.role not in ['Admin', 'Principal', 'Teacher']:
         messages.error(request, 'Access denied.')
-        return redirect('dashboard')
+        return redirect('index')
         
     thirty_days_ago = timezone.now().date() - timedelta(days=30)
     
@@ -1448,3 +1468,72 @@ def mark_notifications_read(request):
     # Quick view to mark user's notifications as read
     InAppNotification.objects.filter(user=request.user, is_read=False).update(is_read=True)
     return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+
+# ══════════════════════════════════════════════════════════
+# Syllabus & Lesson Plan
+# ══════════════════════════════════════════════════════════
+
+@login_required
+def syllabus_list(request):
+    syllabuses = Syllabus.objects.all().select_related('student_class', 'subject')
+    
+    # Filter for student
+    if hasattr(request.user, 'student_profile'):
+        student = request.user.student_profile
+        syllabuses = syllabuses.filter(student_class=student.current_class)
+        
+    return render(request, 'students/syllabus_list.html', {'syllabuses': syllabuses})
+
+@login_required
+def syllabus_create(request):
+    if hasattr(request.user, 'student_profile'):
+        messages.error(request, 'Access Denied.')
+        return redirect('syllabus_list')
+        
+    if request.method == 'POST':
+        form = SyllabusForm(request.POST, request.FILES)
+        if form.is_valid():
+            syllabus = form.save(commit=False)
+            syllabus.uploaded_by = request.user
+            syllabus.save()
+            messages.success(request, 'Syllabus uploaded successfully.')
+            return redirect('syllabus_list')
+    else:
+        form = SyllabusForm()
+        
+    return render(request, 'students/syllabus_form.html', {'form': form, 'title': 'Upload Syllabus'})
+
+@login_required
+def lesson_plan_list(request):
+    lesson_plans = LessonPlan.objects.all().select_related('student_class', 'subject', 'teacher')
+    
+    # Filter for student
+    if hasattr(request.user, 'student_profile'):
+        student = request.user.student_profile
+        lesson_plans = lesson_plans.filter(student_class=student.current_class)
+        
+    # Filter for teacher
+    if hasattr(request.user, 'teacher_profile'):
+        teacher = request.user
+        lesson_plans = lesson_plans.filter(teacher=teacher)
+        
+    return render(request, 'students/lesson_plan_list.html', {'lesson_plans': lesson_plans})
+
+@login_required
+def lesson_plan_create(request):
+    if hasattr(request.user, 'student_profile'):
+        messages.error(request, 'Access Denied.')
+        return redirect('lesson_plan_list')
+        
+    if request.method == 'POST':
+        form = LessonPlanForm(request.POST, request.FILES)
+        if form.is_valid():
+            lp = form.save(commit=False)
+            lp.teacher = request.user
+            lp.save()
+            messages.success(request, 'Lesson Plan created successfully.')
+            return redirect('lesson_plan_list')
+    else:
+        form = LessonPlanForm()
+        
+    return render(request, 'students/lesson_plan_form.html', {'form': form, 'title': 'Create Lesson Plan'})

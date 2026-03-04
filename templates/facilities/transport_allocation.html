@@ -4,9 +4,34 @@
 <div class="row mb-4">
     <div class="col-12 d-flex justify-content-between align-items-center">
         <h4 class="mb-0">Transport Allocations</h4>
-        <button class="btn btn-primary">+ Allocate Student</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAllocationModal">
+            + Allocate Student
+        </button>
     </div>
 </div>
+
+<!-- Add Allocation Modal -->
+<div class="modal fade" id="addAllocationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCenterTitle">Allocate Transport</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                </div>
+                <div class="modal-footer border-top pt-3">
+                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Allocation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-body p-0">
         <table class="table table-hover mb-0">

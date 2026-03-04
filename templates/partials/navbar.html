@@ -78,8 +78,9 @@
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <span class="fw-medium d-block">{{ user.get_full_name|default:user.username
-                                        }}</span>
+                                    <span class="fw-medium d-block text-truncate" style="max-width: 150px;" title="{{ user.get_full_name }}">
+    {{ user.get_full_name|default:user.username }}
+</span>
                                     <small class="text-muted text-capitalize">{{ user.role }}</small>
                                 </div>
                             </div>

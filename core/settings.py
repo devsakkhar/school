@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'facilities',
     'finance',
     'reports',
+    'admissions',
 ]
 
 MIDDLEWARE = [

@@ -8,7 +8,7 @@
             <small class="text-muted">{{ student.user.get_full_name }} ({{ student.current_class.name }})</small>
         </div>
         <div>
-            <a href="{% url 'student_detail' student.pk %}" class="btn btn-label-secondary me-2">← Profile</a>
+            <a href="{% url 'student_detail' student.pk %}" class="btn btn-label-success me-2">← Profile</a>
             <button onclick="window.print()" class="btn btn-primary"><i class="ti tabler-printer me-1"></i> Print
                 Transcript</button>
         </div>
@@ -19,14 +19,23 @@
     <div class="card-body p-5">
 
         <div class="text-center border-bottom pb-4 mb-4">
-            <h2 class="mb-1 fw-bold text-uppercase"
-                style="color: var(--bs-primary); font-family: 'Merriweather', serif;">{{ config.name|default:"School
-                Name" }}</h2>
-            <p class="mb-2 text-muted">{{ config.address|default:"Address" }} | {{ config.phone|default:"Phone" }}</p>
-            <div class="d-inline-block bg-primary text-white px-4 py-2 rounded-pill mt-2">
-                <h5 class="mb-0 text-white fw-bold">OFFICIAL ACADEMIC TRANSCRIPT</h5>
-            </div>
-        </div>
+    <h2 class="mb-1 fw-bold text-uppercase" 
+        style="color: var(--bs-primary); font-family: 'Merriweather', serif; letter-spacing: 1px;">
+        {{ config.name|default:"School Name" }}
+    </h2>
+    
+    <p class="mb-2 text-muted small text-uppercase">
+        {{ config.address|default:"Address" }} 
+        <span class="mx-2">|</span> 
+        {{ config.phone|default:"Phone" }}
+    </p>
+
+    <div class="d-inline-block bg-primary px-4 py-2 rounded-pill mt-2 shadow-sm">
+        <h5 class="mb-0 text-white fw-bold" style="letter-spacing: 1.5px;">
+            OFFICIAL ACADEMIC TRANSCRIPT
+        </h5>
+    </div>
+</div>
 
         <div class="row mb-4">
             <div class="col-6">
@@ -35,12 +44,23 @@
                 <p class="mb-1"><strong>Date of Birth:</strong> {{ student.date_of_birth|date:"d M Y" }}</p>
             </div>
             <div class="col-6 text-end">
-                <p class="mb-1"><strong>Class:</strong> {{ student.current_class.name }} {% if student.section %}({{
-                    student.section.name }}){% endif %}</p>
-                <p class="mb-1"><strong>Roll Number:</strong> {{ student.roll_number|default:"-" }}</p>
-                <p class="mb-1"><strong>Academic Year:</strong> {{ config.current_academic_year|default:"2025-2026" }}
-                </p>
-            </div>
+    <p class="mb-1">
+        <strong>Class:</strong> {{ student.current_class.name }}
+        {% if student.section.name %}
+            <span class="text-muted">({{ student.section.name }})</span>
+        {% endif %}
+    </p>
+    
+    <p class="mb-1">
+        <strong>Roll Number:</strong> 
+        <span class="font-monospace">{{ student.roll_number|default:"-" }}</span>
+    </p>
+    
+    <p class="mb-1">
+        <strong>Academic Year:</strong> 
+        {{ config.current_academic_year|default:"2025-2026" }}
+    </p>
+</div>
         </div>
 
         {% for exam, results in data.items %}

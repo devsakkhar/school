@@ -197,11 +197,15 @@
                 {% endif %}
                 <div class="school-name">{{ school.name|default:"City Public School" }}</div>
                 <div class="school-address">
-                    {{ school.address|default:"123 School Avenue" }}, {{ school.city|default:"Metropolis" }}
-                    <br>
-                    Email: {{ school.email|default:"info@school.edu" }} | Phone: {{ school.phone|default:"+1 234 567
-                    890" }}
-                </div>
+    <p>
+        {{ school.address|default:"123 School Avenue" }}, 
+        {{ school.city|default:"Metropolis" }}
+    </p>
+    <p>
+        <strong>Email:</strong> {{ school.email|default:"info@school.edu" }} | 
+        <strong>Phone:</strong> {{ school.phone|default:"+1 234 567 890" }}
+    </p>
+</div>
             </div>
 
             <div class="certificate-title">Transfer Certificate</div>
@@ -214,8 +218,9 @@
                     and
                     <span class="blank-line">{{ student.mother_name|default:"_____________________" }}</span>
                     residing at
-                    <span class="blank-line">{{ student.present_address|default:"_________________________________"
-                        }}</span>
+                    <span class="blank-line">
+    {{ student.present_address|default:"_________________________________" }}
+</span>
                     was a student of this school from
                     <span class="blank-line">{{ student.admission_date|date:"F Y" }}</span>
                     to
@@ -223,8 +228,9 @@
                 </p>
                 <p>
                     His/Her date of birth according to the Admission Register is
-                    <span class="blank-line">{{ student.date_of_birth|date:"F j, Y"|default:"________________"
-                        }}</span>.
+                    <span class="blank-line">
+    {{ student.date_of_birth|date:"F j, Y"|default:"________________" }}
+</span>.
                 </p>
                 <p>
                     He/She was reading in Class

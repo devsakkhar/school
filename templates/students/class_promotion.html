@@ -77,48 +77,70 @@
                                     <th>Current Section</th>
                                 </tr>
                             </thead>
-                            <tbody class="table-border-bottom-0">
-                                {% for student in students %}
-                                <tr>
-                                    <td>
-                                        <div class="form-check">
-                                            <input class="form-check-input student-checkbox" type="checkbox"
-                                                name="student_ids" value="{{ student.id }}" checked>
-                                            <label class="form-check-label"></label>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex justify-content-start align-items-center user-name">
-                                            <div class="avatar-wrapper">
-                                                <div class="avatar avatar-sm me-3">
-                                                    {% if student.user.image %}
-                                                    <img src="{{ student.user.image.url }}" alt="Avatar"
-                                                        class="rounded-circle">
-                                                    {% else %}
-                                                    <span class="avatar-initial rounded-circle bg-label-primary">
-                                                        {{
-                                                        student.user.first_name|default:student.user.email|first|upper
-                                                        }}
-                                                    </span>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                            <div class="d-flex flex-column">
-                                                <span class="fw-medium">{{ student.user.get_full_name }}</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>{{ student.admission_number }}</td>
-                                    <td>{{ student.roll_number|default:"-" }}</td>
-                                    <td>{{ student.section.name|default:"-" }}</td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="5" class="text-center py-4">No active students found in this class.
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
+                           <tbody class="table-border-bottom-0">
+    {% for student in students %}
+    <tr>
+        <td>
+            <div class="form-check d-flex align-items-center">
+                <input class="form-check-input student-checkbox me-2" 
+                       type="checkbox" 
+                       name="student_ids" 
+                       id="student_{{ student.id }}" 
+                       value="{{ student.id }}" 
+                       checked>
+                <label class="form-check-label fw-bold" for="student_{{ student.id }}">
+                    {{ student.roll_number|default:"#" }}
+                    <span class="visually-hidden">Select {{ student.user.get_full_name }}</span>
+                </label>
+            </div>
+        </td>
+
+        <td>
+            <div class="d-flex justify-content-start align-items-center">
+                <div class="avatar-wrapper">
+                    <div class="avatar avatar-sm me-3">
+                        {% if student.user.image %}
+                            <img src="{{ student.user.image.url }}" alt="Avatar" class="rounded-circle">
+                        {% else %}
+                            <span class="avatar-initial rounded-circle bg-label-primary">
+                                {{ student.user.first_name|default:student.user.email|first|upper }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="d-flex flex-column">
+                    <span class="fw-medium text-heading">{{ student.user.get_full_name }}</span>
+                    <small class="text-muted">{{ student.user.email|truncatechars:20 }}</small>
+                </div>
+            </div>
+        </td>
+
+        <td><span class="badge bg-label-success">{{ student.admission_number }}</span></td>
+        <td>{{ student.section.name|default:"Unassigned" }}</td>
+        
+        <td class="text-end">
+            <div class="dropdown">
+                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                    <i class="ti tabler-dots-vertical"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"><i class="ti tabler-pencil me-1"></i> Edit</a>
+                    <a class="dropdown-item text-danger" href="#"><i class="ti tabler-trash me-1"></i> Remove</a>
+                </div>
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5" class="text-center py-5">
+            <div class="text-muted">
+                <i class="ti tabler-users-minus d-block fs-1 mb-2"></i>
+                No active students found in this class.
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
                         </table>
                     </div>
                 </form>

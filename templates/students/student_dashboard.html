@@ -52,6 +52,44 @@
         </div>
     </div>
 
+    <!-- Pending Fees Table -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Pending Fees</h5>
+                <span class="badge bg-label-danger">{{ pending_fees|length }} Due</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fee Type</th>
+                            <th>Amount</th>
+                            <th>Due Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fee in pending_fees %}
+                        <tr>
+                            <td class="fw-bold">{{ fee.name }}</td>
+                            <td class="text-danger fw-bold">৳{{ fee.amount|floatformat:2 }}</td>
+                            <td>{{ fee.due_date|date:"d M Y" }}</td>
+                            <td>
+                                <a href="{% url 'initiate_payment' fee.pk %}" class="btn btn-sm btn-success"><i
+                                        class="ti tabler-credit-card me-1"></i> Pay Now</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No pending fees. You're all clear!</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row">
@@ -127,6 +165,39 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Notice Board -->
+    <div class="col-12 mt-2 mb-4">
+        <div class="card">
+            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="ti tabler-bell text-primary me-2"></i>School Notices</h5>
+                <a href="{% url 'notice_list' %}" class="btn btn-sm btn-label-secondary">View All</a>
+            </div>
+            <div class="card-body mt-4">
+                <div class="row">
+                    {% for notice in notices %}
+                    <div class="col-md-4 mb-3">
+                        <div class="border rounded p-3 h-100 position-relative">
+                            <small class="text-muted d-block mb-1">{{ notice.date_posted|date:"d M Y" }}</small>
+                            <h6 class="fw-bold text-dark mb-2">{{ notice.title }}</h6>
+                            <p class="text-muted small mb-3 text-truncate">{{ notice.content|truncatechars:100 }}</p>
+                            {% if notice.file_attachment %}
+                            <a href="{{ notice.file_attachment.url }}" target="_blank" class="badge bg-label-info"><i
+                                    class="ti tabler-paperclip me-1"></i>Attachment</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-3 text-muted">
+                        No recent notices.
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>

@@ -28,32 +28,48 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for hw in homeworks %}
-                    <tr>
-                        <td>
-                            <strong>{{ hw.title }}</strong><br>
-                            <span class="badge bg-label-info">{{ hw.subject.name }}</span>
-                        </td>
-                        <td>{{ hw.student_class.name }} {% if hw.section %}({{ hw.section.name }}){% endif %}</td>
-                        <td>{{ hw.teacher.get_full_name }}</td>
-                        <td>{{ hw.issue_date|date:"d M Y" }}</td>
-                        <td>
-                            {{ hw.due_date|date:"d M Y" }}<br>
-
-                            {% if hw.due_date < today and request.user.role.name=='Student' %} <small
-                                class="text-danger fw-bold">Overdue</small>
-                                {% endif %}
-                        </td>
-                        <td>
-                            <a href="{% url 'homework_detail' hw.pk %}" class="btn btn-sm btn-label-primary">View</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center py-5">No homework assignments found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+    {% for hw in homeworks %}
+    <tr>
+        <td>
+            <div class="d-flex flex-column">
+                <strong class="text-heading">{{ hw.title }}</strong>
+                <span class="badge bg-label-info w-fit-content mt-1">{{ hw.subject.name }}</span>
+            </div>
+        </td>
+        <td>
+            {{ hw.student_class.name }} 
+            {% if hw.section %}<small class="text-muted">({{ hw.section.name }})</small>{% endif %}
+        </td>
+        <td class="small">{{ hw.teacher.get_full_name|default:"Assigning Teacher" }}</td>
+        <td><span class="text-nowrap">{{ hw.issue_date|date:"d M Y" }}</span></td>
+        <td>
+            <span class="text-nowrap">{{ hw.due_date|date:"d M Y" }}</span><br>
+            
+            {# Logic Check: Ensure 'today' is passed from your view context #}
+            {% if hw.due_date < today %}
+                <span class="badge badge-dot bg-danger"></span>
+                <small class="text-danger fw-bold">Overdue</small>
+            {% endif %}
+        </td>
+        <td>
+            <div class="d-flex align-items-center">
+                <a href="{% url 'homework_detail' hw.pk %}" class="btn btn-sm btn-icon btn-label-primary" title="View Details">
+                    <i class="ti tabler-eye"></i> View
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6" class="text-center py-5">
+            <div class="text-muted">
+                <i class="ti tabler-notes-off fs-2 d-block mb-2"></i>
+                No homework assignments found.
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
             </table>
         </div>
     </div>

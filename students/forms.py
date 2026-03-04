@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from .models import Student, StudentClass, StudentSection, SchoolSettings
+from .models import Student, StudentClass, StudentSection, SchoolSettings, DisciplinaryRecord, AlumniProfile, Syllabus, LessonPlan
 
 CustomUser = get_user_model()
 
@@ -191,7 +191,6 @@ class DisciplinaryRecordForm(forms.ModelForm):
 
 class AlumniProfileForm(forms.ModelForm):
     class Meta:
-        from .models import AlumniProfile
         model = AlumniProfile
         fields = ['graduation_year', 'current_profession', 'company_name', 'contact_email', 'contact_phone', 'higher_education_info', 'achievements']
         widgets = {
@@ -202,4 +201,29 @@ class AlumniProfileForm(forms.ModelForm):
             'contact_phone': forms.TextInput(attrs={'class': 'form-control'}),
             'higher_education_info': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'achievements': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+class SyllabusForm(forms.ModelForm):
+    class Meta:
+        model = Syllabus
+        fields = ['title', 'student_class', 'subject', 'academic_year', 'file']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'student_class': forms.Select(attrs={'class': 'form-select select2'}),
+            'subject': forms.Select(attrs={'class': 'form-select select2'}),
+            'academic_year': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 2025-2026'}),
+            'file': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+class LessonPlanForm(forms.ModelForm):
+    class Meta:
+        model = LessonPlan
+        fields = ['title', 'student_class', 'subject', 'date', 'content', 'file_attachment']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'student_class': forms.Select(attrs={'class': 'form-select select2'}),
+            'subject': forms.Select(attrs={'class': 'form-select select2'}),
+            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'file_attachment': forms.FileInput(attrs={'class': 'form-control'}),
         }

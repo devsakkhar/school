@@ -71,3 +71,27 @@ class Expense(models.Model):
     
     def __str__(self):
         return f"{self.category.name} - ৳{self.amount} on {self.date}"
+
+# ══════════════════════════════════════════════════════════
+# Online Payments
+# ══════════════════════════════════════════════════════════
+
+class OnlinePaymentTransaction(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Success', 'Success'),
+        ('Failed', 'Failed'),
+    ]
+    
+    # Link to FeeType and Student instead of FeePayment directly
+    student = models.ForeignKey('students.Student', on_delete=models.CASCADE, null=True, related_name='online_transactions')
+    fee_type = models.ForeignKey('students.FeeType', on_delete=models.CASCADE, null=True, related_name='online_transactions')
+    
+    transaction_id = models.CharField(max_length=150, unique=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method = models.CharField(max_length=50, default='Online Gateway')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.transaction_id} - {self.student} - {self.status}"

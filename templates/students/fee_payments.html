@@ -10,37 +10,38 @@
         <a href="{% url 'record_payment' %}" class="btn btn-success">+ Record Payment</a>
     </div>
 </div>
-<div class="card mb-4">
+<div class="card mb-4 border-0 shadow-sm">
     <div class="card-body">
-        <form method="GET" class="row g-2 align-items-end">
-            <!-- Class Filter -->
+        <form method="GET" id="filterForm" class="row g-3 align-items-center">
             <div class="col-md-4">
-                <select name="class_id" class="form-select" onchange="this.form.submit()">
-                    <option value="">All Classes</option>
-                    {% for c in classes %}
-                    <option value="{{ c.id }}" {% if class_id==c.id|stringformat:"s" %}selected{% endif %}>
-                        {{ c.name }}
-                    </option>
-                    {% endfor %}
-                </select>
+                <label class="form-label small fw-bold text-uppercase">Filter by Class</label>
+                <select name="class_id" class="form-select select2" id="classFilter">
+    <option value="">All Classes</option>
+    {% for c in classes %}
+    <option value="{{ c.id }}" {% if class_id == c.id|slugify %}selected{% endif %}>
+        {{ c.name }}
+    </option>
+    {% endfor %}
+</select>
             </div>
 
-            <!-- Fee Type Filter -->
             <div class="col-md-4">
-                <select name="fee_type_id" class="form-select" onchange="this.form.submit()">
-                    <option value="">All Fee Types</option>
-                    {% for ft in fee_types %}
-                    <option value="{{ ft.id }}" {% if fee_type_id==ft.id|stringformat:"s" %}selected{% endif %}>
-                        {{ ft.name }}
-                    </option>
-                    {% endfor %}
-                </select>
+                <label class="form-label small fw-bold text-uppercase">Fee Type</label>
+               <select name="fee_type_id" class="form-select select2" onchange="this.form.submit()">
+    <option value="">All Fee Types</option>
+    {% for ft in fee_types %}
+        <option value="{{ ft.id }}" {% if fee_type_id == ft.id|slugify %}selected{% endif %}>
+            {{ ft.name }}
+        </option>
+    {% endfor %}
+</select>
             </div>
 
-            <!-- Total Collected Display -->
             <div class="col-md-4">
-                <div class="alert alert-success mb-0 py-2 text-center">
-                    Total Collected: <strong>৳{{ total_collected }}</strong>
+                <label class="form-label d-none d-md-block">&nbsp;</label>
+                <div class="bg-label-success rounded-3 p-2 text-center border border-success border-opacity-25">
+                    <span class="d-block small text-uppercase fw-medium">Total Collected</span>
+                    <h4 class="mb-0 fw-bold">৳{{ total_collected|default:"0" }}</h4>
                 </div>
             </div>
         </form>

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }} | School Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-md-8 mx-auto">
+        <div class="card mb-4">
+            <h5 class="card-header border-bottom">{{ title }}</h5>
+
+            <div class="card-body mt-4">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">Asset Name <span class="text-danger">*</span></label>
+                            {{ form.name }}
+                            {{ form.name.errors }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            {{ form.category }}
+                            {{ form.category.errors }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Purchase Date <span class="text-danger">*</span></label>
+                            {{ form.purchase_date }}
+                            {{ form.purchase_date.errors }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Purchase Price (৳) <span class="text-danger">*</span></label>
+                            {{ form.purchase_price }}
+                            {{ form.purchase_price.errors }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                            {{ form.quantity }}
+                            {{ form.quantity.errors }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Status <span class="text-danger">*</span></label>
+                            {{ form.status }}
+                            {{ form.status.errors }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Description / Remarks</label>
+                            {{ form.description }}
+                            {{ form.description.errors }}
+                        </div>
+                    </div>
+
+                    <div class="pt-4 mt-4 border-top">
+                        <button type="submit" class="btn btn-primary me-2"><i class="ti tabler-device-floppy me-1"></i>
+                            Save Asset</button>
+                        <a href="{% url 'asset_list' %}" class="btn btn-label-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

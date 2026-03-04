@@ -23,6 +23,7 @@ urlpatterns = [
     path('facilities/', include('facilities.urls')),
     path('finance/', include('finance.urls')),
     path('reports/', include('reports.urls')),
+    path('admissions/', include('admissions.urls')),
     path('', include('accounts.urls')),
 ]
 

@@ -23,3 +23,21 @@ class CustomUser(AbstractUser):
             ("manage_academic_settings", "Can manage classes, subjects, and exams"),
             ("manage_finances", "Can manage fees and staff salaries"),
         ]
+
+class Notice(models.Model):
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+    date_posted = models.DateTimeField(auto_now_add=True)
+    file_attachment = models.FileField(upload_to='notices/', blank=True, null=True)
+    target_audience = models.CharField(
+        max_length=50, 
+        choices=[('All', 'All'), ('Students', 'Students'), ('Teachers', 'Teachers'), ('Staff', 'Staff')], 
+        default='All'
+    )
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ['-date_posted']
+        
+    def __str__(self):
+        return self.title

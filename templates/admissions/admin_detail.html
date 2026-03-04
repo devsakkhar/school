@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Review Application{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-md-8 mx-auto">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+                <h5 class="mb-0">Application Details</h5>
+                <span
+                    class="badge {% if application.status == 'Approved' %}bg-label-success{% elif application.status == 'Rejected' %}bg-label-danger{% else %}bg-label-warning{% endif %}">
+                    {{ application.status }}
+                </span>
+            </div>
+
+            <div class="card-body mt-4">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="text-primary border-bottom pb-2">Student Information</h6>
+                    </div>
+                    <div class="col-md-6 mb-2"><strong>Name:</strong> {{ application.first_name }} {{
+                        application.last_name }}</div>
+                    <div class="col-md-6 mb-2"><strong>Date of Birth:</strong> {{ application.date_of_birth }}</div>
+                    <div class="col-md-6 mb-2"><strong>Gender:</strong> {{ application.gender }}</div>
+                    <div class="col-md-6 mb-2"><strong>Blood Group:</strong> {{ application.blood_group|default:"-" }}
+                    </div>
+                    <div class="col-md-6 mb-2"><strong>Applied Class:</strong> {{ application.applied_class }}</div>
+                    <div class="col-md-6 mb-2"><strong>Previous School:</strong> {{
+                        application.previous_school|default:"-" }}</div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="text-primary border-bottom pb-2">Parent/Guardian Information</h6>
+                    </div>
+                    <div class="col-md-6 mb-2"><strong>Father's Name:</strong> {{ application.father_name }}</div>
+                    <div class="col-md-6 mb-2"><strong>Mother's Name:</strong> {{ application.mother_name }}</div>
+                    <div class="col-md-6 mb-2"><strong>Phone:</strong> {{ application.guardian_phone }}</div>
+                    <div class="col-md-6 mb-2"><strong>Email:</strong> {{ application.guardian_email|default:"-" }}
+                    </div>
+                    <div class="col-12 mb-2"><strong>Address:</strong> {{ application.address }}</div>
+                </div>
+
+                {% if application.status == 'Pending' %}
+                <form method="POST" class="mt-4 border-top pt-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Review Remarks (Optional)</label>
+                        <textarea name="remarks" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" name="action" value="Approved" class="btn btn-success"><i
+                                class="ti tabler-check me-1"></i> Approve Application</button>
+                        <button type="submit" name="action" value="Rejected" class="btn btn-danger"><i
+                                class="ti tabler-x me-1"></i> Reject</button>
+                        <a href="{% url 'admission_list' %}" class="btn btn-label-secondary ms-auto">Back to List</a>
+                    </div>
+                </form>
+                {% else %}
+                <div class="mt-4 border-top pt-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Admin Remarks:</label>
+                        <p class="text-muted">{{ application.remarks|default:"No remarks provided." }}</p>
+                    </div>
+                    <a href="{% url 'admission_list' %}" class="btn btn-label-secondary">Back to List</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

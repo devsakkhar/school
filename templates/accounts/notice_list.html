@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Notice Board | School Management System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Notice Board</h4>
+            <small class="text-muted">School announcements and circulars</small>
+        </div>
+        {% if request.user.role and request.user.role.name in 'Admin,Principal' %}
+        <a href="{% url 'notice_create' %}" class="btn btn-primary">+ Create Notice</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    {% for notice in notices %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 {% if notice.is_active == False %}bg-lighter opacity-75{% endif %}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="card-title fw-bold text-primary mb-0">{{ notice.title }}</h5>
+                    {% if notice.is_active == False %}
+                    <span class="badge bg-label-secondary">Inactive</span>
+                    {% else %}
+                    <span class="badge bg-label-success">Active</span>
+                    {% endif %}
+                </div>
+
+                <h6 class="card-subtitle text-muted mb-3">
+                    <i class="ti tabler-calendar-event me-1"></i>{{ notice.date_posted|date:"d M Y, h:i A" }}
+                    <span class="mx-2">|</span>
+                    <i class="ti tabler-users me-1"></i>Visibility: {{ notice.target_audience }}
+                </h6>
+
+                <p class="card-text mb-4">{{ notice.content|linebreaks }}</p>
+
+                {% if notice.file_attachment %}
+                <div class="mb-4">
+                    <a href="{{ notice.file_attachment.url }}" target="_blank" class="btn btn-sm btn-label-info">
+                        <i class="ti tabler-paperclip me-1"></i> View Attachment
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if request.user.role and request.user.role.name in 'Admin,Principal' %}
+                <div class="d-flex gap-2">
+                    <a href="{% url 'notice_update' notice.pk %}" class="btn btn-sm btn-outline-primary"><i
+                            class="ti tabler-pencil"></i></a>
+                    <a href="{% url 'notice_delete' notice.pk %}" class="btn btn-sm btn-outline-danger"><i
+                            class="ti tabler-trash"></i></a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <i class="ti tabler-bell-off text-muted mb-3" style="font-size: 4rem;"></i>
+        <h5>No Notices Available</h5>
+        <p class="text-muted">There are no active announcements at this time.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

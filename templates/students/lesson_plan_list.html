@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Lesson Plans | School Management System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Lesson Plans</h4>
+            <small class="text-muted">Daily class lesson plans and materials</small>
+        </div>
+        {% if not hasattr(request.user, 'student_profile') %}
+        <a href="{% url 'lesson_plan_create' %}" class="btn btn-primary">+ Create Lesson Plan</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    {% for plan in lesson_plans %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-bottom d-flex justify-content-between align-items-center pb-3">
+                <div class="d-flex align-items-center">
+                    <div class="avatar avatar-md me-3">
+                        <span class="avatar-initial rounded bg-label-primary"><i
+                                class="ti tabler-clipboard-list"></i></span>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold">{{ plan.title }}</h6>
+                        <small class="text-muted">{{ plan.date|date:"l, d M Y" }}</small>
+                    </div>
+                </div>
+                <span class="badge bg-label-info">{{ plan.student_class }}</span>
+            </div>
+            <div class="card-body mt-3">
+                <p class="card-text mb-4">{{ plan.content|linebreaks }}</p>
+
+                <h6 class="card-subtitle text-muted mb-3 d-flex align-items-center gap-2">
+                    <i class="ti tabler-book"></i> {{ plan.subject }} | <i class="ti tabler-user"></i> {{
+                    plan.teacher.get_full_name }}
+                </h6>
+
+                {% if plan.file_attachment %}
+                <a href="{{ plan.file_attachment.url }}" target="_blank" class="btn btn-sm btn-label-primary mt-2">
+                    <i class="ti tabler-paperclip me-1"></i> View Attachment
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <i class="ti tabler-clipboard-off text-muted mb-3" style="font-size: 4rem;"></i>
+        <h5>No Lesson Plans Available</h5>
+        <p class="text-muted">No lesson plans have been created yet.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

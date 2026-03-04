@@ -48,3 +48,15 @@ class RouteForm(forms.ModelForm):
             'vehicle': forms.Select(attrs={'class': 'form-select'}),
             'monthly_fare': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+class TransportAllocationForm(forms.ModelForm):
+    class Meta:
+        model = TransportAllocation
+        fields = ['student', 'route', 'boarding_point', 'status']
+        widgets = {
+            'student': forms.Select(attrs={'class': 'form-select select2'}),
+            'route': forms.Select(attrs={'class': 'form-select select2'}),
+            'boarding_point': forms.TextInput(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }
+
