@@ -20,7 +20,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <h5 class="mb-0 text-muted">Total Income</h5>
-                        <h3 class="mb-0 mt-2 text-success">৳{{ total_income|floatformat:2 }}</h3>
+                        <h3 class="mb-0 mt-2 text-success">৳ {{ total_income|floatformat:2 }}</h3>
                     </div>
                     <div class="avatar">
                         <span class="avatar-initial rounded bg-label-success"><i
@@ -36,7 +36,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <h5 class="mb-0 text-muted">Total Expense</h5>
-                        <h3 class="mb-0 mt-2 text-danger">৳{{ total_expense|floatformat:2 }}</h3>
+                        <h3 class="mb-0 mt-2 text-danger">৳ {{ total_expense|floatformat:2 }}</h3>
                     </div>
                     <div class="avatar">
                         <span class="avatar-initial rounded bg-label-danger"><i
@@ -52,8 +52,9 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <h5 class="mb-0 text-muted">Net Balance</h5>
-                        <h3 class="mb-0 mt-2 {% if net_balance >= 0 %}text-primary{% else %}text-danger{% endif %}">৳{{
-                            net_balance|floatformat:2 }}</h3>
+                        <h3 class="mb-0 mt-2 {% if net_balance >= 0 %}text-primary{% else %}text-danger{% endif %}">
+                            ৳ {{ net_balance|floatformat:2 }}
+                        </h3>
                     </div>
                     <div class="avatar">
                         <span
