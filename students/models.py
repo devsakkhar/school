@@ -62,6 +62,7 @@ class Student(models.Model):
     
     # Other
     previous_school = models.CharField(max_length=255, blank=True, null=True)
+    rfid_tag = models.CharField(max_length=100, unique=True, blank=True, null=True, help_text="Biometric/RFID Tag ID for automated attendance")
     
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.admission_number}"
@@ -201,6 +202,10 @@ class AttendanceRecord(models.Model):
     session = models.ForeignKey(AttendanceSession, on_delete=models.CASCADE, related_name='records')
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendance_records')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='present')
+    
+    # Biometric tracking
+    punch_in = models.TimeField(null=True, blank=True)
+    punch_out = models.TimeField(null=True, blank=True)
 
     class Meta:
         unique_together = ('session', 'student')

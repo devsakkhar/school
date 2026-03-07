@@ -19,6 +19,9 @@ urlpatterns = [
     # API endpoints for quick add
     path('api/add-author/', api_views.api_add_author, name='api_add_author'),
     path('api/add-category/', api_views.api_add_category, name='api_add_category'),
+    # Fines
+    path('fines/', views.fine_list, name='fine_list'),
+    path('fines/<int:pk>/pay/', views.fine_pay, name='fine_pay'),
     
     # Student/User Facing
     path('my-books/', views.my_books, name='my_books'),

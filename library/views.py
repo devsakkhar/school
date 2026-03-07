@@ -139,11 +139,27 @@ def issue_return(request, pk):
         
         issue.save()
         book.save()
-        messages.success(request, f'Book returned successfully. Total Fine: {issue.fine_amount}')
+        messages.success(request, f'Book returned successfully. Total Fine: ৳{issue.fine_amount}')
         return redirect('issue_list')
         
     fine_estimate = issue.calculate_fine()
     return render(request, 'library/issue_return_confirm.html', {'issue': issue, 'fine_estimate': fine_estimate})
+
+@login_required
+@permission_required('accounts.manage_academic_settings', raise_exception=True)
+def fine_list(request):
+    issues_with_fines = BookIssue.objects.filter(fine_amount__gt=0).order_by('fine_paid', '-return_date')
+    return render(request, 'library/fine_list.html', {'issues': issues_with_fines})
+
+@login_required
+@permission_required('accounts.manage_academic_settings', raise_exception=True)
+def fine_pay(request, pk):
+    issue = get_object_or_404(BookIssue, pk=pk)
+    if issue.fine_amount > 0 and not issue.fine_paid:
+        issue.fine_paid = True
+        issue.save()
+        messages.success(request, f'Fine of ৳{issue.fine_amount} paid successfully.')
+    return redirect('fine_list')
 
 # ══════════════════════════════════════════════════════════
 # Member/Student View

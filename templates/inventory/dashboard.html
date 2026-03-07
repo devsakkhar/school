@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block title %}Inventory Dashboard{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Inventory Dashboard</h4>
+            <small class="text-muted">Manage school assets, stationery, and supplies.</small>
+        </div>
+        <div>
+            <a href="{% url 'inventory_transaction_add' %}" class="btn btn-primary"><i
+                    class="ti tabler-arrows-left-right me-1"></i> New Transaction</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2 pb-1">
+                    <div class="avatar me-2">
+                        <span class="avatar-initial rounded bg-label-primary"><i class="ti tabler-box"></i></span>
+                    </div>
+                    <h4 class="ms-1 mb-0">{{ total_items }}</h4>
+                </div>
+                <p class="mb-1">Total Items</p>
+                <a href="{% url 'inventory_item_list' %}" class="small text-primary">View Items →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100 {% if low_stock_count > 0 %}border-danger{% endif %}">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2 pb-1">
+                    <div class="avatar me-2">
+                        <span class="avatar-initial rounded bg-label-danger"><i
+                                class="ti tabler-alert-triangle"></i></span>
+                    </div>
+                    <h4 class="ms-1 mb-0">{{ low_stock_count }}</h4>
+                </div>
+                <p class="mb-1">Low Stock Alerts</p>
+                <small class="text-muted">Items below minimum level</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <h6 class="mb-3">Quick Links</h6>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'inventory_category_list' %}"
+                        class="btn btn-sm btn-outline-secondary">Categories</a>
+                    <a href="{% url 'inventory_supplier_list' %}" class="btn btn-sm btn-outline-secondary">Suppliers</a>
+                    <a href="{% url 'inventory_item_add' %}" class="btn btn-sm btn-outline-primary">+ Add Item</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Low Stock Items -->
+    <div class="col-md-5 mb-4 mb-md-0">
+        <div class="card h-100">
+            <div class="card-header border-bottom">
+                <h6 class="mb-0 text-danger"><i class="ti tabler-alert-circle me-1"></i> Low Stock Alerts</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 text-nowrap">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Current</th>
+                            <th>Min Required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in low_stock_items %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.name }}</strong><br>
+                                <small class="text-muted">{{ item.category.name }}</small>
+                            </td>
+                            <td><span class="badge bg-danger">{{ item.current_stock }} {{ item.unit }}</span></td>
+                            <td>{{ item.min_stock_level }} {{ item.unit }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-muted">No low stock items.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="col-md-7">
+        <div class="card h-100">
+            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Recent Transactions</h6>
+                <a href="{% url 'inventory_transaction_list' %}" class="btn btn-sm btn-label-secondary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Item</th>
+                            <th>Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in recent_transactions %}
+                        <tr>
+                            <td>{{ t.transaction_date|date:"d M Y" }}</td>
+                            <td>
+                                {% if t.transaction_type == 'IN' %}
+                                <span class="badge bg-label-success"><i class="ti tabler-arrow-down-left me-1"></i>
+                                    IN</span>
+                                {% elif t.transaction_type == 'OUT' %}
+                                <span class="badge bg-label-warning"><i class="ti tabler-arrow-up-right me-1"></i>
+                                    OUT</span>
+                                {% else %}
+                                <span class="badge bg-label-secondary">ADJUST</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ t.item.name }}</td>
+                            <td><strong>{{ t.quantity }}</strong></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No transactions found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

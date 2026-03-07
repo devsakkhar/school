@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Item Categories{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Item Categories</h4>
+            <small class="text-muted">Manage categories for school inventory.</small>
+        </div>
+        <a href="{% url 'inventory_category_add' %}" class="btn btn-primary"><i class="ti tabler-plus me-1"></i> Add
+            Category</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Category Name</th>
+                    <th>Description</th>
+                    <th class="text-center">Items Count</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr>
+                    <td><strong>{{ category.name }}</strong></td>
+                    <td>{{ category.description|truncatechars:50|default:"-" }}</td>
+                    <td class="text-center"><span class="badge bg-label-primary">{{ category.items.count }}</span></td>
+                    <td class="text-end">
+                        <a href="{% url 'inventory_category_edit' category.pk %}"
+                            class="btn btn-sm btn-icon btn-text-secondary"><i class="ti tabler-edit"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-4">No categories found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

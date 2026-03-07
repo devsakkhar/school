@@ -38,8 +38,8 @@
                                     checked></th>
                             <th>Teacher Name</th>
                             <th>Basic Salary</th>
-                            <th style="width:150px;">Allowances (+)</th>
-                            <th style="width:150px;">Deductions (-)</th>
+                            <th style="width:150px;">Total Allowances (+)</th>
+                            <th style="width:150px;">Fixed Deductions (-)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -51,9 +51,9 @@
                                     }}</small></td>
                             <td>{{ t.basic_salary }}</td>
                             <td><input type="number" step="0.01" name="allowance_{{ t.pk }}"
-                                    class="form-control form-control-sm" placeholder="e.g. 500"></td>
-                            <td><input type="number" step="0.01" name="deduction_{{ t.pk }}"
-                                    class="form-control form-control-sm" placeholder="e.g. 200"></td>
+                                    class="form-control form-control-sm" value="{{ t.total_allowances }}"></td>
+                            <td><span class="badge bg-label-danger">{{ t.total_fixed_deductions }}</span><br><small>Will
+                                    also deduct unpaid leaves</small></td>
                         </tr>
                         {% empty %}
                         <tr>

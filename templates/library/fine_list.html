@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Fine Management | School Management System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Library Fines</h4>
+            <small class="text-muted">Manage overdue fines for returned and unreturned books</small>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student/User</th>
+                                <th>Book Title</th>
+                                <th>Due Date</th>
+                                <th>Return Date</th>
+                                <th>Fine Amount</th>
+                                <th>Payment Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for issue in issues %}
+                            <tr>
+                                <td>
+                                    <span class="fw-bold d-block">{{
+                                        issue.user.get_full_name|default:issue.user.username }}</span>
+                                </td>
+                                <td>{{ issue.book.title }}</td>
+                                <td>{{ issue.due_date|date:"d M Y" }}</td>
+                                <td>{{ issue.return_date|date:"d M Y"|default:"Not Returned" }}</td>
+                                <td class="fw-bold text-danger">৳{{ issue.fine_amount }}</td>
+                                <td>
+                                    {% if issue.fine_paid %}
+                                    <span class="badge bg-label-success">Paid</span>
+                                    {% else %}
+                                    <span class="badge bg-label-warning">Unpaid</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not issue.fine_paid %}
+                                    <form action="{% url 'fine_pay' issue.pk %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-primary"
+                                            onclick="return confirm('Confirm payment of ৳{{ issue.fine_amount }}?')">Pay
+                                            Now</button>
+                                    </form>
+                                    {% else %}
+                                    <button class="btn btn-sm btn-secondary" disabled>Paid</button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <i class="ti tabler-receipt-off text-muted mb-2" style="font-size: 2rem;"></i>
+                                    <p class="mb-0">No fine records found.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

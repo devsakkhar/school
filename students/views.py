@@ -836,7 +836,17 @@ def attendance_report(request):
             absent = records.filter(status='absent').count()
             late = records.filter(status='late').count()
             pct = round((present / total_sessions * 100), 1) if total_sessions > 0 else 0
-            report_data.append({'student': student, 'present': present, 'absent': absent, 'late': late, 'total': total_sessions, 'pct': pct, 'low': pct < 75})
+            
+            # Get latest punch times (last record in the search range)
+            latest_record = records.order_by('-session__date').first()
+            last_punch_in = latest_record.punch_in if latest_record else None
+            last_punch_out = latest_record.punch_out if latest_record else None
+
+            report_data.append({
+                'student': student, 'present': present, 'absent': absent, 
+                'late': late, 'total': total_sessions, 'pct': pct, 'low': pct < 75,
+                'last_punch_in': last_punch_in, 'last_punch_out': last_punch_out
+            })
     return render(request, 'students/attendance_report.html', {'classes': classes, 'sections': sections, 'report_data': report_data, 'class_id': class_id, 'section_id': section_id, 'start_date': start_date, 'end_date': end_date})
 
 

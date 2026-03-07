@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Bed Allocations | School Management System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Bed Allocations</h4>
+            <small class="text-muted">Manage student bed allocations</small>
+        </div>
+        {% if request.user.is_superuser or request.user.role.name == 'Admin' or request.user.role.name == 'Principal' %}
+        <a href="{% url 'allocation_create' %}" class="btn btn-primary">+ New Allocation</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Hostel & Room</th>
+                                <th>Allocation Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in allocations %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+    <div class="avatar avatar-sm me-3">
+        <span class="avatar-initial rounded-circle bg-label-primary">
+            {{ record.student.user.first_name|default:record.student.user.username|first|upper }}
+        </span>
+    </div>
+    
+    <div class="d-flex flex-column">
+        <span class="fw-bold text-heading lh-1 mb-1">
+            {{ record.student.user.get_full_name|default:record.student.user.username }}
+        </span>
+        <small class="text-muted">{{ record.student.student_id_number }}</small>
+    </div>
+</div>
+                                </td>
+                                <td>{{ record.room.hostel.name }} - Room {{ record.room.room_number }}</td>
+                                <td>{{ record.allocation_date|date:"d M, Y" }}</td>
+                                <td>
+                                    {% if record.is_active %}
+                                    <span class="badge bg-label-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-label-secondary">Vacated on {{ record.vacate_date|date:"d M Y"
+                                        }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <i class="ti tabler-users text-muted mb-2" style="font-size: 2rem;"></i>
+                                    <p class="mb-0">No active allocations found.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

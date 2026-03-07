@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}New Transaction{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">New Stock Transaction</h4>
+            <small class="text-muted">Record stock IN (purchase) or Stock OUT (issue/consume)</small>
+        </div>
+        <a href="{% url 'inventory_transaction_list' %}" class="btn btn-sm btn-label-secondary">
+            <i class="ti tabler-arrow-left me-1"></i> Back to History
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" id="transactionForm">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        {{ form.non_field_errors }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Transaction Type</label>
+                            {{ form.transaction_type }}
+                            {% if form.transaction_type.errors %}
+                                <div class="text-danger small">{{ form.transaction_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Inventory Item</label>
+                            {{ form.item }}
+                            {% if form.item.errors %}
+                                <div class="text-danger small">{{ form.item.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Quantity</label>
+                            {{ form.quantity }}
+                            {% if form.quantity.errors %}
+                                <div class="text-danger small">{{ form.quantity.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <hr class="my-2">
+                        </div>
+
+                        <div class="col-md-6 supplier-group">
+                            <label class="form-label text-success fw-bold">
+                                <i class="ti tabler-truck me-1"></i>Supplier
+                            </label>
+                            {{ form.supplier }}
+                            {% if form.supplier.errors %}
+                                <div class="text-danger small">{{ form.supplier.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 supplier-group">
+                            <label class="form-label text-success fw-bold">
+                                <i class="ti tabler-currency-dollar me-1"></i>Unit Price
+                            </label>
+                            {{ form.unit_price }}
+                            {% if form.unit_price.errors %}
+                                <div class="text-danger small">{{ form.unit_price.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12 issue-group" style="display:none;">
+                            <label class="form-label text-warning fw-bold">
+                                <i class="ti tabler-user me-1"></i>Issued To
+                            </label>
+                            {{ form.issued_to }}
+                            <div class="form-text">Name of person or department receiving the item.</div>
+                            {% if form.issued_to.errors %}
+                                <div class="text-danger small">{{ form.issued_to.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Remarks / Notes</label>
+                            {{ form.remarks }}
+                            {% if form.remarks.errors %}
+                                <div class="text-danger small">{{ form.remarks.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12 text-end mt-4 border-top pt-3">
+                            <a href="{% url 'inventory_transaction_list' %}" class="btn btn-label-danger me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti tabler-device-floppy me-1"></i> Save Transaction
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const typeSelect = document.getElementById('transType');
+        const supplierGroups = document.querySelectorAll('.supplier-group');
+        const issueGroups = document.querySelectorAll('.issue-group');
+
+        function toggleFields() {
+            const type = typeSelect.value;
+            if (type === 'IN') {
+                supplierGroups.forEach(el => el.style.display = 'block');
+                issueGroups.forEach(el => el.style.display = 'none');
+            } else if (type === 'OUT') {
+                supplierGroups.forEach(el => el.style.display = 'none');
+                issueGroups.forEach(el => el.style.display = 'block');
+            } else {
+                supplierGroups.forEach(el => el.style.display = 'none');
+                issueGroups.forEach(el => el.style.display = 'none');
+            }
+        }
+
+        if (typeSelect) {
+            typeSelect.addEventListener('change', toggleFields);
+            toggleFields(); // initial run
+        }
+    });
+</script>
+{% endblock %}

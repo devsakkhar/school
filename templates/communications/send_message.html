@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Send Message | School Management System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h4 class="mb-0">Send Bulk Message</h4>
+        <small class="text-muted">Send SMS or Email to students, parents, and staff.</small>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="{% url 'send_bulk_message' %}">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Message Type</label>
+                        <select name="message_type" class="form-select" id="messageType" required>
+                            <option value="sms">SMS</option>
+                            <option value="email">Email</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3 d-none" id="subjectField">
+                        <label class="form-label fw-bold">Email Subject</label>
+                        <input type="text" name="subject" class="form-control" placeholder="Required for emails">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Recipients (Comma Separated)</label>
+                        <textarea name="recipients" class="form-control" rows="2"
+                            placeholder="e.g., +8801712345678, +8801912345678 or test@example.com" required></textarea>
+                        <div class="form-text">Enter valid phone numbers or email addresses separated by commas.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Message Template (Optional)</label>
+                        <select class="form-select" id="templateSelect">
+                            <option value="">-- Custom Message --</option>
+                            {% for tmpl in templates %}
+                            <option value="{{ tmpl.content }}" data-subject="{{ tmpl.subject }}">{{ tmpl.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Message Content</label>
+                        <textarea name="body" id="messageBody" class="form-control" rows="5" required></textarea>
+                        <div class="form-text mt-2 text-primary" id="charCount">0 characters (1 SMS)</div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'dashboard' %}" class="btn btn-label-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ti tabler-send me-1"></i> Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const messageType = document.getElementById('messageType');
+        const subjectField = document.getElementById('subjectField');
+        const templateSelect = document.getElementById('templateSelect');
+        const messageBody = document.getElementById('messageBody');
+        const charCount = document.getElementById('charCount');
+
+        // Toggle Subject based on Type
+        messageType.addEventListener('change', function () {
+            if (this.value === 'email') {
+                subjectField.classList.remove('d-none');
+                subjectField.querySelector('input').setAttribute('required', 'required');
+            } else {
+                subjectField.classList.add('d-none');
+                subjectField.querySelector('input').removeAttribute('required');
+            }
+        });
+
+        // Insert template content
+        templateSelect.addEventListener('change', function () {
+            if (this.value) {
+                messageBody.value = this.value;
+                if (messageType.value === 'email') {
+                    const subj = this.options[this.selectedIndex].getAttribute('data-subject');
+                    subjectField.querySelector('input').value = subj || '';
+                }
+                updateCharCount();
+            }
+        });
+
+        // SMS Character count logic
+        function updateCharCount() {
+            const len = messageBody.value.length;
+            let parts = 1;
+            if (len > 160) { // Simple ASCII approximation
+                parts = Math.ceil(len / 153);
+            }
+            charCount.textContent = `${len} characters (${parts} SMS)`;
+        }
+        messageBody.addEventListener('input', updateCharCount);
+    });
+</script>
+{% endblock %}
+{% endblock %}

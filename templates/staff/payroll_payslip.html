@@ -50,22 +50,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>
-                                    <div class="d-flex justify-content-between"><span>Basic Salary</span><span>${{
-                                            payroll.basic_salary }}</span></div>
-                                </td>
-                                <td>
-                                    <div class="d-flex justify-content-between"><span>Taxes & Other</span><span>${{
-                                            payroll.deductions }}</span></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex justify-content-between"><span>Allowances</span><span>${{
-                                            payroll.allowances }}</span></div>
-                                </td>
-                                <td></td>
+                            <td>
+                                <div class="d-flex justify-content-between"><span>Basic Salary</span><span>${{
+                                        payroll.basic_salary }}</span></div>
+                                <div class="d-flex justify-content-between mt-2"><span>Allowances</span><span>${{
+                                        payroll.allowances }}</span></div>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-between"><span>Fixed Deductions</span><span>${{
+                                        payroll.fixed_deductions }}</span></div>
+                                <div class="d-flex justify-content-between mt-2"><span>Unpaid Leave
+                                        Deductions</span><span>${{
+                                        payroll.leave_deductions }}</span></div>
+                            </td>
                             </tr>
                         </tbody>
                         <tfoot class="table-light fw-bold">
@@ -76,7 +73,7 @@
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-between"><span>Total Deductions</span><span>${{
-                                            payroll.deductions }}</span></div>
+                                            payroll.total_deductions }}</span></div>
                                 </td>
                             </tr>
                         </tfoot>

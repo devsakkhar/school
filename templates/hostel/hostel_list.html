@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Hostels | School Management System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Hostels</h4>
+            <small class="text-muted">Manage available hostels</small>
+        </div>
+        {% if request.user.is_superuser or request.user.role.name == 'Admin' or request.user.role.name == 'Principal' %}
+        <a href="{% url 'hostel_create' %}" class="btn btn-primary">+ Add New Hostel</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Capacity</th>
+                                <th>Rooms Count</th>
+                                <th>Warden</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for hostel in hostels %}
+                            <tr>
+                                <td class="fw-bold">{{ hostel.name }}</td>
+                                <td><span class="badge bg-label-info">{{ hostel.hostel_type }}</span></td>
+                                <td>{{ hostel.capacity }} Students</td>
+                                <td>{{ hostel.rooms.count }} Rooms</td>
+                                <td>{{ hostel.warden.get_full_name|default:"Not Assigned" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <i class="ti tabler-building text-muted mb-2" style="font-size: 2rem;"></i>
+                                    <p class="mb-0">No hostels found.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

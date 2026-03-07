@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Inventory Items{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Inventory Items</h4>
+            <small class="text-muted">Master list of all items in stock.</small>
+        </div>
+        <a href="{% url 'inventory_item_add' %}" class="btn btn-primary"><i class="ti tabler-plus me-1"></i> Add
+            Item</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Item Name</th>
+                    <th>Category</th>
+                    <th class="text-center">Current Stock</th>
+                    <th class="text-center">Min Level</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr class="{% if item.current_stock <= item.min_stock_level %}table-danger{% endif %}">
+                    <td>
+                        <strong>{{ item.name }}</strong><br>
+                        <small class="text-muted">{{ item.description|truncatechars:30|default:"" }}</small>
+                    </td>
+                    <td><span class="badge bg-label-secondary">{{ item.category.name }}</span></td>
+                    <td class="text-center">
+                        <span
+                            class="badge {% if item.current_stock <= item.min_stock_level %}bg-danger{% else %}bg-success{% endif %} fs-6">
+                            {{ item.current_stock }} {{ item.unit }}
+                        </span>
+                    </td>
+                    <td class="text-center">{{ item.min_stock_level }} {{ item.unit }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'inventory_item_edit' item.pk %}"
+                            class="btn btn-sm btn-icon btn-text-secondary"><i class="ti tabler-edit"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4">No items found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Suppliers{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">Suppliers</h4>
+            <small class="text-muted">Manage vendors and suppliers.</small>
+        </div>
+        <a href="{% url 'inventory_supplier_add' %}" class="btn btn-primary"><i class="ti tabler-plus me-1"></i> Add
+            Supplier</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Supplier Name</th>
+                    <th>Contact Person</th>
+                    <th>Contact Info</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for supplier in suppliers %}
+                <tr>
+                    <td><strong>{{ supplier.name }}</strong></td>
+                    <td>{{ supplier.contact_person|default:"-" }}</td>
+                    <td>
+                        <div><i class="ti tabler-phone text-muted me-1"></i>{{ supplier.phone|default:"-" }}</div>
+                        <div><i class="ti tabler-mail text-muted me-1"></i>{{ supplier.email|default:"-" }}</div>
+                    </td>
+                    <td class="text-end">
+                        <a href="{% url 'inventory_supplier_edit' supplier.pk %}"
+                            class="btn btn-sm btn-icon btn-text-secondary"><i class="ti tabler-edit"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-4">No suppliers found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

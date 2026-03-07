@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db.models import Sum
 from .models import Teacher, LeaveRequest, Payroll
 from django.contrib.auth import get_user_model
+from decimal import Decimal
 
 User = get_user_model()
 
@@ -32,7 +33,12 @@ def teacher_create(request):
             join_date=request.POST.get('join_date') or None,
             phone=request.POST.get('phone'),
             address=request.POST.get('address'),
-            basic_salary=request.POST.get('basic_salary') or 0.00
+            basic_salary=request.POST.get('basic_salary') or 0.00,
+            medical_allowance=request.POST.get('medical_allowance') or 0.00,
+            transport_allowance=request.POST.get('transport_allowance') or 0.00,
+            other_allowances=request.POST.get('other_allowances') or 0.00,
+            provident_fund_deduction=request.POST.get('provident_fund_deduction') or 0.00,
+            tax_deduction=request.POST.get('tax_deduction') or 0.00
         )
         messages.success(request, 'Teacher profile created.')
         return redirect('teacher_list')
@@ -50,6 +56,11 @@ def teacher_edit(request, pk):
         teacher.phone = request.POST.get('phone')
         teacher.address = request.POST.get('address')
         teacher.basic_salary = request.POST.get('basic_salary') or 0.00
+        teacher.medical_allowance = request.POST.get('medical_allowance') or 0.00
+        teacher.transport_allowance = request.POST.get('transport_allowance') or 0.00
+        teacher.other_allowances = request.POST.get('other_allowances') or 0.00
+        teacher.provident_fund_deduction = request.POST.get('provident_fund_deduction') or 0.00
+        teacher.tax_deduction = request.POST.get('tax_deduction') or 0.00
         teacher.save()
         messages.success(request, 'Teacher profile updated.')
         return redirect('teacher_list')
@@ -128,20 +139,33 @@ def payroll_generate(request):
         year = request.POST.get('year')
         teacher_ids = request.POST.getlist('teacher_ids')
         
-        count = 0
         for tid in teacher_ids:
             teacher = Teacher.objects.get(pk=tid)
             # prevent duplicate
             if not Payroll.objects.filter(staff=teacher.user, month=month, year=year).exists():
-                allowances = request.POST.get(f'allowance_{tid}', 0)
-                deductions = request.POST.get(f'deduction_{tid}', 0)
+                allowances = request.POST.get(f'allowance_{tid}', teacher.total_allowances())
+                
+                # Calculate unpaid leave deductions for the month
+                unpaid_leaves = LeaveRequest.objects.filter(
+                    applicant=teacher.user, 
+                    status='Approved', 
+                    is_paid_leave=False,
+                    start_date__year=year,
+                    start_date__month=month
+                )
+                
+                total_unpaid_days = sum([leave.duration_days() for leave in unpaid_leaves])
+                daily_rate = teacher.basic_salary / 30 # Simple approximation
+                leave_deductions = Decimal(total_unpaid_days) * daily_rate
+                
                 Payroll.objects.create(
                     staff=teacher.user,
                     month=month,
                     year=year,
                     basic_salary=teacher.basic_salary,
-                    allowances=allowances or 0,
-                    deductions=deductions or 0
+                    allowances=allowances or 0.00,
+                    fixed_deductions=teacher.total_fixed_deductions(),
+                    leave_deductions=leave_deductions
                 )
                 count += 1
         messages.success(request, f'Payroll generated for {count} staff.')

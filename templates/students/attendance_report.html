@@ -8,44 +8,44 @@
     </div>
     <div class="card-body">
         <form method="GET" class="row g-3 mb-4 align-items-end">
-    <div class="col-md-3">
-        <label class="form-label">Class</label>
-        <select name="class_id" class="form-select" onchange="this.form.submit()">
-            <option value="">-- Select Class --</option>
-            {% for c in classes %}
-                <option value="{{ c.id }}" {% if class_id == c.id|stringformat:"s" %}selected{% endif %}>
-                    {{ c.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
+            <div class="col-md-3">
+                <label class="form-label">Class</label>
+                <select name="class_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Select Class --</option>
+                    {% for c in classes %}
+                    <option value="{{ c.id }}" {% if class_id==c.id|stringformat:"s" %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    <div class="col-md-2">
-        <label class="form-label">Section</label>
-        <select name="section_id" class="form-select" onchange="this.form.submit()">
-            <option value="">All</option>
-            {% for s in sections %}
-                <option value="{{ s.id }}" {% if section_id == s.id|stringformat:"s" %}selected{% endif %}>
-                    {{ s.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
+            <div class="col-md-2">
+                <label class="form-label">Section</label>
+                <select name="section_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">All</option>
+                    {% for s in sections %}
+                    <option value="{{ s.id }}" {% if section_id==s.id|stringformat:"s" %}selected{% endif %}>
+                        {{ s.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    <div class="col-md-2">
-        <label class="form-label">From</label>
-        <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
-    </div>
+            <div class="col-md-2">
+                <label class="form-label">From</label>
+                <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+            </div>
 
-    <div class="col-md-2">
-        <label class="form-label">To</label>
-        <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
-    </div>
+            <div class="col-md-2">
+                <label class="form-label">To</label>
+                <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+            </div>
 
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">Generate</button>
-    </div>
-</form>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Generate</button>
+            </div>
+        </form>
 
         {% if report_data %}
         <div class="table-responsive border rounded">
@@ -57,6 +57,8 @@
                         <th class="text-center text-success">Present</th>
                         <th class="text-center text-danger">Absent</th>
                         <th class="text-center text-warning">Late</th>
+                        <th class="text-center">Latest Punch In</th>
+                        <th class="text-center">Latest Punch Out</th>
                         <th class="text-center">Attendance %</th>
                     </tr>
                 </thead>
@@ -75,11 +77,15 @@
                         <td class="text-center fw-bold text-success">{{ row.present }}</td>
                         <td class="text-center fw-bold text-danger">{{ row.absent }}</td>
                         <td class="text-center fw-bold text-warning">{{ row.late }}</td>
+                        <td class="text-center"><span class="badge bg-label-primary">{{ row.last_punch_in|time:"h:i
+                                A"|default:"-" }}</span></td>
+                        <td class="text-center"><span class="badge bg-label-secondary">{{ row.last_punch_out|time:"h:i
+                                A"|default:"-" }}</span></td>
                         <td class="text-center">
                             <div class="d-flex align-items-center gap-2">
                                 <div class="progress flex-grow-1" style="height:8px;">
                                     <div class="progress-bar {% if row.pct < 75 %}bg-danger{% elif row.pct < 90 %}bg-warning{% else %}bg-success{% endif %}"
-                                        style="width:{{ row.pct }}%;"></div>
+                                        style="width:{{ row.pct|stringformat:" f" }}%;"></div>
                                 </div>
                                 <small class="fw-bold">{{ row.pct }}%</small>
                             </div>
